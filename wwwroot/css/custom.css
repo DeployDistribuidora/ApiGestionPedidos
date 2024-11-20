@@ -3,65 +3,86 @@
 /* Base colors and typography */
 body {
     font-family: 'Arial', sans-serif;
-    /*background-color: #f5f5f5;*/ /* Fondo claro */
-    background-color: #f8f9fa;
+    background-color: #f2f2f2; /* Fondo gris claro */
     color: #333; /* Texto oscuro */
     margin: 0;
     padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 /* Encabezado */
 h2 {
     font-weight: bold;
-    color: #333;
+    color: #444; /* Color más neutro para el texto */
     text-align: center;
-    margin-top: 1rem;
+    margin-bottom: 1.5rem;
     font-size: 1.8rem;
 }
 
+.navbar {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 60px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #333; /* Color más sobrio */
+    text-align: center;
+    margin: 0;
+}
+
+
 /* Contenedor principal para login */
 .login-container {
+    width: 90%;
     max-width: 400px;
-    margin: 0 auto;
     padding: 2rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Sombreado moderno */
 }
 
 /* Formulario */
 .form-group label {
     font-weight: bold;
     font-size: 0.9rem;
-    color: #555;
+    color: #555; /* Texto del formulario */
 }
 
 .form-control {
     border: none;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #ccc; /* Línea más gruesa para inputs */
     border-radius: 0;
     padding: 0.8rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
 }
 
     .form-control:focus {
         box-shadow: none;
-        border-color: #007bff;
+        border-color: #6c757d; /* Color más sobrio en el enfoque */
     }
 
 /* Botón de login */
 .btn-primary {
     width: 100%;
     padding: 0.8rem;
-    background-color: #007bff;
+    background-color: #6c757d; /* Gris sobrio */
     border: none;
     border-radius: 5px;
     font-weight: bold;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
     .btn-primary:hover {
-        background-color: #0056b3;
+        background-color: #5a6268; /* Gris más oscuro al pasar el mouse */
+        transform: scale(1.03); /* Efecto ligero de agrandamiento */
     }
 
 /* Footer */
@@ -69,32 +90,5 @@ h2 {
     text-align: center;
     font-size: 0.8rem;
     color: #aaa;
-    padding: 1rem 0;
-}
-
-/* Responsivo: Estilos para pantallas grandes */
-@media (min-width: 768px) {
-    .login-container {
-        padding: 3rem;
-    }
-
-    h2 {
-        font-size: 2rem;
-    }
-}
-
-.navbar {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.navbar-brand {
-    font-weight: bold;
-}
-
-.container {
-    max-width: 600px;
-}
-
-.content {
-    padding: 20px;
+    margin-top: 2rem;
 }
