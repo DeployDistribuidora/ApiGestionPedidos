@@ -69,12 +69,14 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
                     if (jsonResponse?.Message == "OK")
                     {
+                        Console.WriteLine("Logueo");
                         // Guardar en sesión y redirigir
                         HttpContext.Session.SetString("UsuarioLogueado", model.Username);
                         return RedirectToAction("Index", "Home");
                     }
                     else
                     {
+                        Console.WriteLine("Credenciales inválidas.");
                         ModelState.AddModelError(string.Empty, "Credenciales inválidas.");
                     }
                 }
