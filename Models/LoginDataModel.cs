@@ -13,11 +13,11 @@ namespace Front_End_Gestion_Pedidos.Models
         public string Password { get; set; }
         */
 
-        [Required]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         [Display(Name = "Usuario")]
         public string Username { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         [DataType(DataType.Password)]
         [Display(Name = "Contraseña")]
         public string Password { get; set; }
