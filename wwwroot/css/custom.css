@@ -1,67 +1,100 @@
-﻿/* custom.css */
-
-/* Base colors and typography */
+﻿/* Base colors and typography */
 body {
     font-family: 'Arial', sans-serif;
-    /*background-color: #f5f5f5;*/ /* Fondo claro */
-    background-color: #f8f9fa;
+    background-color: #f5f7fa; /* Fondo claro y moderno */
     color: #333; /* Texto oscuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Altura mínima para que ocupe todo el viewport */
     margin: 0;
-    padding: 0;
 }
 
-/* Encabezado */
-h2 {
-    font-weight: bold;
-    color: #333;
+/* Barra de navegación */
+.navbar {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff; /* Fondo blanco */
+    border-bottom: 2px solid #f0f0f0;
     text-align: center;
-    margin-top: 1rem;
-    font-size: 1.8rem;
 }
+
+.navbar-brand {
+    font-weight: bold;
+    color: #0056b3; /* Azul moderno */
+    text-decoration: none;
+    font-size: 1.5rem;
+    margin: auto;
+    display: inline-block;
+    text-align: center;
+}
+
+    .navbar-brand:hover {
+        color: #004494; /* Azul más oscuro al pasar el mouse */
+    }
 
 /* Contenedor principal para login */
 .login-container {
     max-width: 400px;
-    margin: 0 auto;
+    width: 100%;
     padding: 2rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff; /* Fondo blanco */
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Sombra moderna */
+    text-align: center;
+    margin: auto;
 }
+
+    /* Título dentro del login */
+    .login-container h2 {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 1.5rem 0;
+        color: #0056b3; /* Azul moderno */
+        text-align: center;
+    }
 
 /* Formulario */
 .form-group label {
     font-weight: bold;
     font-size: 0.9rem;
     color: #555;
+    display: block;
+    text-align: left;
+    margin-bottom: 0.5rem;
 }
 
 .form-control {
     border: none;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #ddd;
     border-radius: 0;
     padding: 0.8rem;
     margin-bottom: 1rem;
+    transition: border-color 0.3s ease;
 }
 
     .form-control:focus {
-        box-shadow: none;
-        border-color: #007bff;
+        border-color: #0056b3; /* Azul al enfocarse */
+        outline: none;
     }
 
 /* Botón de login */
 .btn-primary {
     width: 100%;
+    max-width: 200px; /* Ancho máximo para pantallas grandes */
+    margin: 1rem auto 0;
+    display: block; /* Centra el botón */
     padding: 0.8rem;
-    background-color: #007bff;
+    background-color: #0056b3; /* Azul moderno */
     border: none;
     border-radius: 5px;
     font-weight: bold;
+    color: #fff;
     transition: background-color 0.3s ease;
 }
 
     .btn-primary:hover {
-        background-color: #0056b3;
+        background-color: #004494; /* Azul más oscuro al pasar el mouse */
+        cursor: pointer;
     }
 
 /* Footer */
@@ -70,6 +103,22 @@ h2 {
     font-size: 0.8rem;
     color: #aaa;
     padding: 1rem 0;
+    background-color: #ffffff;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* Contenedor general */
+.container {
+    max-width: 600px;
+    padding: 2rem;
+}
+
+/* Estilo general para contenido */
+.content {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsivo: Estilos para pantallas grandes */
@@ -81,20 +130,4 @@ h2 {
     h2 {
         font-size: 2rem;
     }
-}
-
-.navbar {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.navbar-brand {
-    font-weight: bold;
-}
-
-.container {
-    max-width: 600px;
-}
-
-.content {
-    padding: 20px;
 }
