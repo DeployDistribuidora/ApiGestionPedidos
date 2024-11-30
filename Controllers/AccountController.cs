@@ -32,7 +32,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var client = _httpClientFactory.CreateClient();
 
             // URL del Backend-API
-            var url = "https://localhost:7078/api/Usuarios/login";
+            var url = "https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/Usuarios/login";
 
             // Crea el objeto de solicitud
             var loginRequest = new LoginRequest
@@ -69,12 +69,14 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
                     if (jsonResponse?.Message == "OK")
                     {
+                        Console.WriteLine("Logueo");
                         // Guardar en sesión y redirigir
                         HttpContext.Session.SetString("UsuarioLogueado", model.Username);
                         return RedirectToAction("Index", "Home");
                     }
                     else
                     {
+                        Console.WriteLine("Credenciales inválidas.");
                         ModelState.AddModelError(string.Empty, "Credenciales inválidas.");
                     }
                 }
