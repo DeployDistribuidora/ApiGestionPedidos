@@ -1,26 +1,28 @@
 ﻿/* Base colors and typography */
+
+
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #f5f7fa; /* Fondo claro y moderno */
-    color: #333; /* Texto oscuro */
+    background-color: #f5f7fa;  Fondo claro y moderno 
+    color: #333;  Texto oscuro 
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Altura mínima para que ocupe todo el viewport */
+    min-height: 100vh;  Altura mínima para que ocupe todo el viewport 
     margin: 0;
 }
 
 /* Barra de navegación */
 .navbar {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #ffffff; /* Fondo blanco */
+    background-color: #ffffff;  Fondo blanco 
     border-bottom: 2px solid #f0f0f0;
     text-align: center;
 }
 
 .navbar-brand {
     font-weight: bold;
-    color: #0056b3; /* Azul moderno */
+    color: #0056b3;  Azul moderno 
     text-decoration: none;
     font-size: 1.5rem;
     margin: auto;
@@ -29,7 +31,7 @@ body {
 }
 
     .navbar-brand:hover {
-        color: #004494; /* Azul más oscuro al pasar el mouse */
+        color: #004494;  Azul más oscuro al pasar el mouse 
     }
 
 /* Contenedor principal para login */
@@ -63,6 +65,7 @@ body {
     margin-bottom: 0.5rem;
 }
 
+/* Formulario */
 .form-control {
     border: none;
     border-bottom: 2px solid #ddd;
@@ -73,18 +76,20 @@ body {
 }
 
     .form-control:focus {
-        border-color: #0056b3; /* Azul al enfocarse */
+        border-color: #0056b3;  Azul al enfocarse 
         outline: none;
     }
 
 /* Botón de login */
+
+
 .btn-primary {
     width: 100%;
-    max-width: 200px; /* Ancho máximo para pantallas grandes */
+    max-width: 200px;  Ancho máximo para pantallas grandes 
     margin: 1rem auto 0;
-    display: block; /* Centra el botón */
+    display: block;  Centra el botón 
     padding: 0.8rem;
-    background-color: #0056b3; /* Azul moderno */
+    background-color: #0056b3;  Azul moderno 
     border: none;
     border-radius: 5px;
     font-weight: bold;
@@ -93,7 +98,7 @@ body {
 }
 
     .btn-primary:hover {
-        background-color: #004494; /* Azul más oscuro al pasar el mouse */
+        background-color: #004494;  Azul más oscuro al pasar el mouse 
         cursor: pointer;
     }
 
@@ -121,7 +126,28 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+
+/* Títulos */
+header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0056b3;  Azul moderno 
+    text-align: center;
+    margin: 0;
+}
+
+
+/* Footer */
+footer {
+    background-color: #202020; /* Fondo negro */
+    color: #ffffff; /* Texto blanco */
+    text-align: center;
+    padding: 1rem 0;
+    border-top: 1px solid #3a3a3a; /* Gris metálico */
+}
+
 /* Responsivo: Estilos para pantallas grandes */
+
 @media (min-width: 768px) {
     .login-container {
         padding: 3rem;
