@@ -32,7 +32,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var client = _httpClientFactory.CreateClient();
 
             // URL del Backend-API
-
             var url = "https://localhost:7078/api/Login/login";
             //var url = "https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/Login/login";
                        
@@ -40,7 +39,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var loginRequest = new LoginRequest
             {
                 Username = model.Username,
-
                 Password = model.Password
             };
 
@@ -71,12 +69,16 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     var jsonResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, options);
 
                     //if (jsonResponse?.Message == "OK")
-                    if (!string.IsNullOrEmpty(jsonResponse?.Token))
+                    //if (!string.IsNullOrEmpty(jsonResponse?.Token))
+                    if (jsonResponse != null)
                     {
                         Console.WriteLine("TOKEN");
                         // Guardar en sesión y redirigir
-                        //HttpContext.Session.SetString("UsuarioLogueado", model.Username);
                         HttpContext.Session.SetString("Token", jsonResponse.Token);
+                        HttpContext.Session.SetString("Role", jsonResponse.Role);
+                        HttpContext.Session.SetString("UsuarioLogueado", model.Username);
+
+                        // Redirigir al Home
                         return RedirectToAction("Index", "Home");
                     }
                     else
