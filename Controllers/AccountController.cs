@@ -32,12 +32,15 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var client = _httpClientFactory.CreateClient();
 
             // URL del Backend-API
-            var url = "https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/Usuarios/login";
 
+            var url = "https://localhost:7078/api/Login/login";
+            //var url = "https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/Login/login";
+                       
             // Crea el objeto de solicitud
             var loginRequest = new LoginRequest
             {
                 Username = model.Username,
+
                 Password = model.Password
             };
 
@@ -67,11 +70,13 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     // Deserializa la respuesta en el objeto LoginResponse
                     var jsonResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, options);
 
-                    if (jsonResponse?.Message == "OK")
+                    //if (jsonResponse?.Message == "OK")
+                    if (!string.IsNullOrEmpty(jsonResponse?.Token))
                     {
-                        Console.WriteLine("Logueo");
+                        Console.WriteLine("TOKEN");
                         // Guardar en sesión y redirigir
-                        HttpContext.Session.SetString("UsuarioLogueado", model.Username);
+                        //HttpContext.Session.SetString("UsuarioLogueado", model.Username);
+                        HttpContext.Session.SetString("Token", jsonResponse.Token);
                         return RedirectToAction("Index", "Home");
                     }
                     else
@@ -103,16 +108,5 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
     }
 
-    // Clase LoginRequest (entrada)
-    public class LoginRequest
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
 
-    // Clase LoginResponse (respuesta)
-    public class LoginResponse
-    {
-        public string Message { get; set; }
-    }
 }
