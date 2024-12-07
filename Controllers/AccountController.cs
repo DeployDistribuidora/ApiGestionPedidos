@@ -74,9 +74,14 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     {
                         Console.WriteLine("TOKEN");
                         // Guardar en sesión y redirigir
+                        //HttpContext.Session.SetString("UsuarioLogueado", model.Username);
+                        //HttpContext.Session.SetString("Token", jsonResponse.Token);
+                        //HttpContext.Session.SetString("Rol", jsonResponse.Rol);
+
+                        HttpContext.Session.SetString("UsuarioLogueado", loginRequest.Username);
+                        HttpContext.Session.SetString("Role", jsonResponse.Rol);
                         HttpContext.Session.SetString("Token", jsonResponse.Token);
-                        HttpContext.Session.SetString("Rol", jsonResponse.Rol);
-                        HttpContext.Session.SetString("UsuarioLogueado", model.Username);
+
 
                         // Redirigir al Home
                         return RedirectToAction("Index", "Home");

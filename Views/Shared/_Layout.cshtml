@@ -11,24 +11,75 @@
     <link rel="stylesheet" href="~/css/custom.css" />
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <!-- Encabezado -->
-    <header class="py-3">
-        <div class="container text-center">
-            <h1 class="m-0 text-primary">Gestión de Pedidos</h1>
-        </div>
-    </header>
+
+<!-- Encabezado y menú solo si el usuario está logueado -->
+    @if (ViewBag.IsLoggedIn == true)
+    {
+        <!-- Encabezado -->
+        <header class="py-3 bg-white border-bottom">
+            <div class="container text-center">
+                <h1 class="m-0 text-primary">Gestión de Pedidos</h1>
+            </div>
+        </header>
+
+        <!-- Menú de navegación -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        @if (ViewBag.UserRole == "Cliente")
+                        {
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Realizar pedido</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Pedidos</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Productos</a></li>
+                        }
+                        else if (ViewBag.UserRole == "Administrador")
+                        {
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Supervisar pedidos</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Realizar pedido</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Pedidos</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Clientes</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Productos</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Métricas</a></li>
+                        }
+                        else if (ViewBag.UserRole == "Supervisor de Carga")
+                        {
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Pedidos</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Supervisión de Carga</a></li>
+                        }
+                        else if (ViewBag.UserRole == "Vendedor")
+                        {
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Realizar pedido</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Pedidos</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Productos</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" href="#">Clientes</a></li>
+                        }
+                    </ul>
+                    <span class="navbar-text me-2 text-dark">
+                        Usuario: @ViewBag.Username
+                    </span>
+                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Logout">Cerrar Sesión</a>
+                </div>
+            </div>
+        </nav>
+    }
+
+
     <!-- Contenido principal -->
     <main class="flex-grow-1 d-flex justify-content-center align-items-center">
         <div class="container">
             @RenderBody()
         </div>
-    </main>
+    </main> 
+
     <!-- Pie de página -->
     <footer class="bg-light text-center py-3 mt-4">
-        <p class="m-0 text-muted">&copy; 2024 - Gestión de Pedidos</p>
+        <p class="m-0 text-muted">&copy; 2024 - Impact Computers</p>
     </footer>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
