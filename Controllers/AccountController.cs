@@ -32,8 +32,9 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var client = _httpClientFactory.CreateClient();
 
             // URL del Backend-API
-            var url = "https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/Usuarios/login";
-
+            //https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/Login/login
+            var url = "https://localhost:7078/api/Login/login";
+        
             // Crea el objeto de solicitud
             var loginRequest = new LoginRequest
             {
