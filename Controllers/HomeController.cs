@@ -24,16 +24,14 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Obtén el rol del usuario y el nombre de la sesión
-            var userRole = HttpContext.Session.GetString("Role");
-            var username = HttpContext.Session.GetString("Username");
-
-            // Envía los datos necesarios a la vista usando ViewBag
-            ViewBag.UserRole = userRole;
-            ViewBag.Username = username;
+            // Configura datos de sesión en ViewBag
+            ViewBag.IsLoggedIn = true; // Indica que el usuario está logueado
+            ViewBag.UserRole = HttpContext.Session.GetString("Role") ?? "Sin Rol";
+            ViewBag.Username = HttpContext.Session.GetString("UsuarioLogueado") ?? "Invitado";
 
             return View();
         }
+
 
         public IActionResult Privacy()
         {
