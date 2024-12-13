@@ -24,9 +24,14 @@ app.UseSession();
 
 app.UseAuthorization();
 
-// Redirige la raíz al Login
+//// Redirige la raíz al Login
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}"); // Establece el controlador y acción predeterminados al Login
+
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Clientes}/{action=Clientes}/{id?}"); // Apunta al controlador y acción deseados
+
 
 app.Run();
