@@ -3,35 +3,41 @@ var builder = WebApplication.CreateBuilder(args);
 // Agrega servicios al contenedor.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient(); // Habilita IHttpClientFactory para el uso de HttpClient
-builder.Services.AddSession(); // Habilita el manejo de sesiones
+builder.Services.AddHttpContextAccessor(); // Permite acceder al contexto HTTP, incluidas las sesiones
 
+// Configura el manejo de sesiones
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Tiempo de expiración de la sesión
+    options.Cookie.HttpOnly = true; // Aumenta la seguridad
+    options.Cookie.IsEssential = true; // Necesario para el funcionamiento incluso si el usuario rechaza cookies no esenciales
+});
+
+// Construye la aplicación
 var app = builder.Build();
 
 // Configura el pipeline de solicitudes.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Home/Error"); // Manejo de excepciones en producción
     app.UseHsts(); // Habilita HSTS en entornos no de desarrollo
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseHttpsRedirection(); // Redirige HTTP a HTTPS
+app.UseStaticFiles(); // Habilita archivos estáticos (wwwroot)
 
-app.UseRouting();
+app.UseRouting(); // Habilita el enrutamiento de controladores
 
 // Habilita el middleware de sesiones
 app.UseSession();
 
+// Habilita la autorización (si aplicas políticas)
 app.UseAuthorization();
 
-//// Redirige la raíz al Login
+// Configura el enrutamiento principal
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}"); // Establece el controlador y acción predeterminados al Login
 
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Clientes}/{action=Clientes}/{id?}"); // Apunta al controlador y acción deseados
-
-
+// Ejecuta la aplicación
 app.Run();

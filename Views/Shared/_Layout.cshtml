@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -15,7 +17,9 @@
 <body class="d-flex flex-column min-vh-100">
 
     <!-- Encabezado y menú solo si el usuario está logueado -->
-    @if (ViewBag.IsLoggedIn == true)
+    @* @if (ViewBag.IsLoggedIn == true) *@
+
+    @if (!string.IsNullOrEmpty(HttpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado")))
     {
             <!-- Encabezado -->
             <header class="bg-white border-bottom shadow-sm py-3 w-100">
@@ -67,6 +71,11 @@
                     </div>
                 </div>
             </nav>
+    }
+    else
+    {
+        <!-- Redirige al Login si no está logueado -->
+        <script>window.location.href = '/Account/Login';</script>
     }
 
     <!-- Contenido principal -->
