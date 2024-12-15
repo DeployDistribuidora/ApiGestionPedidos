@@ -42,14 +42,15 @@
                         <ul class="navbar-nav me-auto">
                         @if (ViewBag.UserRole == "Cliente")
                         {
-                                    <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Realizar pedido</a></li>
+                                    
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="NuevoPedido">Realizar pedido</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Pedidos</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Productos</a></li>
                         }
                         else if (ViewBag.UserRole == "Administracion")
                         {
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Supervisar pedidos</a></li>
-                                    <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Realizar pedido</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="NuevoPedido">Realizar pedido</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Pedidos</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link"  asp-controller="Clientes" asp-action="Clientes">Clientes</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Productos</a></li>
@@ -62,10 +63,10 @@
                         }
                         else if (ViewBag.UserRole == "Vendedor")
                         {
-                                    <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Realizar pedido</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="NuevoPedido">Realizar pedido</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Pedidos</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Productos</a></li>
-                                                    <li class="nav-item"><a class="nav-link custom-nav-link"  asp-controller="Clientes" asp-action="Clientes">Clientes</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link"  asp-controller="Clientes" asp-action="Clientes">Clientes</a></li>
                         }
                         </ul>
                     </div>

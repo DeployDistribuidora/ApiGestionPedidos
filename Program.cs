@@ -39,5 +39,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}"); // Establece el controlador y acción predeterminados al Login
 
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Pedidos}/{action=NuevoPedido}/{id?}"); 
+
 // Ejecuta la aplicación
 app.Run();

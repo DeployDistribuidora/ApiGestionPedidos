@@ -1,0 +1,91 @@
+﻿@model Front_End_Gestion_Pedidos.Models.PedidoViewModel
+
+@{
+    ViewData["Title"] = "Nuevo Pedido";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary text-center mb-4">Nuevo Pedido</h2>
+
+    <!-- Selección de Cliente -->
+    <div class="mb-3">
+        <label for="cliente" class="form-label">Cliente</label>
+        <select id="cliente" class="form-select">
+            @foreach (var cliente in Model.Clientes)
+            {
+                <option value="@cliente.Id">@cliente.Nombre</option>
+            }
+        </select>
+    </div>
+
+    <!-- Selección de Dirección -->
+    <div class="mb-3">
+        <label for="direccion" class="form-label">Dirección</label>
+        <select id="direccion" class="form-select">
+            @foreach (var direccion in Model.Direcciones)
+            {
+                <option value="@direccion.Id">@direccion.Descripcion</option>
+            }
+        </select>
+        <button class="btn btn-link p-0 mt-1">+ Nueva dirección</button>
+    </div>
+
+    <!-- Medio de Pago -->
+    <div class="mb-3">
+        <label for="medioPago" class="form-label">Medio de Pago</label>
+        <select id="medioPago" class="form-select">
+            @foreach (var medio in Model.MediosPago)
+            {
+                <option value="@medio.Id">@medio.Nombre</option>
+            }
+        </select>
+    </div>
+
+    <!-- Filtro de Productos -->
+    <div class="mb-3">
+        <label for="filtroProductos" class="form-label">Filtro de Productos</label>
+        <input type="text" id="filtroProductos" class="form-control" placeholder="Buscar producto..." />
+    </div>
+
+    <!-- Selección de Productos -->
+    <div class="mb-3">
+        <label class="form-label">Selección de productos y cantidad</label>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var producto in Model.Productos)
+                    {
+                        <tr>
+                            <td>@producto.Nombre</td>
+                            <td>@producto.Precio.ToString("C")</td>
+                            <td>
+                                <input type="number" class="form-control" min="0" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Comentarios -->
+    <div class="mb-3">
+        <label for="comentarios" class="form-label">Comentarios</label>
+        <textarea id="comentarios" class="form-control" rows="3"></textarea>
+    </div>
+
+    <!-- Footer del Pedido -->
+    <div class="d-flex justify-content-between align-items-center">
+        <span class="text-danger fw-bold">Total $0</span>
+        <a href="#" class="text-decoration-none">Ver carrito</a>
+        <button class="btn btn-danger">Realizar pedido</button>
+    </div>
+</div>

@@ -6,7 +6,23 @@ namespace Front_End_Gestion_Pedidos.Controllers
     {
         public IActionResult Clientes()
         {
+            // Recuperar datos de la sesión y asignarlos al ViewBag
+            ViewBag.IsLoggedIn = HttpContext.Session.GetString("IsLoggedIn") == "true";
+            ViewBag.Username = HttpContext.Session.GetString("UsuarioLogueado");
+            ViewBag.UserRole = HttpContext.Session.GetString("Role");
+
+            // Verifica si la sesión está activa
+            if (!ViewBag.IsLoggedIn)
+            {
+                return RedirectToAction("Login", "Account"); // Redirige al login si no hay sesión activa
+            }
+
             return View();
         }
     }
+
+
 }
+
+
+
