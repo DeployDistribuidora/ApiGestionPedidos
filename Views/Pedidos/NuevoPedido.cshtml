@@ -64,7 +64,7 @@
                     @foreach (var producto in Model.Productos)
                     {
                         <tr>
-                            <td>@producto.Nombre</td>
+                            @* <td>@producto.Nombre</td> *@
                             <td>@producto.Precio.ToString("C")</td>
                             <td>
                                 <input type="number" class="form-control" min="0" />

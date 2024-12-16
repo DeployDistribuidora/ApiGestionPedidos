@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Front_End_Gestion_Pedidos.Models.Pedido>
+@{
+    ViewData["Title"] = "Buscar Pedidos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary text-center">Historial de Pedidos</h2>
+
+    <!-- TempData para mensajes -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-info text-center">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    <!-- Filtros de búsqueda -->
+    <form method="get" asp-action="BuscarPedidos" class="row g-3 align-items-center mb-3">
+        <div class="col-md-4">
+            <input type="text" name="cliente" class="form-control" placeholder="Cliente" />
+        </div>
+        <div class="col-md-4">
+            <input type="text" name="vendedor" class="form-control" placeholder="Vendedor" />
+        </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <input type="date" name="fechaInicio" class="form-control" />
+                <span class="input-group-text">a</span>
+                <input type="date" name="fechaFin" class="form-control" />
+            </div>
+        </div>
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </form>
+
+    <!-- Tabla de pedidos -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-primary">
+                <tr>
+                    <th>Nro</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pedido in Model)
+                {
+                    <tr>
+                        <td>@pedido.Id</td>
+                        <td>@pedido.Cliente</td>
+                        <td>@pedido.Vendedor</td>
+                        <td>@pedido.Estado</td>
+                        <td>@pedido.Fecha.ToShortDateString()</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="verDetalle(@pedido.Id)">Detalle</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Detalle -->
+<div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalleModalLabel">Detalle del Pedido #<span id="pedidoId"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detalleContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success">Aprobar</button>
+                <button type="button" class="btn btn-danger">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

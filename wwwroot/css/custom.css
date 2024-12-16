@@ -158,3 +158,12 @@ header {
         flex-direction: column;
         gap: 10px; /* Espaciado fijo entre elementos */
     }
+
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0;
+}

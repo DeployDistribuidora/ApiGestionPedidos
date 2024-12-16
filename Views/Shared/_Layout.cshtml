@@ -44,15 +44,15 @@
                         {
                                     
                                     <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="NuevoPedido">Realizar pedido</a></li>
-                                    <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Pedidos</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="BuscarPedidos">Pedidos</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Productos</a></li>
                         }
                         else if (ViewBag.UserRole == "Administracion")
                         {
-                                    <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Supervisar pedidos</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="SupervisarPedidos">Supervisar pedido</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="NuevoPedido">Realizar pedido</a></li>
-                                    <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Pedidos</a></li>
-                                    <li class="nav-item"><a class="nav-link custom-nav-link"  asp-controller="Clientes" asp-action="Clientes">Clientes</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="BuscarPedidos">Pedidos</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Clientes" asp-action="Index">Clientes</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Productos</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Métricas</a></li>
                         }
@@ -64,9 +64,9 @@
                         else if (ViewBag.UserRole == "Vendedor")
                         {
                                     <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="NuevoPedido">Realizar pedido</a></li>
-                                    <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Pedidos</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="BuscarPedidos">Pedidos</a></li>
                                     <li class="nav-item"><a class="nav-link custom-nav-link" href="#">Productos</a></li>
-                                    <li class="nav-item"><a class="nav-link custom-nav-link"  asp-controller="Clientes" asp-action="Clientes">Clientes</a></li>
+                                    <li class="nav-item"><a class="nav-link custom-nav-link" asp-controller="Clientes" asp-action="Index">Clientes</a></li>
                         }
                         </ul>
                     </div>
@@ -94,8 +94,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Scripts globales (wwwroot) -->
-    <script src="~/js/global.js"></script>
+
 
 </body>
 </html>

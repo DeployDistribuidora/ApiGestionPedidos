@@ -108,7 +108,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear(); // Limpia la sesión
+            //HttpContext.Session.Clear(); // Limpia la sesión
             return RedirectToAction("Login");
         }
     }
