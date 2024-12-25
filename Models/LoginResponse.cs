@@ -1,11 +1,12 @@
-﻿namespace Front_End_Gestion_Pedidos.Models
+﻿using Front_End_Gestion_Pedidos.Models;
+
+namespace Front_End_Gestion_Pedidos.Models
 {
     public class LoginResponse
     {
         public string Token { get; set; }
-        public string Rol { get; set; }
-
-        //public string Username { get; set; }
-        //public string Message { get; set; }
+        public Usuario User { get; set; }
     }
+
 }
+

@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 
 namespace Front_End_Gestion_Pedidos.Controllers
 {

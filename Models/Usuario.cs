@@ -2,9 +2,11 @@
 {
     public class Usuario
     {
+        public long Id { get; set; }
         public string Username { get; set; }
         public string Role { get; set; }
-        public string Token { get; set; }
-        public bool IsLoggedIn => !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Token);
+
+        //public string Token { get; set; }
+        //public bool IsLoggedIn => !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Token);
     }
 }
