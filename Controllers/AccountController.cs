@@ -70,15 +70,13 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     // Deserializa la respuesta en el objeto LoginResponse
                     var jsonResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, options);
 
-                    //if (jsonResponse?.Message == "OK")
-                    //if (!string.IsNullOrEmpty(jsonResponse?.Token))
                     if (jsonResponse != null)
                     {
                         Console.WriteLine("SE OBTIENE TOKEN");
 
                         // Guardar en sesión y redirigir
-                        HttpContext.Session.SetString("UsuarioLogueado", loginRequest.Username);
-                        HttpContext.Session.SetString("Role", jsonResponse.Rol);
+                        HttpContext.Session.SetString("UsuarioLogueado", jsonResponse.User.NombreUsuario);
+                        HttpContext.Session.SetString("Role", jsonResponse.User.Rol);
                         HttpContext.Session.SetString("Token", jsonResponse.Token);
                         //HttpContext.Session.SetString("IsLoggedIn", "true"); // Indica que el usuario está logueado
 

@@ -6,14 +6,24 @@ namespace Front_End_Gestion_Pedidos.Controllers
 {
     public class ClientesController : Controller
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public ClientesController(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
         public IActionResult Index()
         {
-            var usuario = SessionHelper.GetUsuario(HttpContext);
-            if (usuario == null || !usuario.IsLoggedIn)
+
+            // Recuperar usuario desde la sesión
+            var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
+            var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+
+            if (string.IsNullOrEmpty(usuarioLogueado))
                 return RedirectToAction("Login", "Account");
 
-            ViewBag.Username = usuario.Username;
-            ViewBag.Role = usuario.Role;
+            //ViewBag.Username = usuario.Username;
+            //ViewBag.Role = usuario.Role;
 
             //Llamar a simulación de datos
             var clientes = ObtenerClientes();
