@@ -19,6 +19,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
 
+
             if (string.IsNullOrEmpty(usuarioLogueado))
                 return RedirectToAction("Login", "Account");
 
@@ -46,9 +47,9 @@ namespace Front_End_Gestion_Pedidos.Controllers
             };
         }
 
-        public IActionResult Clientes(string searchTerm, int page = 1)
+        [HttpGet]
+        public IActionResult BuscarClientes(string searchTerm)
         {
-            int pageSize = 5;
             var clientes = ObtenerClientes();
 
             // Filtrado
@@ -60,18 +61,40 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     c.Telefono.Contains(searchTerm)).ToList();
             }
 
-            // Paginación
-            var pagedClientes = clientes
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+            ViewBag.SearchTerm = searchTerm; // Para mantener el término de búsqueda en la vista
 
-            ViewBag.SearchTerm = searchTerm;
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling(clientes.Count / (double)pageSize);
-
-            return View(pagedClientes);
+            return View("Index", clientes);
         }
+
+
+        //public IActionResult Clientes(string searchTerm, int page = 1)
+        //{
+        //    int pageSize = 5;
+        //    var clientes = ObtenerClientes();
+
+        //    // Filtrado
+        //    if (!string.IsNullOrEmpty(searchTerm))
+        //    {
+        //        clientes = clientes.Where(c =>
+        //            c.Nombre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        //            c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        //            c.Telefono.Contains(searchTerm)).ToList();
+        //    }
+
+        //    // Paginación
+        //    var pagedClientes = clientes
+        //        .Skip((page - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .ToList();
+
+        //    ViewBag.SearchTerm = searchTerm;
+        //    ViewBag.CurrentPage = page;
+        //    ViewBag.TotalPages = (int)Math.Ceiling(clientes.Count / (double)pageSize);
+
+        //    return View(pagedClientes);
+        //}
+
+
     }
 
 

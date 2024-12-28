@@ -1,9 +1,9 @@
 ﻿@model List<Front_End_Gestion_Pedidos.Models.Cliente>
 @{
     ViewData["Title"] = "Gestión de Clientes";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    int currentPage = ViewBag.CurrentPage;
-    int totalPages = ViewBag.TotalPages;
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    // int currentPage = ViewBag.CurrentPage;
+    // int totalPages = ViewBag.TotalPages;
     string searchTerm = ViewBag.SearchTerm;
 }
 
@@ -13,12 +13,14 @@
         <h2 class="text-primary text-center">Gestión de Clientes</h2>
 
         <!-- Filtro de búsqueda -->
-        <form method="get" class="d-flex flex-column align-items-center mb-3">
+        <form method="get" asp-action="BuscarClientes" class="d-flex flex-column align-items-center mb-3">
             <div class="mb-2 w-100" style="max-width: 400px;">
                 <input type="text" name="searchTerm" value="@searchTerm" class="form-control" placeholder="Buscar clientes" />
             </div>
             <button type="submit" class="btn btn-primary w-100" style="max-width: 150px;">Buscar</button>
         </form>
+
+
     </div>
 
 
@@ -57,7 +59,7 @@
     </div>
 
     <!-- Paginación -->
-    @if (totalPages > 1)
+@*     @if (totalPages > 1)
     {
         <nav>
             <ul class="pagination justify-content-center">
@@ -69,84 +71,6 @@
                 }
             </ul>
         </nav>
-    }
+    } *@
 </div>
-@* 
-<script>
-    // Simulación de datos
-    const clientes = [
-        { id: 1, nombre: "Carlos Pérez", email: "carlos@example.com", telefono: "123456789" },
-        { id: 2, nombre: "Ana López", email: "ana@example.com", telefono: "987654321" },
-        { id: 3, nombre: "Juan García", email: "juan@example.com", telefono: "456789123" },
-        { id: 4, nombre: "Marta Díaz", email: "marta@example.com", telefono: "654987321" },
-        { id: 5, nombre: "Luis Gómez", email: "luis@example.com", telefono: "789123654" },
-    ];
-
-    const pageSize = 5;
-    let currentPage = 1;
-    let filteredClientes = clientes;
-
-    function renderTable(data) {
-        const tableBody = document.querySelector("#clientesTable tbody");
-        tableBody.innerHTML = "";
-        data.forEach(cliente => {
-            tableBody.innerHTML += `
-                    <tr>
-                        <td>${cliente.id}</td>
-                        <td>${cliente.nombre}</td>
-                        <td>${cliente.email}</td>
-                        <td>${cliente.telefono}</td>
-                    </tr>
-                `;
-        });
-    }
-
-    function renderPagination() {
-        const pagination = document.querySelector("#pagination");
-        pagination.innerHTML = "";
-        const totalPages = Math.ceil(filteredClientes.length / pageSize);
-
-        for (let i = 1; i <= totalPages; i++) {
-            pagination.innerHTML += `
-                    <li class="page-item ${i === currentPage ? "active" : ""}">
-                        <a class="page-link" href="#" data-page="${i}">${i}</a>
-                    </li>
-                `;
-        }
-
-        document.querySelectorAll("#pagination .page-link").forEach(link => {
-            link.addEventListener("click", (e) => {
-                e.preventDefault();
-                currentPage = parseInt(e.target.dataset.page);
-                updateTable();
-            });
-        });
-    }
-
-    function updateTable() {
-        const start = (currentPage - 1) * pageSize;
-        const end = start + pageSize;
-        renderTable(filteredClientes.slice(start, end));
-        renderPagination();
-    }
-
-    function handleSearch() {
-        const searchQuery = document.querySelector("#searchInput").value.toLowerCase();
-        filteredClientes = clientes.filter(cliente =>
-            cliente.nombre.toLowerCase().includes(searchQuery) ||
-            cliente.email.toLowerCase().includes(searchQuery) ||
-            cliente.telefono.includes(searchQuery)
-        );
-        currentPage = 1;
-        updateTable();
-    }
-
-    document.querySelector("#searchButton").addEventListener("click", handleSearch);
-    document.querySelector("#searchInput").addEventListener("keyup", (e) => {
-        if (e.key === "Enter") handleSearch();
-    });
-
-    updateTable();
-</script>
-
- *@
+ 
