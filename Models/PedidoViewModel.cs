@@ -11,6 +11,7 @@ namespace Front_End_Gestion_Pedidos.Models
         public List<Producto> Productos { get; set; }
         public string Comentarios { get; set; }
         public decimal Total { get; set; }
+        public Cliente ClienteSeleccionado { get; set; }
 
     }
 }

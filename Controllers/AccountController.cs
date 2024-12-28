@@ -20,6 +20,8 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         public IActionResult Login()
         {
+            // Limpiar sesión al iniciar login
+            HttpContext.Session.Clear();
             return View();
         }
 
@@ -87,7 +89,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     else
                     {
                         Console.WriteLine("Credenciales inválidas.");
-                        ModelState.AddModelError(string.Empty, "Credenciales inválidas.");
+                        ModelState.AddModelError(string.Empty, "Credenciales inválidas. Intente nuevamente.");
                     }
                 }
                 else
