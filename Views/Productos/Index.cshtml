@@ -30,15 +30,47 @@
                 </tr>
             </thead>
             <tbody>
-               @*  @if (Model != null && Model.Count > 0)
+                @if (Model != null && Model.Count > 0)
                 {
                     foreach (var producto in Model)
                     {
                         <tr>
-                            <td>@producto.Id</td>
-                            <td>@producto.Nombre</td>
-                            <td>@producto.Stock</td>
+                            <td>@producto.Codigo</td>
+                            <td>@producto.Descripcion</td>
+                            <td>@producto.Stock_Actual</td>
                             <td>@producto.Precio</td>
+
+                            <td>
+                                <!-- Botón que activa el modal con los datos del pedido -->
+                                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#detalleModal-@producto.Codigo">
+                                    Detalle
+                                </button>
+
+                                <!-- Modal individual para cada pedido -->
+                                <div class="modal fade" id="detalleModal-@producto.Codigo" tabindex="-1" aria-labelledby="detalleModalLabel-@producto.Codigo" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="detalleModalLabel-@producto.Codigo">Detalle del Pedido #@producto.Codigo</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p><strong>Código:</strong> @producto.Codigo</p>
+                                                <p><strong>Descripción:</strong> @producto.Descripcion</p>
+                                                <p><strong>Marca:</strong> @producto.Marca</p>
+                                                <p><strong>Estado:</strong> @producto.Estado</p>
+                                                <p><strong>Precio:</strong> @producto.Precio</p>
+                                                <p><strong>Costo:</strong> @producto.Costo</p>
+                                                <p><strong>Detalle:</strong> @producto.Detalle</p>
+                                            </div>
+                                            <div class="modal-footer">
+@*                                                 <button type="button" class="btn btn-success">Aprobar</button>
+ *@                                                <button type="button" class="btn btn-danger">Cancelar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     }
                 }
@@ -47,7 +79,7 @@
                     <tr>
                         <td colspan="4" class="text-center">No se encontraron resultados</td>
                     </tr>
-                } *@
+                }
             </tbody>
         </table>
     </div>
