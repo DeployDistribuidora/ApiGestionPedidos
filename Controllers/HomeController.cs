@@ -33,11 +33,11 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
-        public IActionResult Privacy()
-        {
-            // La página Privacy no requiere autenticación
-            return View();
-        }
+        //public IActionResult Privacy()
+        //{
+        //    // La página Privacy no requiere autenticación
+        //    return View();
+        //}
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

@@ -1,0 +1,76 @@
+﻿@model List<Front_End_Gestion_Pedidos.Models.Cliente>
+@{
+    ViewData["Title"] = "Gestión de Clientes";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    // int currentPage = ViewBag.CurrentPage;
+    // int totalPages = ViewBag.TotalPages;
+    string searchTerm = ViewBag.SearchTerm;
+}
+
+
+<div class="container mt-4">
+    <div class="sticky-top bg-white py-3 fixed-header" style="z-index: 1020;">
+        <h2 class="text-primary text-center">Gestión de Clientes</h2>
+
+        <!-- Filtro de búsqueda -->
+        <form method="get" asp-action="BuscarClientes" class="d-flex flex-column align-items-center mb-3">
+            <div class="mb-2 w-100" style="max-width: 400px;">
+                <input type="text" name="searchTerm" value="@searchTerm" class="form-control" placeholder="Buscar clientes" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100" style="max-width: 150px;">Buscar</button>
+        </form>
+
+
+    </div>
+
+
+    <!-- Tabla de clientes -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var cliente in Model)
+                    {
+                        <tr>
+                            <td>@cliente.Id</td>
+                            <td>@cliente.Nombre</td>
+                            <td>@cliente.Email</td>
+                            <td>@cliente.Telefono</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center">No se encontraron resultados</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+@*     @if (totalPages > 1)
+    {
+        <nav>
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" href="?searchTerm=@searchTerm&page=@i">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    } *@
+</div>
+ 

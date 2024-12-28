@@ -1,0 +1,58 @@
+﻿@model Front_End_Gestion_Pedidos.Models.PedidoDetalleViewModel
+
+<div>
+    <h5>Detalles del Pedido #@Model.Pedido.Id</h5>
+    <p><strong>Cliente:</strong> @Model.Pedido.Cliente</p>
+    <p><strong>Vendedor:</strong> @Model.Pedido.Vendedor</p>
+    <p><strong>Estado:</strong> @Model.Pedido.Estado</p>
+    <p><strong>Fecha:</strong> @Model.Pedido.Fecha.ToShortDateString()</p>
+
+    <h6>Productos</h6>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var producto in Model.Productos)
+            {
+                <tr>
+                    <td>@producto.Id</td>
+                    <td>@producto.Cantidad</td>
+                    <td>@producto.Precio</td>
+                    <td>@producto.Stock</td>
+                    <td>@producto.Total</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h6>Comentarios</h6>
+    <ul>
+        @foreach (var comentario in Model.Comentarios)
+        {
+            <li>@comentario</li>
+        }
+    </ul>
+
+    <form asp-action="AgregarComentario" method="post">
+        <textarea name="comentario" class="form-control" placeholder="Escribe un comentario"></textarea>
+        <button type="submit" class="btn btn-primary mt-2">Agregar Comentario</button>
+    </form>
+</div>
+<div class="modal-footer">
+    <form asp-action="AprobarPedido" method="post" style="display:inline;">
+        <input type="hidden" name="id" value="@Model.Pedido.Id" />
+        <button type="submit" class="btn btn-success">Aprobar Pedido</button>
+    </form>
+    <form asp-action="CancelarPedido" method="post" style="display:inline;">
+        <input type="hidden" name="id" value="@Model.Pedido.Id" />
+        <button type="submit" class="btn btn-danger">Cancelar Pedido</button>
+    </form>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
+</div>

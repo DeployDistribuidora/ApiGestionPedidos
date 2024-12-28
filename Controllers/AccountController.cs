@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 
 namespace Front_End_Gestion_Pedidos.Controllers
 {
@@ -68,19 +70,15 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     // Deserializa la respuesta en el objeto LoginResponse
                     var jsonResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, options);
 
-                    //if (jsonResponse?.Message == "OK")
-                    //if (!string.IsNullOrEmpty(jsonResponse?.Token))
                     if (jsonResponse != null)
                     {
-                        Console.WriteLine("TOKEN");
-                        // Guardar en sesión y redirigir
-                        //HttpContext.Session.SetString("UsuarioLogueado", model.Username);
-                        //HttpContext.Session.SetString("Token", jsonResponse.Token);
-                        //HttpContext.Session.SetString("Rol", jsonResponse.Rol);
+                        Console.WriteLine("SE OBTIENE TOKEN");
 
-                        HttpContext.Session.SetString("UsuarioLogueado", loginRequest.Username);
-                        HttpContext.Session.SetString("Role", jsonResponse.Rol);
+                        // Guardar en sesión y redirigir
+                        HttpContext.Session.SetString("UsuarioLogueado", jsonResponse.User.NombreUsuario);
+                        HttpContext.Session.SetString("Role", jsonResponse.User.Rol);
                         HttpContext.Session.SetString("Token", jsonResponse.Token);
+                        //HttpContext.Session.SetString("IsLoggedIn", "true"); // Indica que el usuario está logueado
 
 
                         // Redirigir al Home
@@ -110,7 +108,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear(); // Limpia la sesión
+            //HttpContext.Session.Clear(); // Limpia la sesión
             return RedirectToAction("Login");
         }
     }

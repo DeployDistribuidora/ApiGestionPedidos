@@ -3,10 +3,6 @@ body {
     font-family: 'Roboto', sans-serif;
     background-color: #f8f9fa; /* Fondo claro */
     color: #212529; /* Texto oscuro */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* Altura mínima para el viewport */
     margin: 0;
 }
 
@@ -34,23 +30,23 @@ header {
 
 /* Barra de navegación */
 .navbar {
-    background-color: #ffffff; /* Fondo blanco */
-    border-bottom: 1px solid #e9ecef; /* Línea divisoria */
+    background-color: #ffffff;
+    border-bottom: 1px solid #e9ecef;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 10px 20px;
 }
 
 .navbar-nav .nav-link {
-    color: #0056b3; /* Azul moderno */
+    color: #0056b3;
     font-weight: 500;
     padding: 8px 15px;
-    transition: all 0.3s ease; /* Transición suave */
-    border-radius: 5px; /* Bordes redondeados */
+    transition: all 0.3s ease;
+    border-radius: 5px;
 }
 
     .navbar-nav .nav-link:hover {
-        color: #ffffff; /* Texto blanco */
-        background-color: #0056b3; /* Azul sólido */
+        color: #ffffff;
+        background-color: #0056b3;
     }
 
 /* Botón cerrar sesión */
@@ -63,102 +59,111 @@ header {
 
     .navbar .btn-outline-primary:hover {
         background-color: #0056b3;
-        color: #ffffff; /* Texto blanco */
+        color: #ffffff;
     }
 
-/* Contenedor principal para login */
-.login-container {
-    max-width: 400px;
-    width: 100%;
-    padding: 2rem;
-    background-color: #ffffff; /* Fondo blanco */
-    border-radius: 10px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Sombra moderna */
-    text-align: center;
-    margin: auto;
-}
-
-    .login-container h2 {
-        font-size: 1.8rem;
-        font-weight: bold;
-        margin: 1.5rem 0;
-        color: #0056b3; /* Azul moderno */
-        text-align: center;
-    }
-
-/* Formulario */
-.form-group label {
-    font-weight: bold;
-    font-size: 0.9rem;
-    color: #555;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.form-control {
-    border: none;
-    border-bottom: 2px solid #ddd;
-    border-radius: 0;
-    padding: 0.8rem;
-    margin-bottom: 1rem;
-    transition: border-color 0.3s ease;
-}
-
-    .form-control:focus {
-        border-color: #0056b3; /* Azul al enfocarse */
-        outline: none;
-    }
-
-/* Botón de login */
-.btn-primary {
-    width: 100%;
-    max-width: 200px;
-    margin: 1rem auto 0;
-    display: block;
-    padding: 0.8rem;
-    background-color: #0056b3; /* Azul moderno */
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    color: #fff;
-    transition: background-color 0.3s ease;
-}
-
-    .btn-primary:hover {
-        background-color: #004494; /* Azul más oscuro */
-        cursor: pointer;
-    }
-
-/* Contenedor general */
+/* Contenedor para clientes */
 .container {
     max-width: 600px;
     padding: 2rem;
+    background-color: transparent;
+    box-shadow: none;
 }
 
-/* Estilo general para contenido */
-.content {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Filtro de búsqueda */
+#searchInput {
+    background-color: #ffffff; /* Fondo blanco para contraste */
+    border: 1px solid #ced4da;
+    border-radius: 25px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    width: 100%;
 }
 
-/* Footer */
-footer {
-    background-color: #f8f9fa; /* Fondo claro */
-    color: #212529; /* Texto oscuro */
-    text-align: center;
-    padding: 1rem 0;
-    border-top: 1px solid #e9ecef; /* Línea divisoria */
-}
-
-/* Responsivo: Estilos para pantallas grandes */
-@media (min-width: 768px) {
-    .login-container {
-        padding: 3rem;
+    #searchInput:focus {
+        border-color: #0056b3;
+        box-shadow: 0 0 5px rgba(0, 86, 179, 0.5);
+        outline: none;
     }
 
-    h2 {
-        font-size: 2rem;
+#searchButton {
+    background-color: #0056b3;
+    color: #ffffff;
+    font-size: 1rem;
+    border-radius: 25px;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+    #searchButton:hover {
+        background-color: #004494;
     }
+
+/* Tabla */
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease;
+}
+
+.table-bordered {
+    border: none; /* Eliminar bordes externos */
+}
+
+/* Tabla con bordes redondeados */
+.table {
+    border-radius: 8px; /* Bordes redondeados */
+    overflow: hidden; /* Esconde contenido fuera de los bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra moderna */
+}
+
+/* Paginación */
+.pagination .page-item.active .page-link {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: white;
+}
+
+.pagination .page-link {
+    color: #0056b3;
+    font-weight: 500;
+}
+
+    .pagination .page-link:hover {
+        background-color: #f8f9fa;
+    }
+
+/* Fondo del encabezado y filtro */
+.sticky-top {
+    background-color: #f8f9fa !important; /* Fondo uniforme con la página */
+    box-shadow: none !important; /* Elimina la sombra */
+    border-bottom: 1px solid #e9ecef; /* Línea divisoria */
+}
+
+/* Asegura que el header y el filtro mantengan tamaño fijo */
+.fixed-header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+    .fixed-header h2,
+    .fixed-header form {
+        margin: 0;
+        padding: 10px 0;
+    }
+
+    .fixed-header form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Espaciado fijo entre elementos */
+    }
+
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0;
 }

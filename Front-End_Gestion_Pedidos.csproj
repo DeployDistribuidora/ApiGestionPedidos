@@ -7,4 +7,8 @@
     <RootNamespace>Front_End_Gestion_Pedidos</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
+  </ItemGroup>
+
 </Project>
