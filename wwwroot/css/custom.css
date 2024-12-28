@@ -6,6 +6,16 @@ body {
     margin: 0;
 }
 
+    /* Estilos específicos para el login */
+    body.login-page {
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+
 /* Header y navbar ocupan todo el ancho */
 header,
 nav.navbar {
@@ -160,10 +170,21 @@ header {
     }
 
 .card {
-    border-radius: 10px;
+    border: none;
+    border-radius: 1rem;
     overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+    .card h2 {
+        font-weight: bold;
+        color: #007bff;
+    }
 
 .card-header {
     border-radius: 10px 10px 0 0;
+}
+
+.list-group-item {
+    font-size: 0.9rem;
 }
