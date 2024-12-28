@@ -168,24 +168,24 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
-        [HttpPost]
-        public IActionResult RealizarPedido([FromBody] List<LineaPedido> lineasPedido)
-        {
+        //[HttpPost]
+        //public IActionResult RealizarPedido([FromBody] List<LineaPedido> lineasPedido)
+        //{
 
 
-            if (lineasPedido == null || !lineasPedido.Any())
-            {
-                return BadRequest("No se seleccionaron productos.");
-            }
+        //    if (lineasPedido == null || !lineasPedido.Any())
+        //    {
+        //        return BadRequest("No se seleccionaron productos.");
+        //    }
 
-            // Lógica para procesar el pedido aquí
-            foreach (var linea in lineasPedido)
-            {
-                Console.WriteLine($"Producto: {linea.Codigo}, Cantidad: {linea.Cantidad}");
-            }
+        //    // Lógica para procesar el pedido aquí
+        //    foreach (var linea in lineasPedido)
+        //    {
+        //        Console.WriteLine($"Producto: {linea.Codigo}, Cantidad: {linea.Cantidad}");
+        //    }
 
-            return Ok("Pedido realizado con éxito.");
-        }
+        //    return Ok("Pedido realizado con éxito.");
+        //}
 
 
         [HttpPost]

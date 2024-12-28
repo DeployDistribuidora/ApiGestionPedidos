@@ -6,115 +6,142 @@
 }
 
 <div class="container mt-4">
-<h2 class="text-primary text-center mb-4">Nuevo Pedido</h2>
+    <h2 class="text-primary text-center mb-4">Nuevo Pedido</h2>
+
 
     <!-- Selección de Cliente -->
-<form method="post" asp-action="ClienteSeleccionado">
-<div class="mb-3">
-<label for="cliente" class="form-label">Cliente</label>
-<select id="cliente" name="clienteId" class="form-select" onchange="this.form.submit()">
+    <form method="post" asp-action="ClienteSeleccionado">
+        <div class="mb-3">
+            <label for="cliente" class="form-label">Cliente</label>
+            <select id="cliente" name="clienteId" class="form-select" onchange="this.form.submit()">
                 @foreach (var cliente in Model.Clientes)
                 {
                     if (Model.ClienteSeleccionado?.Nro_Cliente == cliente.Nro_Cliente)
                     {
-        <option value="@cliente.Nro_Cliente" selected="selected">
+                        <option value="@cliente.Nro_Cliente" selected="selected">
                             @cliente.Nombre_Cliente
-        </option>
+                        </option>
                     }
                     else
                     {
-        <option value="@cliente.Nro_Cliente">
+                        <option value="@cliente.Nro_Cliente">
                             @cliente.Nombre_Cliente
-        </option>
+                        </option>
                     }
 
 
                 }
-</select>
-</div>
-</form>
-<!-- Selección de Dirección -->
-<div class="mb-3">
-<label for="direccion" class="form-label">Dirección</label>
-<select id="direccion" class="form-select">
+            </select>
+        </div>
+    </form>
+    <!-- Selección de Dirección -->
+    <div class="mb-3">
+        <label for="direccion" class="form-label">Dirección</label>
+        <select id="direccion" class="form-select">
             @if (Model.ClienteSeleccionado != null)
             {
-    <option value="@Model.ClienteSeleccionado.Dir_Cliente">@Model.ClienteSeleccionado.Dir_Cliente</option>
-    <option value="@Model.ClienteSeleccionado.Dir2_Cliente">@Model.ClienteSeleccionado.Dir2_Cliente</option>
+                <option value="@Model.ClienteSeleccionado.Dir_Cliente">@Model.ClienteSeleccionado.Dir_Cliente</option>
+                <option value="@Model.ClienteSeleccionado.Dir2_Cliente">@Model.ClienteSeleccionado.Dir2_Cliente</option>
             }
-</select>
-<button class="btn btn-link p-0 mt-1">+ Nueva dirección</button>
-</div>
+        </select>
+        <button class="btn btn-link p-0 mt-1">+ Nueva dirección</button>
+    </div>
 
     <!-- Medio de Pago -->
-<div class="mb-3">
-<label for="medioPago" class="form-label">Medio de Pago</label>
-<select id="medioPago" class="form-select">
-<option value="Contado">Contado</option>
-<option value="Credito">Credito</option>
-<option value="Tarjeta">Tarjeta</option>
-            } 
-</select>
-</div>
+    <div class="mb-3">
+        <label for="medioPago" class="form-label">Medio de Pago</label>
+        <select id="medioPago" class="form-select">
+            <option value="Contado">Contado</option>
+            <option value="Credito">Credito</option>
+            <option value="Tarjeta">Tarjeta</option>
+            }
+        </select>
+    </div>
 
     <!-- Filtro de Productos -->
-<div class="mb-2">
-<label for="filtroProductos" class="form-label">Filtro de Productos</label>
-<input type="text" id="filtroProductos" class="form-control" placeholder="Buscar producto..." />
-<button type="button" class="btn btn-primary" p-0 mt-1" onchange="filtroStock()">Aplicar Filtro</button>
-<button type="button" class="btn btn-primary" onchange="obtenerStock()" >Limpiar Filtro</button>
-</div>
+    <div class="mb-2">
+        <label for="filtroProductos" class="form-label">Filtro de Productos</label>
+        <input type="text" id="filtroProductos" class="form-control" placeholder="Buscar producto..." />
+        <button type="button" class="btn btn-primary mt-2" onclick="aplicarFiltro()">Aplicar Filtro</button>
+        <button type="button" class="btn btn-secondary mt-2" onclick="limpiarFiltro()">Limpiar Filtro</button>
+    </div>
 
     <!-- Selección de Productos -->
-<div class="mb-3">
-<label class="form-label">Selección de productos y cantidad</label>
-<div class="table-responsive">
-<table class="table table-bordered">
-<thead>
-<tr>
-<th>Nombre</th>
-<th>Precio</th>
-<th>Cantidad</th>
-</tr>
-</thead>
-<tbody>
+    <div class="mb-3">
+        <label class="form-label">Selección de productos y cantidad</label>
+        <div class="table-responsive">
+            <table class="table table-bordered" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
                     @foreach (var producto in Model.Productos)
                     {
-    <tr>
-    <td>@producto.Descripcion</td>
-    <td>@producto.Precio</td>
-    <td>
-    <!-- Input de cantidad inicializado en 0 -->
-    <input type="text" id="cantidad_@producto.Codigo" class="form-control text-center" value="0" readonly />
-    </td>
-    <td>
-    <!-- Botones de acción -->
-    <button type="button" class="btn btn-success btn-sm" onclick="incrementar('@producto.Codigo')">+</button>
-    <button type="button" class="btn btn-danger btn-sm" onclick="decrementar('@producto.Codigo')">-</button>
-    </td>
-    </tr>
+                        <tr data-nombre="@producto.Descripcion">
+                            <td>@producto.Descripcion</td>
+                            <td>@producto.Precio</td>
+                            <td>
+                                <input type="number" id="cantidad_@producto.Codigo" class="form-control text-center" value="0" readonly />
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-success btn-sm" onclick="incrementar('@producto.Codigo')">+</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="decrementar('@producto.Codigo')">-</button>
+                            </td>
+                        </tr>
                     }
-</tbody>
-</table>
-</div> 
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-    <!-- Comentarios -->
+<!-- Comentarios -->
 <div class="mb-3">
-<label for="comentarios" class="form-label">Comentarios</label>
+    <label for="comentarios" class="form-label">Comentarios</label>
 <textarea id="comentarios" class="form-control" rows="3"></textarea>
 </div>
 
-    <!-- Footer del Pedido -->
+<!-- Footer del Pedido -->
 <div class="d-flex justify-content-between align-items-center">
-<span class="text-danger fw-bold">Total $0</span>
-<a href="#" class="text-decoration-none">Ver carrito</a>
-<button type="button" class="btn btn-primary" onclick="enviarPedido()">Realizar Pedido</button>
+    <span class="text-danger fw-bold">Total $0</span>
+    <a href="#" class="text-decoration-none">Ver carrito</a>
+    <button type="button" class="btn btn-primary" onclick="enviarPedido()">Realizar Pedido</button>
+
+
 </div>
+
+
 </div>
 
 <!-- Scripts con JavaScript básico para manipular los contadores -->
 <script>
+    function aplicarFiltro() {
+        const filtro = document.getElementById('filtroProductos').value.toLowerCase();
+        const filas = document.querySelectorAll('#tablaProductos tbody tr');
+
+        filas.forEach(fila => {
+            const nombreProducto = fila.getAttribute('data-nombre').toLowerCase();
+            if (nombreProducto.includes(filtro)) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+
+    function limpiarFiltro() {
+        document.getElementById('filtroProductos').value = '';
+        const filas = document.querySelectorAll('#tablaProductos tbody tr');
+
+        filas.forEach(fila => {
+            fila.style.display = '';
+        });
+    }
+
     const cantidades = {}; // Objeto para almacenar la cantidad por producto
 
     function incrementar(codigo) {
@@ -133,36 +160,76 @@
     }
 
     function enviarPedido() {
-        const pedido = [];
+        // Obtener los valores del formulario
+        const clienteId = document.getElementById('cliente').value;
+        const direccion = document.getElementById('direccion').value;
+        const metodoPago = document.getElementById('medioPago').value;
+        const comentarios = document.getElementById('comentarios').value;
 
-        // Recorrer el objeto cantidades para obtener los productos con cantidad
-        for (const codigo in cantidades) {
-            if (cantidades[codigo] > 0) {
-                pedido.push({
-                    codigo: codigo,
-                    cantidad: cantidades[codigo]
+
+        console.log("Valores obtenidos:", { clienteId, direccion, metodoPago, comentarios });
+
+        // Construir el objeto del pedido
+        const pedido = {
+            pedido: {
+                idCliente: parseInt(clienteId), // Convertir a entero
+                idVendedor: null, // Ajusta según corresponda
+                idAdministracion: 1, // Ajusta según corresponda
+                fechaCreacion: new Date().toISOString(), // Fecha actual
+                fechaEntrega: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), // Fecha de entrega en 7 días
+                estado: "Pendiente", // Estado inicial
+                metodoPago: metodoPago, // Método de pago seleccionado
+                total: 0, // Calculado más adelante
+                comentarios: comentarios // Comentarios ingresados
+            },
+            lineasPedido: [] // Lista de líneas de pedido
+        };
+
+        let total = 0;
+
+        // Obtener las cantidades seleccionadas de los productos
+        const cantidadesInputs = document.querySelectorAll('[id^="cantidad_"]');
+
+        cantidadesInputs.forEach(input => {
+            const codigo = input.id.split('_')[1]; // Extraer el código del producto
+            const cantidad = parseInt(input.value) || 0; // Convertir a número
+            if (cantidad > 0) {
+                const precio = parseFloat(input.closest('tr').querySelector('td:nth-child(2)').innerText); // Obtener el precio
+                total += precio * cantidad; // Sumar al total
+                pedido.lineasPedido.push({
+                    codigo: codigo, // Código del producto
+                    cantidad: cantidad, // Cantidad seleccionada
+                    precioUnitario: precio // Precio unitario
                 });
             }
-        }
+        });
 
-        // Enviar la información al servidor (aquí iría un fetch/post)
-        console.log("Pedido a enviar:", pedido);
+        // Asignar el total al pedido
+        pedido.pedido.total = total;
 
-        // Ejemplo de fetch para enviar al controlador
-        fetch('/Pedidos/RealizarPedido', {
+        console.log("Pedido generado:", pedido); // Debug en la consola
+
+        // Enviar el pedido directamente a la API
+        fetch('https://localhost:7078/api/Pedidos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(pedido)
+            body: JSON.stringify(pedido) // Convertir el objeto a JSON
         })
             .then(response => {
                 if (response.ok) {
                     alert('Pedido realizado con éxito.');
                 } else {
-                    alert('Error al realizar el pedido.');
+                    response.json().then(err => {
+                        console.error('Error en la respuesta:', err);
+                        alert('Error al realizar el pedido.');
+                    });
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error al enviar el pedido:', error);
+                alert('Error de conexión con la API.');
+            });
     }
 </script>
