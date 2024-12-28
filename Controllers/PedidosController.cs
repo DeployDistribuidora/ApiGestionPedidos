@@ -49,50 +49,50 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
-        //public IActionResult BuscarPedidos(string cliente, string vendedor, DateTime? fechaInicio, DateTime? fechaFin)
-        //{
-        //    var pedidos = ObtenerPedidos();
+        public IActionResult BuscarPedidos(string cliente, string vendedor, DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            var pedidos = ObtenerPedidos();
 
-        //    // Filtros
-        //    if (!string.IsNullOrEmpty(cliente))
-        //        pedidos = pedidos.Where(p => p.Cliente.Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
+            // Filtros
+            if (!string.IsNullOrEmpty(cliente))
+                pedidos = pedidos.Where(p => p.Cliente.Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
 
-        //    if (!string.IsNullOrEmpty(vendedor))
-        //        pedidos = pedidos.Where(p => p.Vendedor.Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (!string.IsNullOrEmpty(vendedor))
+                pedidos = pedidos.Where(p => p.Vendedor.Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
 
-        //    if (fechaInicio.HasValue && fechaFin.HasValue)
-        //        pedidos = pedidos.Where(p => p.Fecha >= fechaInicio && p.Fecha <= fechaFin).ToList();
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+                pedidos = pedidos.Where(p => p.Fecha >= fechaInicio && p.Fecha <= fechaFin).ToList();
 
-        //    return View(pedidos);
-        //}
+            return View(pedidos);
+        }
 
-        //public IActionResult Detalle(int id)
-        //{
-        //    // Obtener los detalles del pedido
-        //    var pedido = ObtenerPedidos().FirstOrDefault(p => p.Id == id);
+        public IActionResult Detalle(int id)
+        {
+            // Obtener los detalles del pedido
+            var pedido = ObtenerPedidos().FirstOrDefault(p => p.Id == id);
 
-        //    if (pedido == null)
-        //        return NotFound("Pedido no encontrado");
+            if (pedido == null)
+                return NotFound("Pedido no encontrado");
 
-        //    return PartialView("_DetallePedido", pedido); // Renderiza una PartialView con los detalles
-        //}
+            return PartialView("_DetallePedido", pedido); // Renderiza una PartialView con los detalles
+        }
 
 
-        //[HttpPost]
-        //public IActionResult Aprobar(int id)
-        //{
-        //    // Lógica para aprobar el pedido
-        //    TempData["Mensaje"] = $"Pedido #{id} aprobado exitosamente.";
-        //    return RedirectToAction("BuscarPedidos");
-        //}
+        [HttpPost]
+        public IActionResult Aprobar(int id)
+        {
+            // Lógica para aprobar el pedido
+            TempData["Mensaje"] = $"Pedido #{id} aprobado exitosamente.";
+            return RedirectToAction("BuscarPedidos");
+        }
 
-        //[HttpPost]
-        //public IActionResult Cancelar(int id)
-        //{
-        //    // Lógica para cancelar el pedido
-        //    TempData["Mensaje"] = $"Pedido #{id} cancelado.";
-        //    return RedirectToAction("BuscarPedidos");
-        //}
+        [HttpPost]
+        public IActionResult Cancelar(int id)
+        {
+            // Lógica para cancelar el pedido
+            TempData["Mensaje"] = $"Pedido #{id} cancelado.";
+            return RedirectToAction("BuscarPedidos");
+        }
 
 
 
