@@ -1,4 +1,4 @@
-﻿@model Front_End_Gestion_Pedidos.Models.PedidoDetalleViewModel
+﻿@model Front_End_Gestion_Pedidos.Models.Pedido
 
 <div>
 @*     <h5>Detalles del Pedido #@Model.Pedido.Id</h5>
@@ -11,24 +11,26 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>IdPedido</th>
+                <th>IdLineaPedido</th>
+                <th>CodigoProducto</th>
+                <th>PrecioUnitario</th>
                 <th>Cantidad</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Total</th>
+                <th>Subtotal</th>
             </tr>
         </thead>
         <tbody>
-@*             @foreach (var producto in Model.Productos)
+           @foreach (var lineaPedido in Model.LineasPedido)
             {
                 <tr>
-                    <td>@producto.Id</td>
-                    <td>@producto.Cantidad</td>
-                    <td>@producto.Precio</td>
-                    <td>@producto.Stock</td>
-                    <td>@producto.Total</td>
+                    <td>@lineaPedido.IdPedido</td>
+                    <td>@lineaPedido.IdLineaPedido</td>
+                    <td>@lineaPedido.Codigo</td>
+                    <td>@lineaPedido.PrecioUnitario</td>
+                    <td>@lineaPedido.Cantidad</td>
+                    <td>@lineaPedido.Subtotal</td>
                 </tr>
-            } *@
+            }  
         </tbody>
     </table>
 

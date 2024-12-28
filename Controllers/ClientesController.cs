@@ -16,25 +16,20 @@ namespace Front_End_Gestion_Pedidos.Controllers
             _httpContextAccessor = httpContextAccessor;
             _httpClientFactory = httpClientFactory;
         }
-
-        public IActionResult Index()
+             
+        public async Task<IActionResult> Index()
         {
-
             // Recuperar usuario desde la sesión
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
 
-
             if (string.IsNullOrEmpty(usuarioLogueado))
                 return RedirectToAction("Login", "Account");
 
-            //ViewBag.Username = usuario.Username;
-            //ViewBag.Role = usuario.Role;
+            // Llamar al método asincrónico para obtener clientes
+            var clientes = await ObtenerClientes(); // Asegúrate de usar await para resolver la tarea
 
-            //Llamar a simulación de datos
-            var clientes = ObtenerClientes();
-
-            return View(clientes);
+            return View(clientes); // Pasar la lista de clientes a la vista
         }
 
         public async Task<IActionResult> Clientes()

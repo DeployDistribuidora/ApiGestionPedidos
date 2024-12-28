@@ -40,48 +40,55 @@
         <table class="table table-bordered table-striped">
             <thead class="table-primary">
                 <tr>
-                    <th>Nro</th>
-                    <th>Cliente</th>
-                    <th>Vendedor</th>
+                    <th>IdPedido</th>
+                    <th>IdCliente</th>
+                    <th>IdVendedor</th>
                     <th>Estado</th>
-                    <th>Fecha</th>
+                    <th>FechaCreacion</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @* @foreach (var pedido in Model)
+                @foreach (var pedido in Model)
                 {
                     <tr>
-                        <td>@pedido.Id</td>
-                        <td>@pedido.Cliente</td>
-                        <td>@pedido.Vendedor</td>
+                        <td>@pedido.IdPedido</td>
+                        <td>@pedido.IdCliente</td>
+                        <td>@pedido.IdVendedor</td>
                         <td>@pedido.Estado</td>
-                        <td>@pedido.Fecha.ToShortDateString()</td>
+                        <td>@pedido.FechaCreacion.ToShortDateString()</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-info" onclick="verDetalle(@pedido.Id)">Detalle</button>
+                            <!-- Botón que activa el modal con los datos del pedido -->
+                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
+                                Detalle
+                            </button>
+
+                            <!-- Modal individual para cada pedido -->
+                            <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Cliente:</strong> @pedido.IdCliente</p>
+                                            <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
+                                            <p><strong>Estado:</strong> @pedido.Estado</p>
+                                            <p><strong>Fecha de Creación:</strong> @pedido.FechaCreacion.ToShortDateString()</p>
+                                            <p><strong>Otros Detalles:</strong> @pedido.MetodoPago</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-success">Aprobar</button>
+                                            <button type="button" class="btn btn-danger">Cancelar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
-                } *@
+                }
             </tbody>
         </table>
-    </div>
-</div>
-
-<!-- Modal Detalle -->
-<div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="detalleModalLabel">Detalle del Pedido #<span id="pedidoId"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="detalleContent"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success">Aprobar</button>
-                <button type="button" class="btn btn-danger">Cancelar</button>
-            </div>
-        </div>
     </div>
 </div>

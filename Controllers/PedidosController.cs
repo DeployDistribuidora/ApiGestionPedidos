@@ -89,6 +89,51 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
             return View(model);
         }
+        public async Task<IActionResult> BuscarPedidos()
+        {
+            IEnumerable<Pedido> pedidos = new List<Pedido>();
+            // Recuperar usuario desde la sesión
+            var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
+            var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+
+            if (string.IsNullOrEmpty(usuarioLogueado))
+                return RedirectToAction("Login", "Account");
+
+            // Llamar al método asincrónico
+            pedidos = await ObtenerPedidos(); // Asegúrate de usar await para resolver la tarea
+
+            return View(pedidos); 
+        }
+
+        private async Task<IEnumerable<Pedido>> ObtenerPedidos()
+        {
+            var model = new BuscarPedidoViewModel();
+            List<Pedido> pedidos1 = new List<Pedido>();
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync("https://localhost:7078/api/Pedidos");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                model.Pedidos = pedidos ?? new List<Pedido>();
+                pedidos1 = model.Pedidos;
+            }
+            else
+            {
+                // Manejar errores en la solicitud a la API
+                ModelState.AddModelError(string.Empty, "Error al obtener los pedidos.");
+                return null;
+            }
+
+            return pedidos1;
+        }
+
 
         private async Task<IEnumerable<Cliente>> ObtenerClientes()
         {
