@@ -88,68 +88,53 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> VerDatosContacto(long clienteId)
+        {
+            try
+            {
+                // Llama al método que consume el endpoint de la API externa
+                var datosContacto = await ObtenerDatosContactoPorCliente(clienteId);
 
-        //private List<Cliente> ObtenerClientes()
-        //{
-        //    // Simulación de datos
-        //    return new List<Cliente>
-        //    {
-        //        new Cliente { Id = 1, Nombre = "Carlos Pérez", Email = "carlos@example.com", Telefono = "123456789" },
-        //        new Cliente { Id = 2, Nombre = "Ana López", Email = "ana@example.com", Telefono = "987654321" },
-        //        new Cliente { Id = 3, Nombre = "Juan García", Email = "juan@example.com", Telefono = "456789123" },
-        //        new Cliente { Id = 4, Nombre = "Marta Díaz", Email = "marta@example.com", Telefono = "654987321" },
-        //        new Cliente { Id = 5, Nombre = "Luis Gómez", Email = "luis@example.com", Telefono = "789123654" },
-        //        new Cliente { Id = 6, Nombre = "Elena Ruiz", Email = "elena@example.com", Telefono = "321456987" },
-        //    };
-        //}
+                if (datosContacto != null && datosContacto.Any())
+                {
+                    ViewBag.DatosContacto = datosContacto;
+                }
+                else
+                {
+                    ViewBag.DatosContacto = new List<DatosContacto>();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejar el error y retornar un mensaje adecuado
+                ViewBag.DatosContacto = null;
+                ViewBag.Error = $"Error al obtener los datos de contacto: {ex.Message}";
+            }
 
-        //[HttpGet]
-        //public IActionResult BuscarClientes(string searchTerm)
-        //{
-        //    var clientes = ObtenerClientes();
-
-        //    // Filtrado
-        //    if (!string.IsNullOrEmpty(searchTerm))
-        //    {
-        //        clientes = clientes.Where(c =>
-        //            c.Nombre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-        //            c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-        //            c.Telefono.Contains(searchTerm)).ToList();
-        //    }
-
-        //    ViewBag.SearchTerm = searchTerm; // Para mantener el término de búsqueda en la vista
-
-        //    return View("Index", clientes);
-        //}
+            return View("Index"); // Reemplaza con el nombre de tu vista principal
+        }
 
 
-        //public IActionResult Clientes(string searchTerm, int page = 1)
-        //{
-        //    int pageSize = 5;
-        //    var clientes = ObtenerClientes();
+        private async Task<IEnumerable<DatosContacto>> ObtenerDatosContactoPorCliente(long clienteId)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"https://localhost:7078/api/v1/Clientes/{clienteId}/DatosContacto");
 
-        //    // Filtrado
-        //    if (!string.IsNullOrEmpty(searchTerm))
-        //    {
-        //        clientes = clientes.Where(c =>
-        //            c.Nombre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-        //            c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-        //            c.Telefono.Contains(searchTerm)).ToList();
-        //    }
-
-        //    // Paginación
-        //    var pagedClientes = clientes
-        //        .Skip((page - 1) * pageSize)
-        //        .Take(pageSize)
-        //        .ToList();
-
-        //    ViewBag.SearchTerm = searchTerm;
-        //    ViewBag.CurrentPage = page;
-        //    ViewBag.TotalPages = (int)Math.Ceiling(clientes.Count / (double)pageSize);
-
-        //    return View(pagedClientes);
-        //}
-
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<DatosContacto>>(jsonResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            else
+            {
+                // Manejar errores en la solicitud a la API
+                throw new Exception($"Error al obtener los datos de contacto para el cliente {clienteId}");
+            }
+        }
 
     }
 

@@ -16,16 +16,16 @@
             <select id="cliente" name="clienteId" class="form-select" onchange="this.form.submit()">
                 @foreach (var cliente in Model.Clientes)
                 {
-                    if (Model.ClienteSeleccionado?.Nro_Cliente == cliente.Nro_Cliente)
+                    if (Model.ClienteSeleccionado?.NroCliente == cliente.NroCliente)
                     {
-                        <option value="@cliente.Nro_Cliente" selected="selected">
-                            @cliente.Nombre_Cliente
+                        <option value="@cliente.NroCliente" selected="selected">
+                            @cliente.NroCliente
                         </option>
                     }
                     else
                     {
-                        <option value="@cliente.Nro_Cliente">
-                            @cliente.Nombre_Cliente
+                        <option value="@cliente.NroCliente">
+                            @cliente.NroCliente
                         </option>
                     }
 
@@ -35,7 +35,7 @@
         </div>
     </form>
     <!-- Selección de Dirección -->
-    <div class="mb-3">
+   @*  <div class="mb-3">
         <label for="direccion" class="form-label">Dirección</label>
         <select id="direccion" class="form-select">
             @if (Model.ClienteSeleccionado != null)
@@ -45,7 +45,7 @@
             }
         </select>
         <button class="btn btn-link p-0 mt-1">+ Nueva dirección</button>
-    </div>
+    </div> *@
 
     <!-- Medio de Pago -->
     <div class="mb-3">

@@ -1,12 +1,9 @@
 ﻿@model List<Front_End_Gestion_Pedidos.Models.Cliente>
+
 @{
     ViewData["Title"] = "Gestión de Clientes";
-    //Layout = "~/Views/Shared/_Layout.cshtml";
-    // int currentPage = ViewBag.CurrentPage;
-    // int totalPages = ViewBag.TotalPages;
     string searchTerm = ViewBag.SearchTerm;
 }
-
 
 <div class="container mt-4">
     <div class="sticky-top bg-white py-3 fixed-header" style="z-index: 1020;">
@@ -19,10 +16,7 @@
             </div>
             <button type="submit" class="btn btn-primary w-100" style="max-width: 150px;">Buscar</button>
         </form>
-
-
     </div>
-
 
     <!-- Tabla de clientes -->
     <div class="table-responsive">
@@ -30,10 +24,10 @@
             <thead class="table-primary">
                 <tr>
                     <th>NroCliente</th>
-                    <th>Cedula</th>
                     <th>Nombre</th>
-                    <th>Direccion</th>
+                    <th>Dirección</th>
                     <th>Teléfono</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,37 +36,70 @@
                     foreach (var cliente in Model)
                     {
                         <tr>
-                            <td>@cliente.Nro_Cliente</td>
-                            <td>@cliente.Cedula</td>
-                            <td>@cliente.Nombre_Cliente</td>
-                            <td>@cliente.Dir_Cliente</td>
-                            <td>@cliente.Telef_Cliente</td>
+                            <td>@cliente.NroCliente</td>
+                            <td>@cliente.NombreCliente</td>
+                            <td>@cliente.DirCliente</td>
+                            <td>@cliente.TelefCliente</td>
+                            <td>
+                                <form method="post" asp-action="VerDatosContacto">
+                                    <input type="hidden" name="clienteId" value="@cliente.NroCliente" />
+                                    <button type="submit" class="btn btn-primary btn-sm">Ver Datos de Contacto</button>
+                                </form>
+                            </td>
                         </tr>
                     }
                 }
                 else
                 {
                     <tr>
-                        <td colspan="4" class="text-center">No se encontraron resultados</td>
+                        <td colspan="5" class="text-center">No se encontraron resultados</td>
                     </tr>
-                } 
+                }
             </tbody>
         </table>
     </div>
 
-    <!-- Paginación -->
-@*     @if (totalPages > 1)
+    <!-- Modal para mostrar los datos de contacto -->
+    @if (ViewBag.DatosContacto != null)
     {
-        <nav>
-            <ul class="pagination justify-content-center">
-                @for (int i = 1; i <= totalPages; i++)
-                {
-                    <li class="page-item @(i == currentPage ? "active" : "")">
-                        <a class="page-link" href="?searchTerm=@searchTerm&page=@i">@i</a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    } *@
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="modalDatosContactoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Datos de Contacto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (ViewBag.DatosContacto.Count > 0)
+                        {
+                            foreach (var contacto in ViewBag.DatosContacto)
+                            {
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@contacto.Alias</h5>
+                                        <p class="card-text"><strong>Dirección:</strong> @contacto.Direccion</p>
+                                        <p class="card-text"><strong>Teléfono:</strong> @contacto.NumeroTelefono</p>
+                                        <p class="card-text"><strong>Comentario:</strong> @(string.IsNullOrEmpty(contacto.Comentario) ? "Sin comentario" : contacto.Comentario)</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>No se encontraron datos de contacto para este cliente.</p>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.Error
+        </div>
+    }
 </div>
- 
