@@ -1,5 +1,6 @@
 ﻿using Front_End_Gestion_Pedidos.Helpers;
 using Front_End_Gestion_Pedidos.Models;
+using Front_End_Gestion_Pedidos.Models.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text.Json;

@@ -2,6 +2,7 @@ using Front_End_Gestion_Pedidos.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
+using Front_End_Gestion_Pedidos.Models.ViewModel;
 
 namespace Front_End_Gestion_Pedidos.Controllers
 {

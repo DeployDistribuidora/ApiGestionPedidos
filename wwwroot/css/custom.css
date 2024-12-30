@@ -188,3 +188,15 @@ header {
 .list-group-item {
     font-size: 0.9rem;
 }
+
+/* wwwroot/css/custom.css */
+.modal.show {
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+}
+
+.modal-content {
+    background-color: #fff; /* Asegura fondo blanco del modal */
+    color: #000; /* Texto negro para contraste */
+    border-radius: 8px; /* Esquinas redondeadas */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombras */
+}

@@ -58,48 +58,138 @@
             </tbody>
         </table>
     </div>
-
     <!-- Modal para mostrar los datos de contacto -->
-    @if (ViewBag.DatosContacto != null)
-    {
-        <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="modalDatosContactoLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Datos de Contacto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        @if (ViewBag.DatosContacto.Count > 0)
+    <div class="modal fade @((ViewBag.DatosContacto != null) ? "show d-block" : "")" tabindex="-1" role="dialog" aria-labelledby="modalDatosContactoLabel" aria-hidden="true" style="@((ViewBag.DatosContacto != null) ? "background-color: rgba(0, 0, 0, 0.5);" : "")">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Datos de Contacto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    @if (ViewBag.DatosContacto != null && ViewBag.DatosContacto.Count > 0)
+                    {
+                        foreach (var contacto in ViewBag.DatosContacto)
                         {
-                            foreach (var contacto in ViewBag.DatosContacto)
-                            {
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">@contacto.Alias</h5>
-                                        <p class="card-text"><strong>Dirección:</strong> @contacto.Direccion</p>
-                                        <p class="card-text"><strong>Teléfono:</strong> @contacto.NumeroTelefono</p>
-                                        <p class="card-text"><strong>Comentario:</strong> @(string.IsNullOrEmpty(contacto.Comentario) ? "Sin comentario" : contacto.Comentario)</p>
-                                    </div>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">@contacto.Alias</h5>
+                                    <p class="card-text"><strong>Dirección:</strong> @contacto.Direccion</p>
+                                    <p class="card-text"><strong>Teléfono:</strong> @contacto.NumeroTelefono</p>
+                                    <p class="card-text"><strong>Comentario:</strong> @(string.IsNullOrEmpty(contacto.Comentario) ? "Sin comentario" : contacto.Comentario)</p>
                                 </div>
-                            }
+                            </div>
                         }
-                        else
-                        {
-                            <p>No se encontraron datos de contacto para este cliente.</p>
-                        }
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
+                    }
+                    else
+                    {
+                        <p>No se encontraron datos de contacto para este cliente.</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
-    }
-    else if (ViewBag.Error != null)
-    {
-        <div class="alert alert-danger" role="alert">
-            @ViewBag.Error
+    </div>
+
+
+</div> 
+
+@* 
+@model Front_End_Gestion_Pedidos.Models.ClienteViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Clientes";
+    string searchTerm = ViewBag.SearchTerm;
+}
+
+<div class="container mt-4">
+    <div class="sticky-top bg-white py-3 fixed-header" style="z-index: 1020;">
+        <h2 class="text-primary text-center">Gestión de Clientes</h2>
+
+        <!-- Filtro de búsqueda -->
+        <form method="get" asp-action="Index" class="d-flex flex-column align-items-center mb-3">
+            <div class="mb-2 w-100" style="max-width: 400px;">
+                <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Buscar clientes" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100" style="max-width: 150px;">Buscar</button>
+        </form>
+    </div>
+
+    <!-- Tabla de clientes -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th>NroCliente</th>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Clientes != null && Model.Clientes.Count > 0)
+                {
+                    foreach (var cliente in Model.Clientes)
+                    {
+                        <tr>
+                            <td>@cliente.NroCliente</td>
+                            <td>@cliente.NombreCliente</td>
+                            <td>@cliente.DirCliente</td>
+                            <td>@cliente.TelefCliente</td>
+                            <td>
+                                <form method="post" asp-action="VerDatosContacto">
+                                    <input type="hidden" name="clienteId" value="@cliente.NroCliente" />
+                                    <button type="submit" class="btn btn-primary btn-sm">Ver Datos de Contacto</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">No se encontraron resultados</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para mostrar los datos de contacto -->
+    <div class="modal fade @((ViewBag.DatosContacto != null) ? "show d-block" : "")" tabindex="-1" role="dialog" aria-labelledby="modalDatosContactoLabel" aria-hidden="true" style="@((ViewBag.DatosContacto != null) ? "background-color: rgba(0, 0, 0, 0.5);" : "")">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Datos de Contacto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    @if (ViewBag.DatosContacto != null && ViewBag.DatosContacto.Count > 0)
+                    {
+                        foreach (var contacto in ViewBag.DatosContacto)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">@contacto.Alias</h5>
+                                    <p class="card-text"><strong>Dirección:</strong> @contacto.Direccion</p>
+                                    <p class="card-text"><strong>Teléfono:</strong> @contacto.NumeroTelefono</p>
+                                    <p class="card-text"><strong>Comentario:</strong> @(string.IsNullOrEmpty(contacto.Comentario) ? "Sin comentario" : contacto.Comentario)</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>No se encontraron datos de contacto para este cliente.</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
         </div>
-    }
-</div>
+    </div>
+</div> *@

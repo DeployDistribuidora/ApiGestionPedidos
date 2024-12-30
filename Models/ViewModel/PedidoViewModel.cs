@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace Front_End_Gestion_Pedidos.Models
+namespace Front_End_Gestion_Pedidos.Models.ViewModel
 {
     public class PedidoViewModel
     {
@@ -12,6 +12,7 @@ namespace Front_End_Gestion_Pedidos.Models
         public string Comentarios { get; set; }
         public decimal Total { get; set; }
         public Cliente ClienteSeleccionado { get; set; }
-
+        public string MensajeError { get; set; } // Para errores
+        public List<DatosContacto> ContactosCliente { get; set; }
     }
 }

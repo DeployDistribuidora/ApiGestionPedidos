@@ -1,4 +1,5 @@
 ﻿using Front_End_Gestion_Pedidos.Models;
+using Front_End_Gestion_Pedidos.Models.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -18,77 +19,98 @@ namespace Front_End_Gestion_Pedidos.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IActionResult> NuevoPedido(Cliente clienteSeleccionado, List<Producto> filtro)
+        public async Task<IActionResult> NuevoPedido()
         {
+            var clientes = await ObtenerClientes();
             var model = new PedidoViewModel
             {
-                Clientes = new List<Cliente>(),    // Inicializa la lista de clientes
-                Productos = new List<Producto>(),  // Inicializa la lista de productos
-                Direcciones = new List<Direccion>(),
-                ClienteSeleccionado = clienteSeleccionado
+                Clientes = clientes,
+                Productos = await ObtenerStock(),
+                ClienteSeleccionado = null
             };
-
-            try
-            {
-                // Consumir la API para obtener clientes
-                //var client = _httpClientFactory.CreateClient();
-                //var response = await client.GetAsync("var url = "https://localhost:7078/api/Login/login";");
-
-                //if (response.IsSuccessStatusCode)
-                //{
-                //    var jsonResponse = await response.Content.ReadAsStringAsync();
-                //    var clientes = JsonSerializer.Deserialize<List<Cliente>>(jsonResponse, new JsonSerializerOptions
-                //    {
-                //        PropertyNameCaseInsensitive = true
-                //    });
-
-                //    model.Clientes = clientes ?? new List<Cliente>();
-                //}
-                //else
-                //{
-                //    // Manejar errores en la solicitud a la API
-                //    ModelState.AddModelError(string.Empty, "Error al obtener los clientes.");
-                //    model.Clientes = new List<Cliente>();
-
-
-                var clientes = await ObtenerClientes();
-                if (clientes != null)
-                {
-                    model.Clientes = clientes.ToList();
-                }
-                else
-                {
-                    model.Clientes = new List<Cliente>();
-                }
-
-                var productos = await ObtenerStock();
-
-                if (filtro.Count() > 0)
-                {
-                    productos = filtro.ToList();
-                }
-                // Llamar al método para obtener stock
-
-
-                if (productos != null)
-                {
-                    model.Productos = productos.ToList();
-                }
-                else
-                {
-                    model.Productos = new List<Producto>();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                // Manejar excepciones
-                ModelState.AddModelError(string.Empty, $"Error inesperado: {ex.Message}");
-                model.Clientes = new List<Cliente>();
-            }
 
             return View(model);
         }
+
+        private async Task<List<DatosContacto>> ObtenerDatosContactoPorClienteId(long clienteId)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"https://localhost:7078/api/v1/Clientes/{clienteId}/DatosContacto");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<DatosContacto>>(jsonResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new List<DatosContacto>();
+            }
+
+            return new List<DatosContacto>(); // Devuelve lista vacía en caso de error
+        }
+        [HttpPost]
+        public async Task<IActionResult> CargarDatosContacto(long clienteId)
+        {
+            // Obtener datos contacto del cliente
+            var datosContacto = await ObtenerDatosContactoPorClienteId(clienteId);
+
+            // Obtener los clientes y productos nuevamente para reconstruir el modelo
+            var clientes = await ObtenerClientes();
+            var productos = await ObtenerStock();
+
+            // Si no hay datos contacto, mostrar mensaje de error en la vista
+            if (datosContacto == null || !datosContacto.Any())
+            {
+                var modelConError = new PedidoViewModel
+                {
+                    Clientes = clientes,
+                    Productos = productos,
+                    ClienteSeleccionado = clientes.FirstOrDefault(c => c.NroCliente == clienteId),
+                    MensajeError = "No hay datos contacto disponibles para este cliente."
+                };
+
+                return View("NuevoPedido", modelConError);
+            }
+
+            // Construir el modelo con los datos contacto cargados
+            var modelConDatos = new PedidoViewModel
+            {
+                Clientes = clientes,
+                Productos = productos,
+                ClienteSeleccionado = clientes.FirstOrDefault(c => c.NroCliente == clienteId),
+                ContactosCliente = datosContacto
+            };
+
+            return View("NuevoPedido", modelConDatos);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> GuardarDireccionSeleccionada(long clienteId, string direccionSeleccionada)
+        {
+            var cliente = await ObtenerClientePorId(clienteId);
+            if (cliente == null)
+            {
+                ModelState.AddModelError("", "El cliente no fue encontrado.");
+                return RedirectToAction("NuevoPedido");
+            }
+
+            // Actualizar la dirección seleccionada
+            cliente.DirCliente = direccionSeleccionada;
+
+            // Reconstruir el modelo principal con el cliente actualizado
+            var model = new PedidoViewModel
+            {
+                Clientes = await ObtenerClientes(),
+                Productos = await ObtenerStock(),
+                ClienteSeleccionado = cliente
+            };
+
+            return View("NuevoPedido", model);
+        }
+
+
+
         public async Task<IActionResult> BuscarPedidos()
         {
             IEnumerable<Pedido> pedidos = new List<Pedido>();
@@ -134,47 +156,36 @@ namespace Front_End_Gestion_Pedidos.Controllers
             return pedidos1;
         }
 
-
-        private async Task<IEnumerable<Cliente>> ObtenerClientes()
+        private async Task<List<Cliente>> ObtenerClientes()
         {
-            var model = new PedidoViewModel();
-            List<Cliente> clientes1 = new List<Cliente>();
-
             var client = _httpClientFactory.CreateClient();
             var response = await client.GetAsync("https://localhost:7078/api/v1/Clientes");
 
             if (response.IsSuccessStatusCode)
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                var clientes = JsonSerializer.Deserialize<List<Cliente>>(jsonResponse, new JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<Cliente>>(jsonResponse, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
-                });
-
-                model.Clientes = clientes ?? new List<Cliente>();
-                clientes1 = model.Clientes;
+                }) ?? new List<Cliente>();
             }
             else
             {
                 // Manejar errores en la solicitud a la API
-                ModelState.AddModelError(string.Empty, "Error al obtener los clientes.");
-                return null;
+                ModelState.AddModelError("", "Error al obtener los clientes.");
+                return new List<Cliente>(); // Devuelve lista vacía en caso de error
             }
-
-            return clientes1;
         }
 
-        private async Task<IEnumerable<Producto>> ObtenerStock()
+        private async Task<List<Producto>> ObtenerStock()
         {
-            List<Producto> productos = new List<Producto>();
-
             var client = _httpClientFactory.CreateClient();
             var response = await client.GetAsync("https://localhost:7078/api/Stocks");
 
             if (response.IsSuccessStatusCode)
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                productos = JsonSerializer.Deserialize<List<Producto>>(jsonResponse, new JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<Producto>>(jsonResponse, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 }) ?? new List<Producto>();
@@ -182,11 +193,11 @@ namespace Front_End_Gestion_Pedidos.Controllers
             else
             {
                 // Manejar errores en la solicitud a la API
-                ModelState.AddModelError(string.Empty, "Error al obtener el stock.");
+                ModelState.AddModelError("", "Error al obtener el stock.");
+                return new List<Producto>(); // Devuelve lista vacía en caso de error
             }
-
-            return productos;
         }
+
         [HttpPost]
         private async Task<IEnumerable<Producto>> filtroStock(string filtro)
         {
@@ -231,33 +242,76 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         //    return Ok("Pedido realizado con éxito.");
         //}
-
-
-        [HttpPost]
-        public async Task<IActionResult> ClienteSeleccionadoAsync(long clienteId)
+        private async Task<Cliente> ObtenerClientePorId(long clienteId)
         {
-            Cliente? cliente = new Cliente();
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync("https://localhost:7078/api/v1/Clientes/" + clienteId);
+            var response = await client.GetAsync($"https://localhost:7078/api/v1/Clientes/{clienteId}");
 
             if (response.IsSuccessStatusCode)
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                cliente = JsonSerializer.Deserialize<Cliente>(jsonResponse, new JsonSerializerOptions
+                var cliente = JsonSerializer.Deserialize<Cliente>(jsonResponse, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
-            }
-            else
-            {
-                // Manejar errores en la solicitud a la API
-                ModelState.AddModelError(string.Empty, "Error al obtener el stock.");
+
+                // Validar que el cliente tenga datos contacto
+                if (cliente != null && cliente.ContactosCliente == null)
+                {
+                    cliente.ContactosCliente = new List<DatosContacto>(); // Inicializar si está vacío
+                }
+
+                return cliente;
             }
 
-
-            // Realiza cualquier lógica adicional aquí
-            return RedirectToAction("NuevoPedido", cliente); // Vuelve a la vista de nuevo pedido
+            return null;
         }
+
+        //[HttpPost]
+        //public async Task<IActionResult> ClienteSeleccionado(long clienteId)
+        //{
+        //    try
+        //    {
+        //        // Obtener todos los clientes y productos para mantener los datos actualizados
+        //        var clientes = await ObtenerClientes() ?? new List<Cliente>();
+        //        var productos = await ObtenerStock() ?? new List<Producto>();
+
+        //        // Buscar el cliente seleccionado
+        //        var clienteSeleccionado = await ObtenerClientePorId(clienteId);
+
+        //        if (clienteSeleccionado == null)
+        //        {
+        //            ModelState.AddModelError("", "El cliente no fue encontrado.");
+        //        }
+
+        //        // Crear el modelo con el cliente seleccionado
+        //        var model = new PedidoViewModel
+        //        {
+        //            Clientes = clientes,
+        //            Productos = productos,
+        //            ClienteSeleccionado = clienteSeleccionado
+        //        };
+
+        //        return View("NuevoPedido", model);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Manejar errores inesperados
+        //        ModelState.AddModelError("", $"Ocurrió un error inesperado: {ex.Message}");
+
+        //        // Devolver el modelo sin cliente seleccionado en caso de error
+        //        var fallbackModel = new PedidoViewModel
+        //        {
+        //            Clientes = await ObtenerClientes() ?? new List<Cliente>(),
+        //            Productos = await ObtenerStock() ?? new List<Producto>(),
+        //            ClienteSeleccionado = null
+        //        };
+
+        //        return View("NuevoPedido", fallbackModel);
+        //    }
+        //}
+
+
 
         [HttpPost]
         public IActionResult Aprobar(int id)

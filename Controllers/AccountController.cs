@@ -6,6 +6,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using Front_End_Gestion_Pedidos.Models.ViewModel;
 
 namespace Front_End_Gestion_Pedidos.Controllers
 {
