@@ -110,10 +110,10 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
-
         public async Task<IActionResult> BuscarPedidos()
         {
             IEnumerable<Pedido> pedidos = new List<Pedido>();
+
             // Recuperar usuario desde la sesión
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
@@ -121,39 +121,10 @@ namespace Front_End_Gestion_Pedidos.Controllers
             if (string.IsNullOrEmpty(usuarioLogueado))
                 return RedirectToAction("Login", "Account");
 
-            // Llamar al método asincrónico
-            pedidos = await ObtenerPedidos(); // Asegúrate de usar await para resolver la tarea
+            // Llamar al método asincrónico para obtener los pedidos
+            pedidos = await ObtenerPedidos();
 
-            return View(pedidos); 
-        }
-
-        private async Task<IEnumerable<Pedido>> ObtenerPedidos()
-        {
-            var model = new BuscarPedidoViewModel();
-            List<Pedido> pedidos1 = new List<Pedido>();
-
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync("https://localhost:7078/api/Pedidos");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                var pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                model.Pedidos = pedidos ?? new List<Pedido>();
-                pedidos1 = model.Pedidos;
-            }
-            else
-            {
-                // Manejar errores en la solicitud a la API
-                ModelState.AddModelError(string.Empty, "Error al obtener los pedidos.");
-                return null;
-            }
-
-            return pedidos1;
+            return View(pedidos);
         }
 
         private async Task<List<Cliente>> ObtenerClientes()
@@ -223,25 +194,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
             return (IEnumerable<Producto>)RedirectToAction("NuevoPedido", productos);
         }
 
-
-        //[HttpPost]
-        //public IActionResult RealizarPedido([FromBody] List<LineaPedido> lineasPedido)
-        //{
-
-
-        //    if (lineasPedido == null || !lineasPedido.Any())
-        //    {
-        //        return BadRequest("No se seleccionaron productos.");
-        //    }
-
-        //    // Lógica para procesar el pedido aquí
-        //    foreach (var linea in lineasPedido)
-        //    {
-        //        Console.WriteLine($"Producto: {linea.Codigo}, Cantidad: {linea.Cantidad}");
-        //    }
-
-        //    return Ok("Pedido realizado con éxito.");
-        //}
         private async Task<Cliente> ObtenerClientePorId(long clienteId)
         {
             var client = _httpClientFactory.CreateClient();
@@ -266,59 +218,12 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
             return null;
         }
-
-        //[HttpPost]
-        //public async Task<IActionResult> ClienteSeleccionado(long clienteId)
-        //{
-        //    try
-        //    {
-        //        // Obtener todos los clientes y productos para mantener los datos actualizados
-        //        var clientes = await ObtenerClientes() ?? new List<Cliente>();
-        //        var productos = await ObtenerStock() ?? new List<Producto>();
-
-        //        // Buscar el cliente seleccionado
-        //        var clienteSeleccionado = await ObtenerClientePorId(clienteId);
-
-        //        if (clienteSeleccionado == null)
-        //        {
-        //            ModelState.AddModelError("", "El cliente no fue encontrado.");
-        //        }
-
-        //        // Crear el modelo con el cliente seleccionado
-        //        var model = new PedidoViewModel
-        //        {
-        //            Clientes = clientes,
-        //            Productos = productos,
-        //            ClienteSeleccionado = clienteSeleccionado
-        //        };
-
-        //        return View("NuevoPedido", model);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Manejar errores inesperados
-        //        ModelState.AddModelError("", $"Ocurrió un error inesperado: {ex.Message}");
-
-        //        // Devolver el modelo sin cliente seleccionado en caso de error
-        //        var fallbackModel = new PedidoViewModel
-        //        {
-        //            Clientes = await ObtenerClientes() ?? new List<Cliente>(),
-        //            Productos = await ObtenerStock() ?? new List<Producto>(),
-        //            ClienteSeleccionado = null
-        //        };
-
-        //        return View("NuevoPedido", fallbackModel);
-        //    }
-        //}
-
-
-
         [HttpPost]
         public IActionResult Aprobar(int id)
         {
             // Lógica para aprobar el pedido
             TempData["Mensaje"] = $"Pedido #{id} aprobado exitosamente.";
-            return RedirectToAction("BuscarPedidos");
+            return RedirectToAction("SupervisarPedidos");
         }
 
         [HttpPost]
@@ -326,9 +231,133 @@ namespace Front_End_Gestion_Pedidos.Controllers
         {
             // Lógica para cancelar el pedido
             TempData["Mensaje"] = $"Pedido #{id} cancelado.";
-            return RedirectToAction("BuscarPedidos");
+            return RedirectToAction("SupervisarPedidos");
+        }
+        [HttpPost]
+        public IActionResult AgregarComentario(int id, string comentario)
+        {
+            if (string.IsNullOrEmpty(comentario))
+            {
+                TempData["Error"] = "El comentario no puede estar vacío.";
+                return RedirectToAction("SupervisarPedidos");
+            }
+
+            // Aquí iría la lógica para guardar el comentario, como una llamada a la API
+            TempData["Mensaje"] = $"Comentario agregado al Pedido #{id}.";
+            return RedirectToAction("SupervisarPedidos");
+        }
+
+        public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "")
+        {
+            var pedidos = await ObtenerPedidos();
+
+            // Filtrar por estado Pendiente
+            pedidos = pedidos.Where(p => p.Estado.Equals("Pendiente", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            // Aplicar filtros adicionales si se proporcionan
+            if (!string.IsNullOrEmpty(cliente))
+            {
+                pedidos = pedidos.Where(p => p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(vendedor))
+            {
+                pedidos = pedidos.Where(p => p.IdVendedor.ToString().Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            var viewModel = new SupervisarPedidosViewModel
+            {
+                Pedidos = pedidos,
+                Cliente = cliente,
+                Vendedor = vendedor,
+                Estado = "Pendiente" // Fijamos el estado aquí
+            };
+
+            return View(viewModel); // Usamos una vista diferente para SupervisarPedidos
         }
 
 
+
+        public async Task<IActionResult> DetallesPedido(int id)
+        {
+            // Obtener el pedido por ID desde la API
+            var client = _httpClientFactory.CreateClient();
+            var responsePedido = await client.GetAsync($"https://localhost:7078/api/Pedidos/Pedido/{id}");
+
+            if (!responsePedido.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Error al cargar los detalles del pedido.";
+                return RedirectToAction("SupervisarPedidos");
+            }
+
+            var jsonPedido = await responsePedido.Content.ReadAsStringAsync();
+            var pedido = JsonSerializer.Deserialize<Pedido>(jsonPedido, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            // Obtener los productos asociados a las líneas del pedido
+            var productos = new List<Producto>();
+
+            if (pedido.LineasPedido != null)
+            {
+                foreach (var linea in pedido.LineasPedido)
+                {
+                    // Buscar producto por código usando filtroStock
+                    var productoResultado = await filtroStock($"?codigo={linea.Codigo}");
+                    productos.AddRange(productoResultado);
+                }
+            }
+
+            // Preparar el modelo para el PartialView
+            var detallesViewModel = new PedidoDetalleViewModel
+            {
+                Pedido = pedido,
+                Productos = productos
+            };
+
+            return PartialView("_DetallePedido", detallesViewModel);
+        }
+        private async Task<IEnumerable<Pedido>> ObtenerPedidos()
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync("https://localhost:7078/api/Pedidos");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                // Manejar errores en la solicitud a la API
+                ModelState.AddModelError(string.Empty, "Error al obtener los pedidos.");
+                return new List<Pedido>();
+            }
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return pedidos ?? new List<Pedido>();
+        }
+
+
+
+        //[HttpPost]
+        //public IActionResult RealizarPedido([FromBody] List<LineaPedido> lineasPedido)
+        //{
+
+
+        //    if (lineasPedido == null || !lineasPedido.Any())
+        //    {
+        //        return BadRequest("No se seleccionaron productos.");
+        //    }
+
+        //    // Lógica para procesar el pedido aquí
+        //    foreach (var linea in lineasPedido)
+        //    {
+        //        Console.WriteLine($"Producto: {linea.Codigo}, Cantidad: {linea.Cantidad}");
+        //    }
+
+        //    return Ok("Pedido realizado con éxito.");
+        //}
     }
 }

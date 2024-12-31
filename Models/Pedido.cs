@@ -16,6 +16,8 @@
         public decimal Total { get; set; }
         public string Comentarios { get; set; }
         public long? TarjetaID { get; set; }
-        public List<LineaPedido> LineasPedido { get; set; }
+       // public List<LineaPedido> LineasPedido { get; set; }
+        public List<LineaPedido> LineasPedido { get; set; } = new List<LineaPedido>();
+
     }
 }

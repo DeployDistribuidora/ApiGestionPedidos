@@ -1,60 +1,33 @@
-﻿@model Front_End_Gestion_Pedidos.Models.Pedido
+﻿@using Front_End_Gestion_Pedidos.Models.ViewModel
+@model PedidoDetalleViewModel
 
 <div>
-@*     <h5>Detalles del Pedido #@Model.Pedido.Id</h5>
-    <p><strong>Cliente:</strong> @Model.Pedido.Cliente</p>
-    <p><strong>Vendedor:</strong> @Model.Pedido.Vendedor</p>
+    <h6>Información del Pedido</h6>
+    <p><strong>Cliente:</strong> @Model.Pedido.IdCliente</p>
+    <p><strong>Vendedor:</strong> @Model.Pedido.IdVendedor</p>
     <p><strong>Estado:</strong> @Model.Pedido.Estado</p>
-    <p><strong>Fecha:</strong> @Model.Pedido.Fecha.ToShortDateString()</p> *@
+</div>
 
+<div>
     <h6>Productos</h6>
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>IdPedido</th>
-                <th>IdLineaPedido</th>
-                <th>CodigoProducto</th>
-                <th>PrecioUnitario</th>
-                <th>Cantidad</th>
-                <th>Subtotal</th>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Precio</th>
             </tr>
         </thead>
         <tbody>
-           @foreach (var lineaPedido in Model.LineasPedido)
+            @foreach (var producto in Model.Productos)
             {
                 <tr>
-                    <td>@lineaPedido.IdPedido</td>
-                    <td>@lineaPedido.IdLineaPedido</td>
-                    <td>@lineaPedido.Codigo</td>
-                    <td>@lineaPedido.PrecioUnitario</td>
-                    <td>@lineaPedido.Cantidad</td>
-                    <td>@lineaPedido.Subtotal</td>
+                    <td>@producto.Codigo</td>
+                    <td>@producto.Descripcion</td>
+                    <td>@producto.Precio</td>
                 </tr>
-            }  
+            }
         </tbody>
     </table>
-
-    <h6>Comentarios</h6>
-@*     <ul>
-        @foreach (var comentario in Model.Comentarios)
-        {
-            <li>@comentario</li>
-        }
-    </ul>
-
-    <form asp-action="AgregarComentario" method="post">
-        <textarea name="comentario" class="form-control" placeholder="Escribe un comentario"></textarea>
-        <button type="submit" class="btn btn-primary mt-2">Agregar Comentario</button>
-    </form>
 </div>
-<div class="modal-footer">
-    <form asp-action="AprobarPedido" method="post" style="display:inline;">
-        <input type="hidden" name="id" value="@Model.Pedido.Id" />
-        <button type="submit" class="btn btn-success">Aprobar Pedido</button>
-    </form>
-    <form asp-action="CancelarPedido" method="post" style="display:inline;">
-        <input type="hidden" name="id" value="@Model.Pedido.Id" />
-        <button type="submit" class="btn btn-danger">Cancelar Pedido</button>
-    </form>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
-</div> *@
+
