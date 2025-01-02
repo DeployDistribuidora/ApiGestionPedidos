@@ -1,124 +1,148 @@
 ﻿@using Front_End_Gestion_Pedidos.Models.ViewModel
+@inject IHttpContextAccessor HttpContextAccessor
 @model SupervisarPedidosViewModel
 
-<div class="container mt-4">
-    <h2 class="text-center text-primary mb-4">Supervisar Pedidos Pendientes</h2>
+@if (!string.IsNullOrEmpty(HttpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado")))
+{
+    var role = HttpContextAccessor.HttpContext.Session.GetString("Role");
 
-    <!-- Filtros de búsqueda -->
-    <form method="get" asp-action="SupervisarPedidos" class="row g-3 align-items-center mb-4">
-        <div class="col-md-6">
-            <input type="text" name="cliente" class="form-control" placeholder="Cliente" value="@Model.Cliente" />
-        </div>
-        <div class="col-md-6">
-            <input type="text" name="vendedor" class="form-control" placeholder="Vendedor" value="@Model.Vendedor" />
-        </div>
-        <div class="col-12 text-center">
-            <button type="submit" class="btn btn-primary">Buscar</button>
-        </div>
-    </form>
 
-    <!-- Tabla de Pedidos -->
-    <div class="mt-4">
-        <h5 class="text-secondary text-center">Mostrando solo pedidos en estado <strong>"Pendiente"</strong></h5>
-    </div>
-    <table class="table table-hover table-bordered mt-3">
-        <thead class="table-light">
-            <tr>
-                <th>Nro</th>
-                <th>Cliente</th>
-                <th>Vendedor</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (!Model.Pedidos.Any())
-            {
+
+    <div class="container mt-4">
+        <h2 class="text-center text-primary mb-4">Supervisar Pedidos Pendientes</h2>
+
+        <!-- Filtros de búsqueda -->
+        <form method="get" asp-action="SupervisarPedidos" class="row g-3 align-items-center mb-4">
+            <div class="col-md-6">
+                <input type="text" name="cliente" class="form-control" placeholder="Cliente" value="@Model.Cliente" />
+            </div>
+            <div class="col-md-6">
+                <input type="text" name="vendedor" class="form-control" placeholder="Vendedor" value="@Model.Vendedor" />
+            </div>
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+
+        <!-- Tabla de Pedidos -->
+        <div class="mt-4">
+            <h5 class="text-secondary text-center">Mostrando solo pedidos en estado <strong>"Pendiente"</strong></h5>
+        </div>
+        <table class="table table-hover table-bordered mt-3">
+            <thead class="table-light">
                 <tr>
-                    <td colspan="4" class="text-center text-muted">No se encontraron pedidos pendientes con los filtros aplicados.</td>
+                    <th>Nro</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>Acciones</th>
                 </tr>
-            }
-            else
-            {
-                @foreach (var pedido in Model.Pedidos)
+            </thead>
+            <tbody>
+                @if (!Model.Pedidos.Any())
                 {
                     <tr>
-                        <td>@pedido.IdPedido</td>
-                        <td>@pedido.IdCliente</td>
-                        <td>@pedido.IdVendedor</td>
-                        <td>
-                            <!-- Botón para abrir el modal de detalles -->
-                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
-                                Detalle
-                            </button>
-
-                            <!-- Botón para cancelar el pedido -->
-                            <form method="post" asp-action="CancelarPedido" asp-route-id="@pedido.IdPedido" style="display: inline;">
-                                <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
-                            </form>
-                        </td>
+                        <td colspan="4" class="text-center text-muted">No se encontraron pedidos pendientes con los filtros aplicados.</td>
                     </tr>
+                }
+                else
+                {
+                    @foreach (var pedido in Model.Pedidos)
+                    {
+                        <tr>
+                            <td>@pedido.IdPedido</td>
+                            <td>@pedido.IdCliente</td>
+                            <td>@pedido.IdVendedor</td>
+                            <td>
+                                <!-- Botón para abrir el modal de detalles -->
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
+                                    Detalle
+                                </button>
 
-                    <!-- Modal de Detalle -->
-                    <tr>
-                        <td colspan="4">
-                            <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-primary text-white">
-                                            <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <!-- Información del Pedido -->
-                                            <div>
-                                                <p><strong>Cliente:</strong> @pedido.IdCliente</p>
-                                                <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
-                                                <p><strong>Estado:</strong> @pedido.Estado</p>
+                                @if (role == "Administracion")
+                                {
+
+                                    <!-- Botón para cancelar el pedido -->
+                                    <form method="post" asp-action="AprobarPedido" asp-route-id="@pedido.IdPedido" style="display: inline;">
+                                        <button type="submit" class="btn btn-success btn-sm">Aprobar</button>
+                                    </form>
+                                }
+                                else if (role == "Supervisor de Carga")
+                                {
+                                    <!-- Botón para cancelar el pedido -->
+                                    <form method="post" asp-action="EmbarcarPedido" asp-route-id="@pedido.IdPedido" style="display: inline;">
+                                        <button type="submit" class="btn btn-success btn-sm">Embarcar</button>
+                                    </form>
+                                }
+
+                                <!-- Botón para cancelar el pedido -->
+                                <form method="post" asp-action="CancelarPedido" asp-route-id="@pedido.IdPedido" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <!-- Modal de Detalle -->
+                        <tr>
+                            <td colspan="4">
+                                <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
+                                            <div class="modal-body">
+                                                <!-- Información del Pedido -->
+                                                <div>
+                                                    <p><strong>Cliente:</strong> @pedido.IdCliente</p>
+                                                    <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
+                                                    <p><strong>Estado:</strong> @pedido.Estado</p>
+                                                </div>
 
-                                            <!-- Productos del Pedido -->
-                                            <div>
-                                                <h6>Productos</h6>
-                                                <table class="table table-bordered">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Código</th>
-                                                            <th>Nombre</th>
-                                                            <th>Precio</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @if (pedido.LineasPedido != null && pedido.LineasPedido.Any())
-                                                        {
-                                                            @foreach (var linea in pedido.LineasPedido)
+                                                <!-- Productos del Pedido -->
+                                                <div>
+                                                    <h6>Productos</h6>
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Código</th>
+                                                                <th>Nombre</th>
+                                                                <th>Precio</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @if (pedido.LineasPedido != null && pedido.LineasPedido.Any())
+                                                            {
+                                                                @foreach (var linea in pedido.LineasPedido)
+                                                                {
+                                                                    <tr>
+                                                                        <td>@linea.Codigo</td>
+                                                                        <td>Producto @linea.Codigo</td> <!-- Simulación del nombre -->
+                                                                        <td>@linea.PrecioUnitario.ToString("C")</td>
+                                                                    </tr>
+                                                                }
+                                                            }
+                                                            else
                                                             {
                                                                 <tr>
-                                                                    <td>@linea.Codigo</td>
-                                                                    <td>Producto @linea.Codigo</td> <!-- Simulación del nombre -->
-                                                                    <td>@linea.PrecioUnitario.ToString("C")</td>
+                                                                    <td colspan="3" class="text-center text-muted">No hay productos asociados.</td>
                                                                 </tr>
                                                             }
-                                                        }
-                                                        else
-                                                        {
-                                                            <tr>
-                                                                <td colspan="3" class="text-center text-muted">No hay productos asociados.</td>
-                                                            </tr>
-                                                        }
-                                                    </tbody>
-                                                </table>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                    }
                 }
-            }
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
+}

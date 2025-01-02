@@ -37,69 +37,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
             return View(model);
         }
 
-        // POST: Realizar Pedido
-        /*
-         [HttpPost]
-         public async Task<IActionResult> RealizarPedido(PedidoDetalleViewModel model)
-         {
-             if (model == null || model.ClienteSeleccionado == null || model.Pedido == null || !model.Pedido.LineasPedido.Any())
-             {
-                 ModelState.AddModelError("", "Faltan datos para realizar el pedido.");
-                 return RedirectToAction("NuevoPedido");
-             }
-
-             // Crear un objeto Pedido con los datos proporcionados
-             var pedido = new Pedido
-             {
-                 IdCliente = model.Pedido.IdCliente,//ClienteSeleccionado?
-                 MetodoPago = model.Pedido.MetodoPago,
-                 Comentarios = model.Pedido.Comentarios,
-                 Estado = "Pendiente", // Estado inicial
-                 FechaCreacion = DateTime.Now,
-                // Total = model.Productos.Where(p => p. > 0).Sum(p => p.Cantidad * (decimal)p.Precio),
-                /* LineasPedido = model.Productos.Where(p => p.Cantidad > 0)
-                     .Select(p => new LineaPedido
-                     {
-                         Codigo = p.Codigo,
-                         Cantidad = p.Cantidad,
-                         PrecioUnitario = (decimal)p.Precio
-                     }).ToList()
-    };
-
-             // Enviar el pedido a la API
-             var client = _httpClientFactory.CreateClient();
-             var response = await client.PostAsJsonAsync("https://localhost:7078/api/Pedidos", pedido);
-
-             if (response.IsSuccessStatusCode)
-             {
-                 TempData["Mensaje"] = "Pedido realizado con éxito.";
-                 return RedirectToAction("NuevoPedido");
-             }
-             else
-             {
-                 TempData["Error"] = "Error al realizar el pedido.";
-                 return RedirectToAction("NuevoPedido");
-             }
-         }*/
-
-        //[HttpPost]
-        //public IActionResult RealizarPedido([FromBody] List<LineaPedido> lineasPedido)
-        //{
-
-
-        //    if (lineasPedido == null || !lineasPedido.Any())
-        //    {
-        //        return BadRequest("No se seleccionaron productos.");
-        //    }
-
-        //    // Lógica para procesar el pedido aquí
-        //    foreach (var linea in lineasPedido)
-        //    {
-        //        Console.WriteLine($"Producto: {linea.Codigo}, Cantidad: {linea.Cantidad}");
-        //    }
-
-        //    return Ok("Pedido realizado con éxito.");
-        //}
 
         // Obtiene los datos de contacto de un cliente específico
         private async Task<List<DatosContacto>> ObtenerDatosContactoPorClienteId(long clienteId)
@@ -246,15 +183,23 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         // Acción para aprobar un pedido
         [HttpPost]
-        public IActionResult Aprobar(int id)
+        public IActionResult AprobarPedido(int id)
         {
+            //Pasar pedido a estado "Preparando" si está "Pendiente"
+            //Pasar pedido a estado "Entregado" si está "En viaje"
             TempData["Mensaje"] = $"Pedido #{id} aprobado exitosamente.";
+            return RedirectToAction("SupervisarPedidos");
+        }
+        public IActionResult EmbarcarPedido(int id)
+        {
+            //Pasar pedido a estado "En viaje"
+            TempData["Mensaje"] = $"Pedido #{id} en viaje.";
             return RedirectToAction("SupervisarPedidos");
         }
 
         // Acción para cancelar un pedido
         [HttpPost]
-        public IActionResult Cancelar(int id)
+        public IActionResult CancelarPedido(int id)
         {
             TempData["Mensaje"] = $"Pedido #{id} cancelado.";
             return RedirectToAction("SupervisarPedidos");
