@@ -144,66 +144,100 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
         // Detalles del pedido en un modal (usado en la vista SupervisarPedidos)
-       /* public async Task<IActionResult> DetallesPedido(int id)
-        {
-            var client = _httpClientFactory.CreateClient();
-            var responsePedido = await client.GetAsync($"https://localhost:7078/api/Pedidos/Pedido/{id}");
+        /* public async Task<IActionResult> DetallesPedido(int id)
+         {
+             var client = _httpClientFactory.CreateClient();
+             var responsePedido = await client.GetAsync($"https://localhost:7078/api/Pedidos/Pedido/{id}");
 
-            if (!responsePedido.IsSuccessStatusCode)
-            {
-                TempData["Error"] = "Error al cargar los detalles del pedido.";
-                return RedirectToAction("SupervisarPedidos");
-            }
+             if (!responsePedido.IsSuccessStatusCode)
+             {
+                 TempData["Error"] = "Error al cargar los detalles del pedido.";
+                 return RedirectToAction("SupervisarPedidos");
+             }
 
-            var jsonPedido = await responsePedido.Content.ReadAsStringAsync();
-            var pedido = JsonSerializer.Deserialize<Pedido>(jsonPedido, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+             var jsonPedido = await responsePedido.Content.ReadAsStringAsync();
+             var pedido = JsonSerializer.Deserialize<Pedido>(jsonPedido, new JsonSerializerOptions
+             {
+                 PropertyNameCaseInsensitive = true
+             });
 
-            var productos = new List<Producto>();
+             var productos = new List<Producto>();
 
-            if (pedido.LineasPedido != null)
-            {
-                foreach (var linea in pedido.LineasPedido)
-                {
-                    var productoResultado = await filtroStock($"?codigo={linea.Codigo}");
-                    productos.AddRange(productoResultado);
-                }
-            }
+             if (pedido.LineasPedido != null)
+             {
+                 foreach (var linea in pedido.LineasPedido)
+                 {
+                     var productoResultado = await filtroStock($"?codigo={linea.Codigo}");
+                     productos.AddRange(productoResultado);
+                 }
+             }
 
-            var detallesViewModel = new PedidoDetalleViewModel
-            {
-                Pedido = pedido,
-                Productos = productos
-            };
+             var detallesViewModel = new PedidoDetalleViewModel
+             {
+                 Pedido = pedido,
+                 Productos = productos
+             };
 
-            return PartialView("_DetallePedido", detallesViewModel);
-        }*/
+             return PartialView("_DetallePedido", detallesViewModel);
+         }*/
 
         // Acción para aprobar un pedido
+        //[HttpPost]
+        //public IActionResult AprobarPedido(int id)
+        //{
+        //    //Pasar pedido a estado "Preparando" si está "Pendiente"
+        //    //Pasar pedido a estado "Entregado" si está "En viaje"
+        //    TempData["Mensaje"] = $"Pedido #{id} aprobado exitosamente.";
+        //    return RedirectToAction("SupervisarPedidos");
+        //}
+        //public IActionResult EmbarcarPedido(int id)
+        //{
+        //    //Pasar pedido a estado "En viaje"
+        //    TempData["Mensaje"] = $"Pedido #{id} en viaje.";
+        //    return RedirectToAction("SupervisarPedidos");
+        //}
+
+        //// Acción para cancelar un pedido
+        //[HttpPost]
+        //public IActionResult CancelarPedido(int id)
+        //{
+        //    TempData["Mensaje"] = $"Pedido #{id} cancelado.";
+        //    return RedirectToAction("SupervisarPedidos");
+        //}
+
+        // Acción para cambiar el estado de un pedido
+        // Acción para cambiar el estado de un pedido
         [HttpPost]
-        public IActionResult AprobarPedido(int id)
+        public async Task<IActionResult> CambiarEstadoPedido(int id, string nuevoEstado)
         {
-            //Pasar pedido a estado "Preparando" si está "Pendiente"
-            //Pasar pedido a estado "Entregado" si está "En viaje"
-            TempData["Mensaje"] = $"Pedido #{id} aprobado exitosamente.";
-            return RedirectToAction("SupervisarPedidos");
-        }
-        public IActionResult EmbarcarPedido(int id)
-        {
-            //Pasar pedido a estado "En viaje"
-            TempData["Mensaje"] = $"Pedido #{id} en viaje.";
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                // Realiza una solicitud PUT al backend API
+                var response = await client.PutAsJsonAsync($"https://localhost:7078/api/Pedidos/Estado/{id}", nuevoEstado);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Mensaje"] = $"El estado del pedido #{id} se actualizó correctamente a '{nuevoEstado}'.";
+                    TempData["Exito"] = true; // Indicador de éxito
+                }
+                else
+                {
+                    TempData["Mensaje"] = $"Error al actualizar el estado del pedido #{id}: {response.ReasonPhrase}.";
+                    TempData["Exito"] = false; // Indicador de error
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Mensaje"] = $"Error al comunicarse con el backend: {ex.Message}";
+                TempData["Exito"] = false;
+            }
+
             return RedirectToAction("SupervisarPedidos");
         }
 
-        // Acción para cancelar un pedido
-        [HttpPost]
-        public IActionResult CancelarPedido(int id)
-        {
-            TempData["Mensaje"] = $"Pedido #{id} cancelado.";
-            return RedirectToAction("SupervisarPedidos");
-        }
+
 
         // --------------------------------------------------------------------------------------
         // HISTORIAL DE PEDIDOS (Vista: BuscarPedidos)
