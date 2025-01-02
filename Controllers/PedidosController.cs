@@ -38,10 +38,11 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
         // POST: Realizar Pedido
-        /* [HttpPost]
-         public async Task<IActionResult> RealizarPedido(PedidoViewModel model)
+        /*
+         [HttpPost]
+         public async Task<IActionResult> RealizarPedido(PedidoDetalleViewModel model)
          {
-             if (model == null || model.ClienteSeleccionado == null || model.Productos == null || !model.Productos.Any())
+             if (model == null || model.ClienteSeleccionado == null || model.Pedido == null || !model.Pedido.LineasPedido.Any())
              {
                  ModelState.AddModelError("", "Faltan datos para realizar el pedido.");
                  return RedirectToAction("NuevoPedido");
@@ -50,21 +51,20 @@ namespace Front_End_Gestion_Pedidos.Controllers
              // Crear un objeto Pedido con los datos proporcionados
              var pedido = new Pedido
              {
-                 IdCliente = model.ClienteSeleccionado.NroCliente,
-                 IdContacto = model.ContactosCliente?.FirstOrDefault()?.Id, // Selecciona el primer contacto como ejemplo
-                 MetodoPago = model.MedioPago,
-                 Comentarios = model.Comentarios,
+                 IdCliente = model.Pedido.IdCliente,//ClienteSeleccionado?
+                 MetodoPago = model.Pedido.MetodoPago,
+                 Comentarios = model.Pedido.Comentarios,
                  Estado = "Pendiente", // Estado inicial
                  FechaCreacion = DateTime.Now,
-                 Total = model.Productos.Where(p => p.Cantidad > 0).Sum(p => p.Cantidad * (decimal)p.Precio),
-                 LineasPedido = model.Productos.Where(p => p.Cantidad > 0)
+                // Total = model.Productos.Where(p => p. > 0).Sum(p => p.Cantidad * (decimal)p.Precio),
+                /* LineasPedido = model.Productos.Where(p => p.Cantidad > 0)
                      .Select(p => new LineaPedido
                      {
                          Codigo = p.Codigo,
                          Cantidad = p.Cantidad,
                          PrecioUnitario = (decimal)p.Precio
                      }).ToList()
-             };
+    };
 
              // Enviar el pedido a la API
              var client = _httpClientFactory.CreateClient();
@@ -207,7 +207,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
         // Detalles del pedido en un modal (usado en la vista SupervisarPedidos)
-        public async Task<IActionResult> DetallesPedido(int id)
+       /* public async Task<IActionResult> DetallesPedido(int id)
         {
             var client = _httpClientFactory.CreateClient();
             var responsePedido = await client.GetAsync($"https://localhost:7078/api/Pedidos/Pedido/{id}");
@@ -242,7 +242,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             };
 
             return PartialView("_DetallePedido", detallesViewModel);
-        }
+        }*/
 
         // Acción para aprobar un pedido
         [HttpPost]

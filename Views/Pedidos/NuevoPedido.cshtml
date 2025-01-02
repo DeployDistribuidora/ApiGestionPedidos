@@ -9,7 +9,6 @@
 <div class="container mt-4">
     <h2 class="text-primary text-center mb-4">Nuevo Pedido</h2>
 
-
     <!-- Formulario para seleccionar cliente -->
     <form method="post" asp-action="CargarDatosContacto">
         <!-- Selección de Cliente -->
@@ -133,23 +132,22 @@
     </div>
 </div>
 
-<!-- Comentarios -->
-<div class="mb-3">
-    <label for="comentarios" class="form-label">Comentarios</label>
-<textarea id="comentarios" class="form-control" rows="3"></textarea>
-</div>
+    <!-- Comentarios -->
+    <div class="mb-3">
+        <label for="comentarios" class="form-label">Comentarios</label>
+    <textarea id="comentarios" class="form-control" rows="3"></textarea>
+    </div>
 
 <!-- Footer del Pedido -->
 <div class="d-flex justify-content-between align-items-center">
     <span class="text-danger fw-bold">Total $0</span>
     <a href="#" class="text-decoration-none">Ver carrito</a>
     <button type="button" class="btn btn-primary" onclick="enviarPedido()">Realizar Pedido</button>
-
+</div>
 
 </div>
 
 
-</div>
 
 <!-- Scripts con JavaScript básico para manipular los contadores -->
 <script>
@@ -196,7 +194,7 @@
     function enviarPedido() {
         // Obtener los valores del formulario
         const clienteId = document.getElementById('cliente').value;
-        const direccion = document.getElementById('direccion').value;
+        const direccion = document.getElementById('direccionSeleccionada').value;
         const metodoPago = document.getElementById('medioPago').value;
         const comentarios = document.getElementById('comentarios').value;
 

@@ -5,6 +5,7 @@
         public Pedido Pedido { get; set; }
         public List<Producto> Productos { get; set; }
         public List<string> Comentarios { get; set; }
+        public Cliente ClienteSeleccionado { get; set; }
     }
 }
 
