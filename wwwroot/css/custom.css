@@ -1,202 +1,117 @@
-﻿/* Base colors and typography */
+﻿/* General */
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #f8f9fa; /* Fondo claro */
-    color: #212529; /* Texto oscuro */
+    background-color: #f8f9fa;
+    color: #212529;
     margin: 0;
 }
 
-    /* Estilos específicos para el login */
-    body.login-page {
-        background-color: #f8f9fa;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+html, body {
+    height: 100%;
+}
+
+/* Sidebar */
+#sidebar {
+    width: auto;
+    max-width: 250px;
+    background-color: #ffffff;
+    color: #000000;
+    border-right: 1px solid #e9ecef;
+    z-index: 1050;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+    #sidebar .navbar-nav .nav-link {
+        color: #000000;
+        padding: 10px 15px;
+        text-align: left;
+        width: 100%; /* Botones ocupan todo el ancho del contenedor */
+        display: block; /* Asegura bloques */
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+        #sidebar .navbar-nav .nav-link:hover,
+        #sidebar .navbar-nav .nav-link.active {
+            background-color: #000000; /* Fondo negro */
+            color: #ffffff; /* Texto blanco */
+        }
+
+
+/* Botón Hamburguesa */
+#menuToggle {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    color: #000000;
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    padding: 0; 
+    position: relative; 
+}
+
+    #menuToggle:hover {
+        background-color: #000000;
+        color: #ffffff;
+    }
+
+#menuToggle.active .hamburger-lines {
+    background-color: transparent;
+}
+
+    #menuToggle.active .hamburger-lines::before {
+        transform: rotate(45deg);
+        top: 0;
+    }
+
+    #menuToggle.active .hamburger-lines::after {
+        transform: rotate(-45deg);
+        top: 0;
     }
 
 
-/* Header y navbar ocupan todo el ancho */
-header,
-nav.navbar {
-    width: 100%;
-}
 
-/* Encabezado */
+/* Header */
 header {
-    background-color: #ffffff; /* Fondo blanco */
-    color: #212529; /* Texto oscuro */
-    padding: 10px 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra moderna */
-}
-
-    header h1 {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #0056b3; /* Azul moderno */
-        text-align: center;
-        margin: 0;
-    }
-
-/* Barra de navegación */
-.navbar {
     background-color: #ffffff;
     border-bottom: 1px solid #e9ecef;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 10px 20px;
 }
 
-.navbar-nav .nav-link {
-    color: #0056b3;
-    font-weight: 500;
-    padding: 8px 15px;
-    transition: all 0.3s ease;
-    border-radius: 5px;
+/* Footer */
+footer {
+    background-color: #f8f9fa;
+    color: #000000;
 }
 
-    .navbar-nav .nav-link:hover {
-        color: #ffffff;
-        background-color: #0056b3;
+/* Mobile View */
+@media (max-width: 991.98px) {
+    #sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+        top: 0;
+        left: 0;
+        height: 100vh;
+        max-width: 80%;
     }
 
-/* Botón cerrar sesión */
-.navbar .btn-outline-primary {
-    border-color: #0056b3;
-    color: #0056b3;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+    #mainContent {
+        margin-left: 0;
+    }
 }
 
-    .navbar .btn-outline-primary:hover {
-        background-color: #0056b3;
-        color: #ffffff;
+/* Desktop View */
+@media (min-width: 992px) {
+    #sidebar {
+        transform: translateX(0%);
+        width: 250px;
+        position: relative;
     }
 
-/* Contenedor para clientes */
-.container {
-    max-width: 600px;
-    padding: 2rem;
-    background-color: transparent;
-    box-shadow: none;
-}
-
-/* Filtro de búsqueda */
-#searchInput {
-    background-color: #ffffff; /* Fondo blanco para contraste */
-    border: 1px solid #ced4da;
-    border-radius: 25px;
-    padding: 10px 15px;
-    font-size: 1rem;
-    width: 100%;
-}
-
-    #searchInput:focus {
-        border-color: #0056b3;
-        box-shadow: 0 0 5px rgba(0, 86, 179, 0.5);
-        outline: none;
+    #mainContent {
+        margin-left: 250px;
     }
-
-#searchButton {
-    background-color: #0056b3;
-    color: #ffffff;
-    font-size: 1rem;
-    border-radius: 25px;
-    width: 100%;
-    transition: background-color 0.3s ease;
-}
-
-    #searchButton:hover {
-        background-color: #004494;
-    }
-
-/* Tabla */
-.table-hover tbody tr:hover {
-    background-color: #f1f1f1;
-    transition: background-color 0.3s ease;
-}
-
-.table-bordered {
-    border: none; /* Eliminar bordes externos */
-}
-
-/* Tabla con bordes redondeados */
-.table {
-    border-radius: 8px; /* Bordes redondeados */
-    overflow: hidden; /* Esconde contenido fuera de los bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra moderna */
-}
-
-/* Paginación */
-.pagination .page-item.active .page-link {
-    background-color: #0056b3;
-    border-color: #0056b3;
-    color: white;
-}
-
-.pagination .page-link {
-    color: #0056b3;
-    font-weight: 500;
-}
-
-    .pagination .page-link:hover {
-        background-color: #f8f9fa;
-    }
-
-/* Fondo del encabezado y filtro */
-.sticky-top {
-    background-color: #f8f9fa !important; /* Fondo uniforme con la página */
-    box-shadow: none !important; /* Elimina la sombra */
-    border-bottom: 1px solid #e9ecef; /* Línea divisoria */
-}
-
-/* Asegura que el header y el filtro mantengan tamaño fijo */
-.fixed-header {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-    .fixed-header h2,
-    .fixed-header form {
-        margin: 0;
-        padding: 10px 0;
-    }
-
-    .fixed-header form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px; /* Espaciado fijo entre elementos */
-    }
-
-.card {
-    border: none;
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-    .card h2 {
-        font-weight: bold;
-        color: #007bff;
-    }
-
-.card-header {
-    border-radius: 10px 10px 0 0;
-}
-
-.list-group-item {
-    font-size: 0.9rem;
-}
-
-/* wwwroot/css/custom.css */
-.modal.show {
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
-}
-
-.modal-content {
-    background-color: #fff; /* Asegura fondo blanco del modal */
-    color: #000; /* Texto negro para contraste */
-    border-radius: 8px; /* Esquinas redondeadas */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombras */
 }
