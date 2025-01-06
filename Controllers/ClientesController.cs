@@ -90,6 +90,50 @@ namespace Front_End_Gestion_Pedidos.Controllers
             return clientes1;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> BuscarClientes(string searchTerm)
+        {
+            var viewModel = new ClienteViewModel();
+
+            try
+            {
+                // Obtener todos los clientes desde la API
+                var clientes = await ObtenerClientes();
+
+                // Aplicar el filtro de búsqueda
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    var clientesFiltrados = clientes
+                        .Where(c => c.NombreCliente.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    if (clientesFiltrados.Count > 0)
+                    {
+                        viewModel.Clientes = clientesFiltrados;
+                    }
+                    else
+                    {
+                        ViewBag.Alerta = "No se encontraron clientes que coincidan con el término de búsqueda.";
+                        viewModel.Clientes = clientes.ToList(); // Mantén la lista completa
+                    }
+                }
+                else
+                {
+                    viewModel.Clientes = clientes.ToList(); // Si no hay término, muestra todos
+                }
+
+                ViewBag.SearchTerm = searchTerm;
+            }
+            catch (Exception ex)
+            {
+                viewModel.Clientes = new List<Cliente>();
+                ViewBag.Error = $"Error al buscar los clientes: {ex.Message}";
+            }
+
+            return View("Index", viewModel);
+        }
+
+
 
         [HttpPost]
         public async Task<IActionResult> VerDatosContacto(long clienteId)
