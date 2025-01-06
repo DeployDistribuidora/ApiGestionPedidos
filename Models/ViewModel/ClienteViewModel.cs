@@ -3,9 +3,10 @@
     public class ClienteViewModel
     {
         public string SearchTerm { get; set; } // Filtro de búsqueda
-        public long ClienteSeleccionadoId { get; set; } // ID del cliente seleccionado
-        public List<Cliente> Clientes { get; set; } = new List<Cliente>(); // Lista de clientes
+        public long ClienteSeleccionadoId { get; set; } 
+        public List<Cliente> Clientes { get; set; } = new List<Cliente>(); 
         public List<DatosContacto> DatosContacto { get; set; } = new List<DatosContacto>(); // Datos de contacto del cliente seleccionado
+        public string Error { get; set; }
     }
 
 

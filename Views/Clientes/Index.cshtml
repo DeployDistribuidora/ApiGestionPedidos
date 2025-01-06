@@ -1,4 +1,120 @@
-﻿@model List<Front_End_Gestion_Pedidos.Models.Cliente>
+﻿@model Front_End_Gestion_Pedidos.Models.ViewModel.ClienteViewModel
+
+
+@{
+    ViewData["Title"] = "Gestión de Clientes";
+    string searchTerm = ViewBag.SearchTerm;
+}
+
+<div class="container mt-4">
+    <!-- Encabezado de la página -->
+    <h2 class="text-primary text-center mb-4">Gestión de Clientes</h2>
+
+    <!-- Filtro de búsqueda -->
+    <form method="get" asp-action="BuscarClientes" class="row g-2 align-items-center mb-4">
+        <div class="col-sm-9 col-md-6">
+            <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control form-control-sm" placeholder="Buscar clientes..." />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+        </div>
+    </form>
+
+    <!-- Tabla de clientes -->
+    <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle text-nowrap">
+            <thead class="table-primary">
+                <tr>
+                    <th>NroCliente</th>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Clientes != null && Model.Clientes.Count > 0)
+                {
+                    foreach (var cliente in Model.Clientes)
+                    {
+                        <tr>
+                            <td>@cliente.NroCliente</td>
+                            <td>@cliente.NombreCliente</td>
+                            <td>@cliente.DirCliente</td>
+                            <td>@cliente.TelefCliente</td>
+                            <td>
+                                <form method="post" asp-action="VerDatosContacto" class="d-inline">
+                                    <input type="hidden" name="clienteId" value="@cliente.NroCliente" />
+                                    <button type="submit" class="btn btn-info btn-sm">Ver</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No se encontraron resultados</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para mostrar los datos de contacto -->
+    @if (Model.DatosContacto != null && Model.DatosContacto.Count > 0)
+    {
+        <div class="modal fade" id="modalDatosContacto" tabindex="-1" aria-labelledby="modalDatosContactoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Datos de Contacto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        @foreach (var contacto in Model.DatosContacto)
+                        {
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6 class="card-title">@contacto.Alias</h6>
+                                    <p class="mb-1"><strong>Dirección:</strong> @contacto.Direccion</p>
+                                    <p class="mb-1"><strong>Teléfono:</strong> @contacto.NumeroTelefono</p>
+                                    <p class="mb-0"><strong>Comentario:</strong> @(string.IsNullOrEmpty(contacto.Comentario) ? "Sin comentario" : contacto.Comentario)</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalElement = document.getElementById('modalDatosContacto');
+
+            // Inicializar modal con Bootstrap
+            const modal = new bootstrap.Modal(modalElement);
+
+            // Mostrar modal si hay datos de contacto
+        @if (Model.DatosContacto != null && Model.DatosContacto.Count > 0)
+        {
+            <text>modal.show();</text>
+        }
+
+                // Listener para el evento de cierre del modal
+                modalElement.addEventListener('hidden.bs.modal', () => {
+                    console.log('Modal cerrado');
+                });
+        });
+    </script>
+
+
+</div>
+
+
+
+@* @model List<Front_End_Gestion_Pedidos.Models.Cliente>
 
 @{
     ViewData["Title"] = "Gestión de Clientes";
@@ -96,3 +212,4 @@
 
 </div> 
 
+ *@

@@ -22,15 +22,17 @@ namespace Front_End_Gestion_Pedidos.Controllers
         {
             // Recuperar usuario desde la sesión
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
+
             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
 
             if (string.IsNullOrEmpty(usuarioLogueado))
                 return RedirectToAction("Login", "Account");
 
-            // Llamar al método asincrónico para obtener clientes
-            var clientes = await ObtenerClientes(); // Asegúrate de usar await para resolver la tarea
+            var viewModel = new ClienteViewModel();
+            // Recuperar clientes desde la API
+            viewModel.Clientes = (await ObtenerClientes())?.ToList() ?? new List<Cliente>();
 
-            return View(clientes); // Pasar la lista de clientes a la vista
+            return View(viewModel); // Pasar la lista de clientes a la vista
         }
 
         public async Task<IActionResult> Clientes()
@@ -92,28 +94,25 @@ namespace Front_End_Gestion_Pedidos.Controllers
         [HttpPost]
         public async Task<IActionResult> VerDatosContacto(long clienteId)
         {
+            var viewModel = new ClienteViewModel();
+
             try
             {
-                // Llama al método que consume el endpoint de la API externa
-                var datosContacto = await ObtenerDatosContactoPorCliente(clienteId);
+                // Obtener los datos de contacto del cliente
+                viewModel.DatosContacto = (await ObtenerDatosContactoPorCliente(clienteId))?.ToList() ?? new List<DatosContacto>();
 
-                if (datosContacto != null && datosContacto.Any())
-                {
-                    ViewBag.DatosContacto = datosContacto;
-                }
-                else
-                {
-                    ViewBag.DatosContacto = new List<DatosContacto>();
-                }
+                // Obtener todos los clientes para la tabla
+                viewModel.Clientes = (await ObtenerClientes())?.ToList() ?? new List<Cliente>();
             }
             catch (Exception ex)
             {
                 // Manejar el error y retornar un mensaje adecuado
-                ViewBag.DatosContacto = null;
-                ViewBag.Error = $"Error al obtener los datos de contacto: {ex.Message}";
+                viewModel.DatosContacto = new List<DatosContacto>();
+                viewModel.Clientes = new List<Cliente>();
+                viewModel.Error = $"Error al obtener los datos: {ex.Message}";
             }
 
-            return View("Index"); // Reemplaza con el nombre de tu vista principal
+            return View("Index", viewModel);
         }
 
 
