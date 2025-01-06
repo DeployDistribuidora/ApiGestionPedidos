@@ -36,21 +36,38 @@ namespace Front_End_Gestion_Pedidos.Controllers
         [HttpGet]
         public async Task<IActionResult> BuscarProductos(string searchTerm)
         {
-            // Obtener todos los productos
-            var productos = await ObtenerProductos();
-
-            // Filtrar los productos según el término de búsqueda
-            if (!string.IsNullOrEmpty(searchTerm))
+            try
             {
-                productos = productos.Where(p =>
-                    p.Descripcion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+                // Obtener todos los productos desde la API
+                var productos = await ObtenerProductos();
+
+                // Filtro de búsqueda
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    var productosFiltrados = productos
+                        .Where(p => p.Descripcion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    if (productosFiltrados.Count > 0)
+                    {
+                        return View(productosFiltrados);
+                    }
+                    else
+                    {
+                        ViewBag.Alerta = "No se encontraron productos que coincidan con el término de búsqueda.";
+                        return View(productos);
+                    }
+                }
+
+                return View(productos);
             }
-
-            ViewBag.SearchTerm = searchTerm; // Mantener el término de búsqueda en la vista
-
-            // Retornar la vista con los productos filtrados
-            return View("Index", productos);
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Error al buscar productos: {ex.Message}";
+                return View(new List<Producto>());
+            }
         }
+
 
         private async Task<IEnumerable<Producto>> ObtenerProductos()
         {
