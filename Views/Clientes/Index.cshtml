@@ -7,6 +7,23 @@
 }
 
 <div class="container mt-4">
+    <!-- Mostrar alertas si existen -->
+    @if (ViewBag.Alerta != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            @ViewBag.Alerta
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @ViewBag.Error
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <!-- Encabezado de la página -->
     <h2 class="text-primary text-center mb-4">Gestión de Clientes</h2>
 
@@ -88,29 +105,28 @@
             </div>
         </div>
     }
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const modalElement = document.getElementById('modalDatosContacto');
-
-            // Inicializar modal con Bootstrap
-            const modal = new bootstrap.Modal(modalElement);
-
-            // Mostrar modal si hay datos de contacto
-        @if (Model.DatosContacto != null && Model.DatosContacto.Count > 0)
-        {
-            <text>modal.show();</text>
-        }
-
-                // Listener para el evento de cierre del modal
-                modalElement.addEventListener('hidden.bs.modal', () => {
-                    console.log('Modal cerrado');
-                });
-        });
-    </script>
-
-
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalElement = document.getElementById('modalDatosContacto');
+
+        // Inicializar modal con Bootstrap
+        const modal = new bootstrap.Modal(modalElement);
+
+        // Mostrar modal si hay datos de contacto
+    @if (Model.DatosContacto != null && Model.DatosContacto.Count > 0)
+    {
+        <text>modal.show();</text>
+    }
+
+            // Listener para el evento de cierre del modal
+            modalElement.addEventListener('hidden.bs.modal', () => {
+                console.log('Modal cerrado');
+            });
+    });
+</script>
 
 
 

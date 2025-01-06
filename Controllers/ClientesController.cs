@@ -99,17 +99,24 @@ namespace Front_End_Gestion_Pedidos.Controllers
             try
             {
                 // Obtener los datos de contacto del cliente
-                viewModel.DatosContacto = (await ObtenerDatosContactoPorCliente(clienteId))?.ToList() ?? new List<DatosContacto>();
+                var datosContacto = await ObtenerDatosContactoPorCliente(clienteId);
+                viewModel.DatosContacto = datosContacto?.ToList() ?? new List<DatosContacto>();
 
-                // Obtener todos los clientes para la tabla
+                // Mantener la lista de clientes siempre
                 viewModel.Clientes = (await ObtenerClientes())?.ToList() ?? new List<Cliente>();
+
+                // Si no hay datos de contacto, incluir un mensaje de alerta
+                if (!viewModel.DatosContacto.Any())
+                {
+                    ViewBag.Alerta = "No se encontraron datos de contacto para este cliente.";
+                }
             }
             catch (Exception ex)
             {
                 // Manejar el error y retornar un mensaje adecuado
                 viewModel.DatosContacto = new List<DatosContacto>();
-                viewModel.Clientes = new List<Cliente>();
-                viewModel.Error = $"Error al obtener los datos: {ex.Message}";
+                viewModel.Clientes = (await ObtenerClientes())?.ToList() ?? new List<Cliente>();
+                ViewBag.Error = $"Mensaje: {ex.Message}";
             }
 
             return View("Index", viewModel);
