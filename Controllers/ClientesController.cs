@@ -134,59 +134,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
-
-        [HttpPost]
-        public async Task<IActionResult> VerDatosContacto(long clienteId)
-        {
-            var viewModel = new ClienteViewModel();
-
-            try
-            {
-                // Obtener los datos de contacto del cliente
-                var datosContacto = await ObtenerDatosContactoPorCliente(clienteId);
-                viewModel.DatosContacto = datosContacto?.ToList() ?? new List<DatosContacto>();
-
-                // Mantener la lista de clientes siempre
-                viewModel.Clientes = (await ObtenerClientes())?.ToList() ?? new List<Cliente>();
-
-                // Si no hay datos de contacto, incluir un mensaje de alerta
-                if (!viewModel.DatosContacto.Any())
-                {
-                    ViewBag.Alerta = "No se encontraron datos de contacto para este cliente.";
-                }
-            }
-            catch (Exception ex)
-            {
-                // Manejar el error y retornar un mensaje adecuado
-                viewModel.DatosContacto = new List<DatosContacto>();
-                viewModel.Clientes = (await ObtenerClientes())?.ToList() ?? new List<Cliente>();
-                ViewBag.Error = $"Mensaje: {ex.Message}";
-            }
-
-            return View("Index", viewModel);
-        }
-
-
-        private async Task<IEnumerable<DatosContacto>> ObtenerDatosContactoPorCliente(long clienteId)
-        {
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"https://localhost:7078/api/v1/Clientes/{clienteId}/DatosContacto");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<DatosContacto>>(jsonResponse, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-            }
-            else
-            {
-                // Manejar errores en la solicitud a la API
-                throw new Exception($"Error al obtener los datos de contacto para el cliente {clienteId}");
-            }
-        }
-
     }
 
 
