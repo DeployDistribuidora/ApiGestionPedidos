@@ -6,8 +6,154 @@
 {
     var role = HttpContextAccessor.HttpContext.Session.GetString("Role");
 
+    <div class="pagetitle">
+        <h1>Supervisar pedidos</h1>
+    </div>
+
+
+    <!-- Sección Principal -->
+    <section class="section">
+        <div class="row">
+            <!-- Filtros de Búsqueda -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Filtros de Búsqueda</h5>
+                        <form method="get" asp-action="SupervisarPedidos" class="row g-3">
+                            <div class="col-md-4">
+                                <label for="inputCliente" class="form-label">Cliente</label>
+                                <input type="text" name="cliente" class="form-control form-control-sm" id="inputCliente" placeholder="Cliente" value="@Model.Cliente">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="inputVendedor" class="form-label">Vendedor</label>
+                                <input type="text" name="vendedor" class="form-control form-control-sm" id="inputVendedor" placeholder="Vendedor" value="@Model.Vendedor">
+                            </div>
+                            @if (role == "Administracion")
+                            {
+                                <div class="col-md-4">
+                                    <label for="inputEstado" class="form-label">Estado</label>
+                                    <select name="estado" class="form-select form-select-sm" id="inputEstado">
+                                        <option value="Pendiente" selected>Pedidos Pendientes</option>
+                                        <option value="En viaje">Pedidos En viaje</option>
+                                    </select>
+                                </div>
+                            }
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Pedidos -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Pedidos</h5>
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Nro</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Vendedor</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.Pedidos.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No se encontraron pedidos con los filtros aplicados.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var pedido in Model.Pedidos)
+                                    {
+                                        <tr>
+                                            <td>@pedido.IdPedido</td>
+                                            <td>@pedido.IdCliente</td>
+                                            <td>@pedido.IdVendedor</td>
+                                            <td>@pedido.Estado</td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">Detalle</button>
+                                                @if (role == "Administracion")
+                                                {
+                                                    <button class="btn btn-success btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Preparar</button>
+                                                    <button class="btn btn-danger btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Cancelado')">Cancelar</button>
+                                                }
+                                                else if (role == "Supervisor de Carga" && pedido.Estado == "Preparando")
+                                                {
+                                                    <button class="btn btn-warning btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'En viaje')">Embarcar</button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modales de Detalle -->
+    @foreach (var pedido in Model.Pedidos)
+    {
+        <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Cliente:</strong> @pedido.IdCliente</p>
+                        <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
+                        <p><strong>Estado:</strong> @pedido.Estado</p>
+                        <h6>Productos</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (pedido.LineasPedido != null && pedido.LineasPedido.Any())
+                                {
+                                    @foreach (var linea in pedido.LineasPedido)
+                                    {
+                                        <tr>
+                                            <td>@linea.Codigo</td>
+                                            <td>Producto @linea.Codigo</td>
+                                            <td>@linea.PrecioUnitario.ToString("C")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No hay productos asociados.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Mensajes de Éxito o Error -->
     <div class="container mt-4">
-        <!-- Mostrar mensajes de éxito o error -->
         @if (TempData["Mensaje"] != null)
         {
             var mensaje = TempData["Mensaje"].ToString();
@@ -19,144 +165,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-
-        <h2 class="text-center text-primary mb-4">Supervisar Pedidos</h2>
-
-        <!-- Filtros de búsqueda -->
-        <form method="get" asp-action="SupervisarPedidos" class="row g-3 align-items-center mb-4">
-            <div class="col-md-4">
-                <input type="text" name="cliente" class="form-control form-control-sm" placeholder="Cliente" value="@Model.Cliente" />
-            </div>
-            <div class="col-md-4">
-                <input type="text" name="vendedor" class="form-control form-control-sm" placeholder="Vendedor" value="@Model.Vendedor" />
-            </div>
-            @if (role == "Administracion")
-            {
-                <div class="col-md-4">
-                    <select name="estado" class="form-select form-select-sm">
-                        <option value="Pendiente" selected>Pedidos Pendientes</option>
-                        <option value="En viaje">Pedidos En viaje</option>
-                    </select>
-                </div>
-            }
-            <div class="col-12 text-center">
-                <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
-            </div>
-        </form>
-
-        <!-- Tabla de Pedidos -->
-        <table class="table table-hover table-sm align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Nro</th>
-                    <th>Cliente</th>
-                    <th>Vendedor</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Pedidos.Any())
-                {
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No se encontraron pedidos con los filtros aplicados.</td>
-                    </tr>
-                }
-                else
-                {
-                    @foreach (var pedido in Model.Pedidos)
-                    {
-                        <tr>
-                            <td>@pedido.IdPedido</td>
-                            <td>@pedido.IdCliente</td>
-                            <td>@pedido.IdVendedor</td>
-                            <td>@pedido.Estado</td>
-                            <td>
-                                <!-- Botón para ver detalles -->
-                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
-                                    Detalle
-                                </button>
-
-                                @if (role == "Administracion")
-                                {
-                                    <!-- Botón para cambiar a "Preparando" -->
-                                    <button class="btn btn-success btn-sm"
-                                            onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">
-                                        Preparar
-                                    </button>
-                                    <!-- Botón para cancelar -->
-                                    <button class="btn btn-danger btn-sm"
-                                            onclick="mostrarConfirmacion(@pedido.IdPedido, 'Cancelado')">
-                                        Cancelar
-                                    </button>
-                                }
-                                else if (role == "Supervisor de Carga" && pedido.Estado == "Preparando")
-                                {
-                                    <!-- Botón para cambiar a "En viaje" -->
-                                    <button class="btn btn-warning btn-sm"
-                                            onclick="mostrarConfirmacion(@pedido.IdPedido, 'En viaje')">
-                                        Embarcar
-                                    </button>
-                                }
-                            </td>
-                        </tr>
-
-                        <!-- Modal de Detalle -->
-                        <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1"
-                             aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-primary text-white">
-                                        <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">
-                                            Detalle del Pedido #@pedido.IdPedido
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p><strong>Cliente:</strong> @pedido.IdCliente</p>
-                                        <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
-                                        <p><strong>Estado:</strong> @pedido.Estado</p>
-                                        <h6>Productos</h6>
-                                        <table class="table table-sm">
-                                            <thead>
-                                                <tr>
-                                                    <th>Código</th>
-                                                    <th>Nombre</th>
-                                                    <th>Precio</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @if (pedido.LineasPedido != null && pedido.LineasPedido.Any())
-                                                {
-                                                    @foreach (var linea in pedido.LineasPedido)
-                                                    {
-                                                        <tr>
-                                                            <td>@linea.Codigo</td>
-                                                            <td>Producto @linea.Codigo</td>
-                                                            <td>@linea.PrecioUnitario.ToString("C")</td>
-                                                        </tr>
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <tr>
-                                                        <td colspan="3" class="text-center text-muted">No hay productos asociados.</td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                }
-            </tbody>
-        </table>
     </div>
 
     <!-- Modal de Confirmación -->
@@ -194,6 +202,7 @@
         modal.show();
     }
 </script>
+
 
 
 @* @using Front_End_Gestion_Pedidos.Models.ViewModel

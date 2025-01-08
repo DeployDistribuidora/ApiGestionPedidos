@@ -1,4 +1,128 @@
 ﻿@model List<Front_End_Gestion_Pedidos.Models.Producto>
+
+@{
+    ViewData["Title"] = "Gestión de Productos";
+    string searchTerm = ViewBag.SearchTerm;
+}
+
+<div class="pagetitle">
+    <h1>Gestión de Productos</h1>
+</div>
+
+<section class="section">
+    <div class="row">
+        <!-- Alertas -->
+        <div class="col-12">
+            @if (ViewBag.Alerta != null)
+            {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle"></i> @ViewBag.Alerta
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+            }
+
+            @if (ViewBag.Error != null)
+            {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i> @ViewBag.Error
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+            }
+        </div>
+
+        <!-- Filtro de búsqueda -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Filtro de Búsqueda</h5>
+                    <form method="get" asp-action="BuscarProductos" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control form-control-sm" placeholder="Buscar producto" />
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de productos -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Productos</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm align-middle text-nowrap">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Stock</th>
+                                    <th>Precio</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Count > 0)
+                                {
+                                    foreach (var producto in Model)
+                                    {
+                                                <tr>
+                                                    <td>@producto.Codigo</td>
+                                                    <td>@producto.Descripcion</td>
+                                                    <td>@producto.Stock_Actual</td>
+                                                    <td>@producto.Precio</td>
+                                                    <td>
+                                                        <!-- Botón que activa el modal -->
+                                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal-@producto.Codigo">
+                                                            Detalle
+                                                        </button>
+
+                                                        <!-- Modal -->
+                                                        <div class="modal fade" id="detalleModal-@producto.Codigo" tabindex="-1" aria-labelledby="detalleModalLabel-@producto.Codigo" aria-hidden="true">
+                                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Detalle del Producto</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <p><strong>Código:</strong> @producto.Codigo</p>
+                                                                        <p><strong>Descripción:</strong> @producto.Descripcion</p>
+                                                                        <p><strong>Marca:</strong> @producto.Marca</p>
+                                                                        <p><strong>Estado:</strong> @producto.Estado</p>
+                                                                        <p><strong>Precio:</strong> @producto.Precio</p>
+                                                                        <p><strong>Costo:</strong> @producto.Costo</p>
+                                                                        <p><strong>Detalle:</strong> @producto.Detalle</p>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                    }
+                                }
+                                else
+                                {
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No se encontraron resultados</td>
+                                        </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@* @model List<Front_End_Gestion_Pedidos.Models.Producto>
 @{
     ViewData["Title"] = "Gestión de Productos";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -97,3 +221,4 @@
         </table>
     </div>
 </div>
+ *@

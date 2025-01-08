@@ -193,18 +193,59 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // --------------------------------------------------------------------------------------
 
         // Vista principal para mostrar el historial de pedidos
-        public async Task<IActionResult> BuscarPedidos()
+        public async Task<IActionResult> BuscarPedidos(string cliente, string vendedor, DateTime? fechaInicio, DateTime? fechaFin)
         {
+            // Validar sesión
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
 
             if (string.IsNullOrEmpty(usuarioLogueado))
                 return RedirectToAction("Login", "Account");
 
+            // Obtener todos los pedidos
             var pedidos = await ObtenerPedidos();
+
+            // Aplicar filtros si se proporcionan
+            if (!string.IsNullOrEmpty(cliente))
+            {
+                pedidos = pedidos.Where(p => p.IdCliente != null && p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            }
+
+            if (!string.IsNullOrEmpty(vendedor))
+            {
+                pedidos = pedidos.Where(p => p.IdVendedor.HasValue && p.IdVendedor.Value.ToString().Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                pedidos = pedidos.Where(p => p.FechaCreacion.Date >= fechaInicio.Value.Date && p.FechaCreacion.Date <= fechaFin.Value.Date).ToList();
+            }
+            else if (fechaInicio.HasValue)
+            {
+                pedidos = pedidos.Where(p => p.FechaCreacion.Date >= fechaInicio.Value.Date).ToList();
+            }
+            else if (fechaFin.HasValue)
+            {
+                pedidos = pedidos.Where(p => p.FechaCreacion.Date <= fechaFin.Value.Date).ToList();
+            }
 
             return View(pedidos);
         }
+
+
+        //public async Task<IActionResult> BuscarPedidos()
+        //{
+        //    var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
+        //    var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+
+        //    if (string.IsNullOrEmpty(usuarioLogueado))
+        //        return RedirectToAction("Login", "Account");
+
+        //    var pedidos = await ObtenerPedidos();
+
+        //    return View(pedidos);
+        //}
 
         // --------------------------------------------------------------------------------------
         // MÉTODOS AUXILIARES
