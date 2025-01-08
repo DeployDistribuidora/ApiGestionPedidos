@@ -115,13 +115,31 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // SUPERVISAR PEDIDOS (Vista: SupervisarPedidos)
         // --------------------------------------------------------------------------------------
 
-        // Vista principal para supervisar pedidos pendientes
-        public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "")
+        public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "", string estado = "")
         {
+            // Recuperar rol del usuario desde la sesión
+            var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+            if (string.IsNullOrEmpty(rolUsuario))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Obtener todos los pedidos desde la API
             var pedidos = await ObtenerPedidos();
 
-            pedidos = pedidos.Where(p => p.Estado.Equals("Pendiente", StringComparison.OrdinalIgnoreCase)).ToList();
+            // Filtrar pedidos por rol y estado
+            if (rolUsuario == "Administracion")
+            {
+                if (string.IsNullOrEmpty(estado)) estado = "Pendiente";
+                pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            else if (rolUsuario == "Supervisor de Carga")
+            {
+                estado = "Preparando"; // Supervisores solo ven pedidos "Preparando"
+                pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
 
+            // Aplicar filtros opcionales de cliente y vendedor
             if (!string.IsNullOrEmpty(cliente))
             {
                 pedidos = pedidos.Where(p => p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -132,16 +150,44 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 pedidos = pedidos.Where(p => p.IdVendedor.ToString().Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
+            // Preparar el modelo para la vista
             var viewModel = new SupervisarPedidosViewModel
             {
                 Pedidos = pedidos,
                 Cliente = cliente,
                 Vendedor = vendedor,
-                Estado = "Pendiente"
+                Estado = estado
             };
 
             return View(viewModel);
         }
+
+        //public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "")
+        //{
+        //    var pedidos = await ObtenerPedidos();
+
+        //    pedidos = pedidos.Where(p => p.Estado.Equals("Pendiente", StringComparison.OrdinalIgnoreCase)).ToList();
+
+        //    if (!string.IsNullOrEmpty(cliente))
+        //    {
+        //        pedidos = pedidos.Where(p => p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
+        //    }
+
+        //    if (!string.IsNullOrEmpty(vendedor))
+        //    {
+        //        pedidos = pedidos.Where(p => p.IdVendedor.ToString().Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
+        //    }
+
+        //    var viewModel = new SupervisarPedidosViewModel
+        //    {
+        //        Pedidos = pedidos,
+        //        Cliente = cliente,
+        //        Vendedor = vendedor,
+        //        Estado = "Pendiente"
+        //    };
+
+        //    return View(viewModel);
+        //}
 
         // Detalles del pedido en un modal (usado en la vista SupervisarPedidos)
         /* public async Task<IActionResult> DetallesPedido(int id)
@@ -181,31 +227,8 @@ namespace Front_End_Gestion_Pedidos.Controllers
              return PartialView("_DetallePedido", detallesViewModel);
          }*/
 
-        // Acción para aprobar un pedido
-        //[HttpPost]
-        //public IActionResult AprobarPedido(int id)
-        //{
-        //    //Pasar pedido a estado "Preparando" si está "Pendiente"
-        //    //Pasar pedido a estado "Entregado" si está "En viaje"
-        //    TempData["Mensaje"] = $"Pedido #{id} aprobado exitosamente.";
-        //    return RedirectToAction("SupervisarPedidos");
-        //}
-        //public IActionResult EmbarcarPedido(int id)
-        //{
-        //    //Pasar pedido a estado "En viaje"
-        //    TempData["Mensaje"] = $"Pedido #{id} en viaje.";
-        //    return RedirectToAction("SupervisarPedidos");
-        //}
 
-        //// Acción para cancelar un pedido
-        //[HttpPost]
-        //public IActionResult CancelarPedido(int id)
-        //{
-        //    TempData["Mensaje"] = $"Pedido #{id} cancelado.";
-        //    return RedirectToAction("SupervisarPedidos");
-        //}
 
-        // Acción para cambiar el estado de un pedido
         // Acción para cambiar el estado de un pedido
         [HttpPost]
         public async Task<IActionResult> CambiarEstadoPedido(int id, string nuevoEstado)
