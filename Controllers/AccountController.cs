@@ -21,6 +21,12 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         public IActionResult Login()
         {
+            // Si el usuario ya está autenticado, redirigir al Home
+            if (HttpContext.Session.GetString("UsuarioLogueado") != null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             // Limpiar sesión al iniciar login
             HttpContext.Session.Clear();
             return View();
@@ -111,7 +117,8 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         public IActionResult Logout()
         {
-            //HttpContext.Session.Clear(); // Limpia la sesión
+            // Limpiar sesión y redirigir al Login
+            HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
     }

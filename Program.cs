@@ -27,6 +27,15 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection(); // Redirige automáticamente HTTP a HTTPS
 app.UseStaticFiles(); // Habilita archivos estáticos en wwwroot
 
+// Middleware para evitar caché del navegador en páginas sensibles
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    context.Response.Headers["Pragma"] = "no-cache";
+    context.Response.Headers["Expires"] = "0";
+    await next();
+});
+
 app.UseRouting(); // Habilita el enrutamiento de controladores
 app.UseSession(); // Habilita el middleware de sesiones
 app.UseAuthorization(); // Manejo de autorización si aplicas políticas
@@ -35,11 +44,6 @@ app.UseAuthorization(); // Manejo de autorización si aplicas políticas
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}"); // Redirige al Login como vista predeterminada
-
-//PRUEBAS
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Pedidos}/{action=NuevoPedido}/{id?}"); 
 
 // Ejecuta la aplicación
 app.Run();
