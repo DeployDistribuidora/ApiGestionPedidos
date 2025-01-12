@@ -60,12 +60,12 @@
                         <table class="table table-hover table-sm">
                             <thead class="table-primary">
                                 <tr>
+                                    <th scope="col">Detalle</th>
                                     <th scope="col">IdPedido</th>
                                     <th scope="col">IdCliente</th>
                                     <th scope="col">IdVendedor</th>
                                     <th scope="col">Estado</th>
-                                    <th scope="col">FechaCreacion</th>
-                                    <th scope="col">Acciones</th>
+                                    <th scope="col">FechaCreacion</th>                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -80,17 +80,17 @@
                                     @foreach (var pedido in Model)
                                     {
                                         <tr>
+                                            <td>
+                                                <!-- Ícono zoom-in para Detalle -->
+                                                <div class="icon text-primary" role="button" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
+                                                    <i class="bi bi-zoom-in"></i>
+                                                </div>
+                                            </td>
                                             <td>@pedido.IdPedido</td>
                                             <td>@pedido.IdCliente</td>
                                             <td>@pedido.IdVendedor</td>
                                             <td>@pedido.Estado</td>
                                             <td>@pedido.FechaCreacion.ToShortDateString()</td>
-                                            <td>
-                                                <!-- Botón para Detalle -->
-                                                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
-                                                    Detalle
-                                                </button>
-                                            </td>
                                         </tr>
 
                                         <!-- Modal de Detalle -->
@@ -123,102 +123,7 @@
                 </div>
             </div>
         </div>
+
+
     </div>
 </section>
-
-@* 
-@model IEnumerable<Front_End_Gestion_Pedidos.Models.Pedido>
-@{
-    ViewData["Title"] = "Buscar Pedidos";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<div class="container mt-4">
-    <h2 class="text-primary text-center">Historial de Pedidos</h2>
-
-    <!-- TempData para mensajes -->
-    @if (TempData["Mensaje"] != null)
-    {
-        <div class="alert alert-info text-center">
-            @TempData["Mensaje"]
-        </div>
-    }
-
-    <!-- Filtros de búsqueda -->
-    <form method="get" asp-action="BuscarPedidos" class="row g-3 align-items-center mb-3">
-        <div class="col-md-4">
-            <input type="text" name="cliente" class="form-control" placeholder="Cliente" />
-        </div>
-        <div class="col-md-4">
-            <input type="text" name="vendedor" class="form-control" placeholder="Vendedor" />
-        </div>
-        <div class="col-md-4">
-            <div class="input-group">
-                <input type="date" name="fechaInicio" class="form-control" />
-                <span class="input-group-text">a</span>
-                <input type="date" name="fechaFin" class="form-control" />
-            </div>
-        </div>
-        <div class="col-12 text-center">
-            <button type="submit" class="btn btn-primary">Buscar</button>
-        </div>
-    </form>
-
-    <!-- Tabla de pedidos -->
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="table-primary">
-                <tr>
-                    <th>IdPedido</th>
-                    <th>IdCliente</th>
-                    <th>IdVendedor</th>
-                    <th>Estado</th>
-                    <th>FechaCreacion</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var pedido in Model)
-                {
-                    <tr>
-                        <td>@pedido.IdPedido</td>
-                        <td>@pedido.IdCliente</td>
-                        <td>@pedido.IdVendedor</td>
-                        <td>@pedido.Estado</td>
-                        <td>@pedido.FechaCreacion.ToShortDateString()</td>
-                        <td>
-                            <!-- Botón que activa el modal con los datos del pedido -->
-                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
-                                Detalle
-                            </button>
-
-                            <!-- Modal individual para cada pedido -->
-                            <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p><strong>Cliente:</strong> @pedido.IdCliente</p>
-                                            <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
-                                            <p><strong>Estado:</strong> @pedido.Estado</p>
-                                            <p><strong>Fecha de Creación:</strong> @pedido.FechaCreacion.ToShortDateString()</p>
-                                            <p><strong>Otros Detalles:</strong> @pedido.MetodoPago</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-success">Aprobar</button>
-                                            <button type="button" class="btn btn-danger">Cancelar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div> 
- *@

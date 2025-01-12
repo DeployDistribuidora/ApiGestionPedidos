@@ -230,6 +230,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 pedidos = pedidos.Where(p => p.FechaCreacion.Date <= fechaFin.Value.Date).ToList();
             }
 
+
             return View(pedidos);
         }
 

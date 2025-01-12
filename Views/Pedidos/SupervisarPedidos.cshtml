@@ -56,7 +56,7 @@
                                 <tr>
                                     <th scope="col">Nro</th>
                                     <th scope="col">Cliente</th>
-                                    <th scope="col">Vendedor</th>
+                                    <th scope="col" class="d-none d-md-table-cell">Vendedor</th>
                                     <th scope="col">Estado</th>
                                     <th scope="col">Acciones</th>
                                 </tr>
@@ -75,7 +75,7 @@
                                         <tr>
                                             <td>@pedido.IdPedido</td>
                                             <td>@pedido.IdCliente</td>
-                                            <td>@pedido.IdVendedor</td>
+                                            <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
                                             <td>@pedido.Estado</td>
                                             <td>
                                                 <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">Detalle</button>
@@ -97,6 +97,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 
@@ -203,190 +204,3 @@
     }
 </script>
 
-
-
-@* @using Front_End_Gestion_Pedidos.Models.ViewModel
-@inject IHttpContextAccessor HttpContextAccessor
-@model SupervisarPedidosViewModel
-
-@if (!string.IsNullOrEmpty(HttpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado")))
-{
-    var role = HttpContextAccessor.HttpContext.Session.GetString("Role");
-
-    <div class="container mt-4">
-        @if (TempData["Mensaje"] != null)
-        {
-            var mensaje = TempData["Mensaje"].ToString();
-            var exito = TempData["Exito"] != null && (bool)TempData["Exito"];
-            var alertClass = exito ? "alert-success" : "alert-danger";
-
-            <div class="alert @alertClass alert-dismissible fade show" role="alert">
-                @mensaje
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
-
-        <h2 class="text-center text-primary mb-4">Supervisar Pedidos Pendientes</h2>
-
-        <!-- Filtros de búsqueda -->
-        <form method="get" asp-action="SupervisarPedidos" class="row g-3 align-items-center mb-4">
-            <div class="col-md-6">
-                <input type="text" name="cliente" class="form-control" placeholder="Cliente" value="@Model.Cliente" />
-            </div>
-            <div class="col-md-6">
-                <input type="text" name="vendedor" class="form-control" placeholder="Vendedor" value="@Model.Vendedor" />
-            </div>
-            <div class="col-12 text-center">
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </div>
-        </form>
-
-        <!-- Tabla de Pedidos -->
-        <div class="mt-4">
-            <h5 class="text-secondary text-center">Mostrando solo pedidos en estado <strong>"Pendiente"</strong></h5>
-        </div>
-        <table class="table table-hover">
-            <thead class="table-light">
-                <tr>
-                    <th>Nro</th>
-                    <th>Cliente</th>
-                    <th>Vendedor</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Pedidos.Any())
-                {
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">No se encontraron pedidos pendientes con los filtros aplicados.</td>
-                    </tr>
-                }
-                else
-                {
-                    @foreach (var pedido in Model.Pedidos)
-                    {
-                        <tr>
-                            <td>@pedido.IdPedido</td>
-                            <td>@pedido.IdCliente</td>
-                            <td>@pedido.IdVendedor</td>
-                            <td>
-                                <!-- Botón para ver detalles -->
-                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
-                                    Detalle
-                                </button>
-
-                                @if (role == "Administracion")
-                                {
-                                    <!-- Botón para cambiar el estado a "Preparando" -->
-                                    <form method="post" asp-action="CambiarEstadoPedido" style="display: inline;">
-                                        <input type="hidden" name="id" value="@pedido.IdPedido" />
-                                        <input type="hidden" name="nuevoEstado" value="Preparando" />
-                                        <button type="submit" class="btn btn-success btn-sm">Preparar</button>
-                                    </form>
-                                }
-                                else if (role == "Supervisor de Carga")
-                                {
-                                    <!-- Botón para cambiar el estado a "En viaje" -->
-                                    <form method="post" asp-action="CambiarEstadoPedido" style="display: inline;">
-                                        <input type="hidden" name="id" value="@pedido.IdPedido" />
-                                        <input type="hidden" name="nuevoEstado" value="En viaje" />
-                                        <button type="submit" class="btn btn-warning btn-sm">Embarcar</button>
-                                    </form>
-                                }
-
-                                <!-- Botón para cancelar el pedido -->
-                                <form method="post" asp-action="CambiarEstadoPedido" style="display: inline;">
-                                    <input type="hidden" name="id" value="@pedido.IdPedido" />
-                                    <input type="hidden" name="nuevoEstado" value="Cancelado" />
-                                    <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
-                                </form>
-                            </td>
-                        </tr>
-
-                        <!-- Modal de Detalle -->
-                        <tr>
-                            <td colspan="4">
-                                <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-primary text-white">
-                                                <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div>
-                                                    <p><strong>Cliente:</strong> @pedido.IdCliente</p>
-                                                    <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
-                                                    <p><strong>Estado:</strong> @pedido.Estado</p>
-                                                </div>
-                                                <div>
-                                                    <h6>Productos</h6>
-                                                    <table class="table table-hover">
-                                                        <thead class="table-primary">
-                                                            <tr>
-                                                                <th>Código</th>
-                                                                <th>Nombre</th>
-                                                                <th>Precio</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @if (pedido.LineasPedido != null && pedido.LineasPedido.Any())
-                                                            {
-                                                                @foreach (var linea in pedido.LineasPedido)
-                                                                {
-                                                                    <tr>
-                                                                        <td>@linea.Codigo</td>
-                                                                        <td>Producto @linea.Codigo</td>
-                                                                        <td>@linea.PrecioUnitario.ToString("C")</td>
-                                                                    </tr>
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                <tr>
-                                                                    <td colspan="3" class="text-center text-muted">No hay productos asociados.</td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Modal de Confirmación -->
-    <div class="modal fade" id="confirmarCambioEstado" tabindex="-1" aria-labelledby="confirmarCambioEstadoLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmarCambioEstadoLabel">Confirmar cambio de estado</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <p>¿Está seguro de cambiar el estado de este pedido a "<span id="estadoDestino"></span>"?</p>
-                </div>
-                <div class="modal-footer">
-                    <form method="post" asp-action="CambiarEstadoPedido" id="formCambioEstado">
-                        <input type="hidden" name="id" id="idPedido" />
-                        <input type="hidden" name="nuevoEstado" id="nuevoEstado" />
-                        <button type="submit" class="btn btn-primary">Confirmar</button>
-                    </form>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-}
- *@

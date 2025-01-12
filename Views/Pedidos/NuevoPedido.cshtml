@@ -14,8 +14,8 @@
     <div class="row">
 
 
-        <!-- Selección de Cliente y Medio de Pago -->
-        <div class="col-lg-6">
+       <!-- Selección de Cliente y Medio de Pago -->
+        <div class="col-12 col-md-6">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Selección de Cliente y Medio de Pago</h5>
@@ -109,9 +109,65 @@
             </div>
         </div>
 
+<!-- Selección de Productos -->
+<div class="col-lg-6">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Selección de Productos</h5>
+            <div class="mb-3">
+                <label for="filtroProductos" class="form-label">Buscar Productos</label>
+                <input type="text" id="filtroProductos" class="form-control form-control-sm" placeholder="Buscar producto..." />
+                <div class="d-flex gap-2 mt-2">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="aplicarFiltro()">Aplicar Filtro</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="limpiarFiltro()">Limpiar Filtro</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-sm" id="tablaProductos">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-nowrap">Nombre</th>
+                            <th class="text-nowrap">Precio</th>
+                            <th class="text-nowrap">Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var producto in Model.Productos)
+                        {
+                            <tr data-nombre="@producto.Descripcion">
+                                <td class="text-nowrap">@producto.Descripcion</td>
+                                <td class="text-nowrap">@producto.Precio</td>
+                                <td class="text-nowrap">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <!-- Botón de decremento -->
+                                        <button type="button" class="btn btn-outline-danger btn-sm rounded-circle px-2"
+                                                onclick="actualizarCantidad('cantidad_@producto.Codigo', -1)">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+                                        <!-- Input de cantidad -->
+                                        <input type="number" id="cantidad_@producto.Codigo" 
+                                               class="form-control form-control-sm text-center mx-1"
+                                               value="0" min="0" style="width: 60px;" />
+                                        <!-- Botón de incremento -->
+                                        <button type="button" class="btn btn-outline-success btn-sm rounded-circle px-2"
+                                                onclick="actualizarCantidad('cantidad_@producto.Codigo', 1)">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
         <!-- Selección de Productos -->
-        <div class="col-lg-6">
+@*         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Selección de Productos</h5>
@@ -148,7 +204,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> *@
 
         <!-- Comentarios -->
 @*         <div class="col-lg-6">
@@ -217,6 +273,19 @@
         filas.forEach(fila => fila.style.display = '');
     }
 
+    // Función para incrementar o decrementar la cantidad
+function actualizarCantidad(inputId, valor) {
+    const input = document.getElementById(inputId);
+    let cantidad = parseInt(input.value) || 0; // Si el valor no es válido, inicia en 0
+    cantidad += valor;
+
+    // Asegurarse de que no sea menor que 0
+    if (cantidad < 0) cantidad = 0;
+
+    input.value = cantidad;
+}
+
+
     // Enviar el pedido
     function enviarPedido() {
         const clienteId = document.getElementById('cliente').value;
@@ -272,217 +341,3 @@
     }
 </script>
 
-
-
-@* @using Front_End_Gestion_Pedidos.Models.ViewModel
-@model PedidoViewModel
-
-@{
-    ViewData["Title"] = "Nuevo Pedido";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<div class="container mt-3">
-    <h2 class="text-primary text-center mb-3">Nuevo Pedido</h2>
-
-    <!-- Selección de Cliente y Medio de Pago -->
-    <div class="row g-2 mb-3">
-        <div class="col-6">
-            <label for="cliente" class="form-label">Cliente</label>
-            <select id="cliente" name="clienteId" class="form-select form-select-sm" onchange="cargarDirecciones()">
-                <option value="" disabled selected>Seleccione un cliente</option>
-                @foreach (var cliente in Model.Clientes)
-                {
-                    @if (Model.ClienteSeleccionado?.NroCliente == cliente.NroCliente)
-                    {
-                        <option value="@cliente.NroCliente" selected
-                                data-dircliente="@cliente.DirCliente"
-                                data-dir2cliente="@cliente.Dir2Cliente">
-                            @cliente.NombreCliente
-                        </option>
-                    }
-                    else
-                    {
-                        <option value="@cliente.NroCliente"
-                                data-dircliente="@cliente.DirCliente"
-                                data-dir2cliente="@cliente.Dir2Cliente">
-                            @cliente.NombreCliente
-                        </option>
-                    }
-                }
-            </select>
-        </div>
-
-        <div class="col-6">
-            <label for="medioPago" class="form-label">Medio de Pago</label>
-            <select id="medioPago" class="form-select">
-                <option value="Contado">Contado</option>
-                <option value="Credito">Crédito</option>
-                <option value="Tarjeta">Tarjeta</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Selección de Dirección -->
-    <div class="mb-3">
-        <label for="direccion" class="form-label">Dirección</label>
-        <select id="direccion" name="direccion" class="form-select form-select-sm">
-            <option value="" disabled selected>Seleccione una dirección</option>
-        </select>
-    </div>
-
-    <!-- Filtro de Productos -->
-    <div class="mb-2">
-        <label for="filtroProductos" class="form-label">Filtro de Productos</label>
-        <input type="text" id="filtroProductos" class="form-control" placeholder="Buscar producto..." />
-        <button type="button" class="btn btn-primary mt-2" onclick="aplicarFiltro()">Aplicar Filtro</button>
-        <button type="button" class="btn btn-secondary mt-2" onclick="limpiarFiltro()">Limpiar Filtro</button>
-    </div>
-
-    <!-- Selección de Productos -->
-    <div class="mb-3">
-        <label class="form-label">Selección de productos y cantidad</label>
-        <div class="table-responsive">
-            <table class="table table-hover table-sm" id="tablaProductos">
-                <thead class="table-primary">
-                    <tr>
-                        <th class="text-nowrap">Nombre</th>
-                        <th class="text-nowrap">Precio</th>
-                        <th class="text-nowrap">Cantidad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var producto in Model.Productos)
-                    {
-                        <tr data-nombre="@producto.Descripcion">
-                            <td class="text-nowrap">@producto.Descripcion</td>
-                            <td class="text-nowrap">@producto.Precio</td>
-                            <td class="text-nowrap">
-                                <input type="number" id="cantidad_@producto.Codigo" class="form-control form-control-sm text-center w-auto" min="0" />
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Comentarios -->
-    <div class="mb-3">
-        <label for="comentarios" class="form-label">Comentarios</label>
-        <textarea id="comentarios" class="form-control form-control-sm text-muted" rows="2"></textarea>
-    </div>
-
-    <!-- Footer del Pedido -->
-    <div class="d-flex justify-content-end gap-2 mt-3">
-        <span class="text-danger fw-bold">Total $0</span>
-        <a href="#" class="btn btn-outline-primary btn-sm">Ver carrito</a>
-        <button type="button" class="btn btn-primary btn-sm" onclick="enviarPedido()">Realizar Pedido</button>
-    </div>
-</div>
-
-<!-- Scripts -->
-<script>
-    // Cargar direcciones según cliente seleccionado
-    function cargarDirecciones() {
-        const clienteSelect = document.getElementById("cliente");
-        const direccionSelect = document.getElementById("direccion");
-
-        // Limpiar el select de direcciones
-        direccionSelect.innerHTML = '<option value="" disabled selected>Seleccione una dirección</option>';
-
-        // Obtener el cliente seleccionado
-        const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
-
-        if (selectedOption) {
-            const dir1 = selectedOption.getAttribute("data-dircliente");
-            const dir2 = selectedOption.getAttribute("data-dir2cliente");
-
-            if (dir1) {
-                const option1 = document.createElement("option");
-                option1.value = dir1;
-                option1.textContent = dir1;
-                direccionSelect.appendChild(option1);
-            }
-
-            if (dir2) {
-                const option2 = document.createElement("option");
-                option2.value = dir2;
-                option2.textContent = dir2;
-                direccionSelect.appendChild(option2);
-            }
-        }
-    }
-
-    // Filtro de productos
-    function aplicarFiltro() {
-        const filtro = document.getElementById('filtroProductos').value.toLowerCase();
-        const filas = document.querySelectorAll('#tablaProductos tbody tr');
-
-        filas.forEach(fila => {
-            const nombreProducto = fila.getAttribute('data-nombre').toLowerCase();
-            fila.style.display = nombreProducto.includes(filtro) ? '' : 'none';
-        });
-    }
-
-    function limpiarFiltro() {
-        document.getElementById('filtroProductos').value = '';
-        const filas = document.querySelectorAll('#tablaProductos tbody tr');
-        filas.forEach(fila => fila.style.display = '');
-    }
-
-    // Enviar el pedido
-    function enviarPedido() {
-        const clienteId = document.getElementById('cliente').value;
-        const direccion = document.getElementById('direccion').value;
-        const metodoPago = document.getElementById('medioPago').value;
-        const comentarios = document.getElementById('comentarios').value;
-
-        const pedido = {
-            pedido: {
-                idCliente: parseInt(clienteId),
-                idAdministracion: 1,
-                fechaCreacion: new Date().toISOString(),
-                estado: "Pendiente",
-                metodoPago,
-                total: 0,
-                comentarios
-            },
-            lineasPedido: []
-        };
-
-        const cantidadesInputs = document.querySelectorAll('[id^="cantidad_"]');
-        let total = 0;
-
-        cantidadesInputs.forEach(input => {
-            const codigo = input.id.split('_')[1];
-            const cantidad = parseInt(input.value) || 0;
-            if (cantidad > 0) {
-                const precio = parseFloat(input.closest('tr').querySelector('td:nth-child(2)').innerText);
-                total += precio * cantidad;
-                pedido.lineasPedido.push({ codigo, cantidad, precioUnitario: precio });
-            }
-        });
-
-        pedido.pedido.total = total;
-
-        fetch('https://localhost:7078/api/Pedidos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pedido)
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Pedido realizado con éxito.');
-            } else {
-                response.json().then(err => console.error(err));
-                alert('Error al realizar el pedido.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error de conexión con la API.');
-        });
-    }
-</script>
- *@
