@@ -6,6 +6,7 @@
         public string Cliente { get; set; }
         public string Vendedor { get; set; }
         public string Estado { get; set; }
+        public List<LineaPedido> DetallePedido { get; set; } // Nueva propiedad
     }
 
 }

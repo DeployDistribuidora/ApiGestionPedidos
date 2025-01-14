@@ -1,0 +1,69 @@
+﻿@model Front_End_Gestion_Pedidos.Models.ViewModel.DetallePedidoViewModel
+
+<div class="container">
+    <h5 class="text-primary">Detalle del Pedido</h5>
+
+    <!-- Información del Pedido -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <p><strong>ID Pedido:</strong> @Model.Pedido.IdPedido</p>
+            <p><strong>Cliente:</strong> @Model.Pedido.IdCliente</p>
+            <p><strong>Vendedor:</strong> @(Model.Pedido.IdVendedor.HasValue ? Model.Pedido.IdVendedor.ToString() : "No asignado")</p>
+        </div>
+        <div class="col-md-6">
+            <p><strong>Fecha Creación:</strong> @Model.Pedido.FechaCreacion.ToString("dd/MM/yyyy")</p>
+            <p><strong>Fecha Entrega:</strong> @(Model.Pedido.FechaEntrega.HasValue ? Model.Pedido.FechaEntrega.Value.ToString("dd/MM/yyyy") : "No definida")</p>
+            <p><strong>Estado:</strong> @Model.Pedido.Estado</p>
+        </div>
+    </div>
+
+    <!-- Detalle de los Productos -->
+    <h6 class="text-secondary">Productos</h6>
+    @if (Model.LineasPedido != null && Model.LineasPedido.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var linea in Model.LineasPedido)
+                    {
+                        <tr>
+                            <td>@linea.Codigo</td>
+                            <td>Producto @linea.Codigo</td>
+                            <td>@linea.Cantidad</td>
+                            <td>@linea.PrecioUnitario.ToString("C")</td>
+                            <td>@linea.Subtotal.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center text-muted">
+            <p>No hay productos asociados a este pedido.</p>
+        </div>
+    }
+
+    <!-- Información adicional -->
+    <h6 class="text-secondary">Información Adicional</h6>
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Método de Pago:</strong> @Model.Pedido.MetodoPago</p>
+            <p><strong>Comentarios:</strong> @(string.IsNullOrEmpty(Model.Pedido.Comentarios) ? "Sin comentarios" : Model.Pedido.Comentarios)</p>
+        </div>
+        <div class="col-md-6">
+            <p><strong>Total:</strong> @Model.Pedido.Total.ToString("C")</p>
+            <p><strong>Contacto:</strong> @(Model.Pedido.IdContacto.HasValue ? Model.Pedido.IdContacto.ToString() : "No asignado")</p>
+        </div>
+    </div>
+</div>

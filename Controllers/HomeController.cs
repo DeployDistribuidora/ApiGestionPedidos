@@ -67,8 +67,9 @@ public class HomeController : Controller
             var pedidos = await ObtenerPedidosCliente(clienteId);
 
             AddMessageIfNotZero(messages, pedidos.Count(p => p.Estado == "Pendiente"), "dark", "bi-hourglass-split", "Cantidad de sus pedidos pendientes: {0}");
-            AddMessageIfNotZero(messages, pedidos.Count(p => p.Estado == "En viaje"), "info", "bi-truck", "Cantidad de sus pedidos en viaje: {0}");
             AddMessageIfNotZero(messages, pedidos.Count(p => p.Estado == "Preparando"), "success", "bi-box", "Cantidad de sus pedidos en preparación: {0}");
+            AddMessageIfNotZero(messages, pedidos.Count(p => p.Estado == "En viaje"), "info", "bi-truck", "Cantidad de sus pedidos en viaje: {0}");
+            
         }
     }
 
@@ -81,6 +82,7 @@ public class HomeController : Controller
 
             AddMessageIfNotZero(messages, pedidos.Count(p => p.Estado == "Pendiente"), "dark", "bi-hourglass-split", "Cantidad de sus pedidos pendientes: {0}");
             AddMessageIfNotZero(messages, pedidos.Count(p => p.Estado == "Preparando"), "success", "bi-box", "Cantidad de sus pedidos en preparación: {0}");
+            AddMessageIfNotZero(messages, pedidos.Count(p => p.Estado == "En viaje"), "info", "bi-truck", "Cantidad de sus pedidos en viaje: {0}");
         }
     }
 
@@ -164,57 +166,3 @@ public class HomeController : Controller
 
 }
 
-
-
-//using Front_End_Gestion_Pedidos.Models;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.AspNetCore.Http;
-//using System.Diagnostics;
-//using Front_End_Gestion_Pedidos.Models.ViewModel;
-//using System.Text.Json;
-
-//namespace Front_End_Gestion_Pedidos.Controllers
-//{
-//    public class HomeController : Controller
-//    {
-
-
-//        private readonly ILogger<HomeController> _logger;
-
-//        public HomeController(ILogger<HomeController> logger)
-//        {
-//            _logger = logger;
-//        }
-
-//        public IActionResult Index()
-//        {
-//            // Verifica si hay un token en la sesión
-//            var token = HttpContext.Session.GetString("Token");
-//            if (string.IsNullOrEmpty(token))
-//            {
-//                // Si no hay token, redirige al Login
-//                return RedirectToAction("Login", "Account");
-//            }
-
-//            // Configura datos de sesión en ViewBag
-//            ViewBag.IsLoggedIn = true; // Indica que el usuario está logueado
-//            ViewBag.UserRole = HttpContext.Session.GetString("Role") ?? "Sin Rol";
-//            ViewBag.Username = HttpContext.Session.GetString("UsuarioLogueado") ?? "Invitado";
-
-//            return View();
-//        }
-
-
-//        //public IActionResult Privacy()
-//        //{
-//        //    // La página Privacy no requiere autenticación
-//        //    return View();
-//        //}
-
-//        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-//        public IActionResult Error()
-//        {
-//            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-//        }
-//    }
-//}

@@ -41,52 +41,50 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // SUPERVISAR PEDIDOS (Vista: SupervisarPedidos)
         // --------------------------------------------------------------------------------------
 
-        public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "", string estado = "")
+        public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "", string estado = "", int? idPedido = null)
         {
-            // Recuperar rol del usuario desde la sesión
-            var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
-            if (string.IsNullOrEmpty(rolUsuario))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            // Obtener todos los pedidos desde la API
             var pedidos = await ObtenerPedidos();
 
-            // Filtrar pedidos por rol y estado
-            if (rolUsuario == "Administracion")
-            {
-                if (string.IsNullOrEmpty(estado)) estado = "Pendiente";
-                pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-            else if (rolUsuario == "Supervisor de Carga")
-            {
-                estado = "Preparando"; // Supervisores solo ven pedidos "Preparando"
-                pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            // Aplicar filtros opcionales de cliente y vendedor
+            // Filtrar pedidos
             if (!string.IsNullOrEmpty(cliente))
-            {
                 pedidos = pedidos.Where(p => p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
 
             if (!string.IsNullOrEmpty(vendedor))
-            {
                 pedidos = pedidos.Where(p => p.IdVendedor.ToString().Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (!string.IsNullOrEmpty(estado))
+                pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            // Cargar detalle de líneas de pedido si idPedido está presente
+            List<LineaPedido> detallePedido = null;
+            if (idPedido.HasValue)
+            {
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.GetAsync($"https://localhost:7078/api/Pedidos/{idPedido}/lineas");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    detallePedido = JsonSerializer.Deserialize<List<LineaPedido>>(jsonResponse, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
             }
 
-            // Preparar el modelo para la vista
+            // Preparar el modelo
             var viewModel = new SupervisarPedidosViewModel
             {
                 Pedidos = pedidos,
                 Cliente = cliente,
                 Vendedor = vendedor,
-                Estado = estado
+                Estado = estado,
+                DetallePedido = detallePedido
             };
 
             return View(viewModel);
         }
+
 
         //public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "")
         //{
@@ -252,6 +250,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // MÉTODOS AUXILIARES
         // --------------------------------------------------------------------------------------
 
+
         // Obtener todos los pedidos
         private async Task<IEnumerable<Pedido>> ObtenerPedidos()
         {
@@ -326,6 +325,114 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
             return null;
         }
+
+        private async Task<List<LineaPedido>> ObtenerLineasPedido(int idPedido)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"https://localhost:7078/api/Pedidos/{idPedido}/lineas");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(string.Empty, $"Error al obtener las líneas del pedido {idPedido}.");
+                return new List<LineaPedido>();
+            }
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var lineasPedido = JsonSerializer.Deserialize<List<LineaPedido>>(jsonResponse, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? new List<LineaPedido>();
+
+            // Obtener los nombres de los productos
+            foreach (var linea in lineasPedido)
+            {
+                var productoResponse = await client.GetAsync($"https://localhost:7078/api/Stocks/{linea.Codigo}");
+                if (productoResponse.IsSuccessStatusCode)
+                {
+                    var productoJson = await productoResponse.Content.ReadAsStringAsync();
+                    var producto = JsonSerializer.Deserialize<Producto>(productoJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (producto != null)
+                    {
+                        linea.Codigo = producto.Descripcion; // Añadir el nombre al modelo
+                    }
+                }
+            }
+
+            return lineasPedido;
+        }
+
+        // Método actualizado para obtener pedidos con líneas de pedido
+        private async Task<List<Pedido>> ObtenerPedidosConLineas()
+        {
+            var pedidos = (await ObtenerPedidos()).ToList(); // Convertir a lista
+
+            foreach (var pedido in pedidos)
+            {
+                pedido.LineasPedido = await ObtenerLineasPedido(pedido.IdPedido);
+            }
+
+            return pedidos;
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> DetallePedido(int idPedido)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                // Llamar al endpoint correcto en el Backend
+                var pedidoResponse = await client.GetAsync($"https://localhost:7078/api/Pedidos/Pedido/{idPedido}");
+
+                if (!pedidoResponse.IsSuccessStatusCode)
+                {
+                    return PartialView("_Error", $"Error al cargar los detalles del pedido: {pedidoResponse.ReasonPhrase}");
+                }
+
+                // Parsear la respuesta JSON del pedido
+                var pedidoJson = await pedidoResponse.Content.ReadAsStringAsync();
+                var pedido = JsonSerializer.Deserialize<Pedido>(pedidoJson, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                // Cargar las líneas del pedido
+                var lineasResponse = await client.GetAsync($"https://localhost:7078/api/Pedidos/{idPedido}/lineas");
+
+                if (!lineasResponse.IsSuccessStatusCode)
+                {
+                    return PartialView("_Error", $"Error al cargar las líneas del pedido: {lineasResponse.ReasonPhrase}");
+                }
+
+                var lineasJson = await lineasResponse.Content.ReadAsStringAsync();
+                var lineasPedido = JsonSerializer.Deserialize<List<LineaPedido>>(lineasJson, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                // Crear un modelo combinado con los detalles del pedido y las líneas
+                var detallePedidoViewModel = new DetallePedidoViewModel
+                {
+                    Pedido = pedido,
+                    LineasPedido = lineasPedido
+                };
+
+                return PartialView("_DetallePedido", detallePedidoViewModel);
+            }
+            catch (Exception ex)
+            {
+                return PartialView("_Error", $"Ocurrió un error al cargar el detalle del pedido: {ex.Message}");
+            }
+        }
+
+
+
+
 
         // Filtrar stock por código
         private async Task<IEnumerable<Producto>> filtroStock(string filtro)

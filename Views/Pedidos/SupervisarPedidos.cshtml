@@ -54,6 +54,7 @@
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
+                                    <th scope="col"></th>
                                     <th scope="col">Nro</th>
                                     <th scope="col">Cliente</th>
                                     <th scope="col" class="d-none d-md-table-cell">Vendedor</th>
@@ -73,20 +74,26 @@
                                     @foreach (var pedido in Model.Pedidos)
                                     {
                                         <tr>
+                                            <td>
+                                                <button class="btn btn-link text-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
+                                                        data-id-pedido="@pedido.IdPedido" title="Ver Detalle">
+                                                    <i class="bi bi-zoom-in"></i>
+                                                </button>
+                                            </td>
+
                                             <td>@pedido.IdPedido</td>
                                             <td>@pedido.IdCliente</td>
                                             <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
                                             <td>@pedido.Estado</td>
-                                            <td>
-                                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">Detalle</button>
+                                            <td>                                                
                                                 @if (role == "Administracion")
                                                 {
-                                                    <button class="btn btn-success btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Preparar</button>
-                                                    <button class="btn btn-danger btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Cancelado')">Cancelar</button>
+                                                    <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Preparar</button>
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Cancelado')">Cancelar</button>
                                                 }
                                                 else if (role == "Supervisor de Carga" && pedido.Estado == "Preparando")
                                                 {
-                                                    <button class="btn btn-warning btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'En viaje')">Embarcar</button>
+                                                    <button class="btn btn-outline-warning btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'En viaje')">Embarcar</button>
                                                 }
                                             </td>
                                         </tr>
@@ -100,14 +107,14 @@
 
         </div>
     </section>
-
+@* 
     <!-- Modales de Detalle -->
     @foreach (var pedido in Model.Pedidos)
     {
         <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -144,14 +151,34 @@
                                 }
                             </tbody>
                         </table>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
+                    </div>                    
                 </div>
             </div>
         </div>
-    }
+    } *@
+
+    <!-- Modal Detalle Pedido -->
+    <div class="modal fade" id="modalDetallePedido" tabindex="-1" aria-labelledby="detallePedidoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detallePedidoLabel">Detalle del Pedido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detallePedidoContent">
+                    <div class="text-center text-muted">
+                        <p>Cargando...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 
     <!-- Mensajes de Éxito o Error -->
     <div class="container mt-4">
@@ -169,7 +196,10 @@
     </div>
 
     <!-- Modal de Confirmación -->
-    <div class="modal fade" id="confirmarCambioEstado" tabindex="-1" aria-labelledby="confirmarCambioEstadoLabel" aria-hidden="true">
+    @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmarCambioEstado">
+        Confirmar Estado
+    </button> *@
+    <div class="modal fade" id="confirmarCambioEstado" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -190,6 +220,7 @@
             </div>
         </div>
     </div>
+
 }
 
 <script>
@@ -203,4 +234,31 @@
         modal.show();
     }
 </script>
+
+
+
+<script>
+    const modalDetallePedido = document.getElementById('modalDetallePedido');
+
+    modalDetallePedido.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const idPedido = button.getAttribute('data-id-pedido');
+        const detalleContent = document.getElementById('detallePedidoContent');
+
+        // Mostrar mensaje de carga
+        detalleContent.innerHTML = "Cargando...";
+
+        // Cargar contenido dinámicamente desde el controlador
+        fetch(`/Pedidos/DetallePedido?idPedido=${idPedido}`)
+            .then(response => response.text())
+            .then(html => {
+                detalleContent.innerHTML = html;
+            })
+            .catch(error => {
+                detalleContent.innerHTML = `<div class="text-danger">Error al cargar el detalle: ${error.message}</div>`;
+            });
+    });
+</script>
+
+
 

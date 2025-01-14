@@ -56,11 +56,11 @@
                         <table class="table table-hover table-sm align-middle text-nowrap">
                             <thead class="table-primary">
                                 <tr>
-                                    <th>NroCliente</th>
+                                    <th></th>
+                                    @* <th>NroCliente</th> *@
                                     <th>Nombre</th>
-                                    <th>Dirección</th>
-                                    <th>Teléfono</th>
-                                    <th>Acciones</th>
+                                    <th class="d-none d-md-table-cell">Dirección</th>
+                                    <th>Teléfono</th>                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -69,16 +69,38 @@
                                     foreach (var cliente in Model.Clientes)
                                     {
                                         <tr>
-                                            <td>@cliente.NroCliente</td>
-                                            <td>@cliente.NombreCliente</td>
-                                            <td>@cliente.DirCliente</td>
-                                            <td>@cliente.TelefCliente</td>
                                             <td>
-                                                <form method="post" asp-action="VerDatosContacto" class="d-inline">
-                                                    <input type="hidden" name="clienteId" value="@cliente.NroCliente" />
-                                                    <button type="submit" class="btn btn-info btn-sm">Ver</button>
-                                                </form>
+                                                <!-- Ícono zoom-in para Detalle -->
+                                                <div class="icon text-primary" role="button" data-bs-toggle="modal" data-bs-target="#detalleModal-@cliente.NroCliente">
+                                                    <i class="bi bi-zoom-in"></i>
+                                                </div>
+
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="detalleModal-@cliente.NroCliente" tabindex="-1" aria-labelledby="detalleModalLabel-@cliente.NroCliente" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Información del cliente #@cliente.NroCliente</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p><strong>Nombre:</strong> @cliente.NombreCliente</p>
+                                                                <p><strong>Teléfono:</strong> @cliente.TelefCliente</p>
+                                                                <p><strong>Dirección primaria:</strong> @cliente.DirCliente</p>
+                                                                <p><strong>Dirección secundaria:</strong> @cliente.Dir2Cliente</p>                                                                
+                                                            </div>
+                                                            @* <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                                                            </div> *@
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </td>
+                                            @* <td>@cliente.NroCliente</td> *@
+                                            <td>@cliente.NombreCliente</td>
+                                            <td class="d-none d-md-table-cell">@cliente.DirCliente</td>
+                                            <td>@cliente.TelefCliente</td>
                                         </tr>
                                     }
                                 }

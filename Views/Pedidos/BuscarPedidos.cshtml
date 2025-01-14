@@ -60,12 +60,12 @@
                         <table class="table table-hover table-sm">
                             <thead class="table-primary">
                                 <tr>
-                                    <th scope="col">Detalle</th>
+                                    <th scope="col"></th>
                                     <th scope="col">IdPedido</th>
                                     <th scope="col">IdCliente</th>
-                                    <th scope="col">IdVendedor</th>
+                                    <th scope="col" class="d-none d-md-table-cell">IdVendedor</th>
                                     <th scope="col">Estado</th>
-                                    <th scope="col">FechaCreacion</th>                                    
+                                    <th scope="col" class="d-none d-md-table-cell">FechaCreacion</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -81,19 +81,21 @@
                                     {
                                         <tr>
                                             <td>
-                                                <!-- Ícono zoom-in para Detalle -->
-                                                <div class="icon text-primary" role="button" data-bs-toggle="modal" data-bs-target="#detalleModal-@pedido.IdPedido">
+                                                <button class="btn btn-link text-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
+                                                        data-id-pedido="@pedido.IdPedido" title="Ver Detalle">
                                                     <i class="bi bi-zoom-in"></i>
-                                                </div>
+                                                </button>
                                             </td>
+
+
                                             <td>@pedido.IdPedido</td>
                                             <td>@pedido.IdCliente</td>
-                                            <td>@pedido.IdVendedor</td>
+                                            <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
                                             <td>@pedido.Estado</td>
-                                            <td>@pedido.FechaCreacion.ToShortDateString()</td>
+                                            <td class="d-none d-md-table-cell">@pedido.FechaCreacion.ToShortDateString()</td>
                                         </tr>
 
-                                        <!-- Modal de Detalle -->
+                                        @* <!-- Modal de Detalle -->
                                         <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
                                             <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
@@ -106,16 +108,39 @@
                                                         <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
                                                         <p><strong>Estado:</strong> @pedido.Estado</p>
                                                         <p><strong>Fecha de Creación:</strong> @pedido.FechaCreacion.ToShortDateString()</p>
-                                                        <p><strong>Otros Detalles:</strong> @pedido.MetodoPago</p>
+                                                        <p><strong>Fecha de Entrega:</strong> @pedido.FechaEntrega</p>
+                                                        <p><strong>Método de pago:</strong> @pedido.MetodoPago</p>
+                                                        <p><strong>Tarjeta:</strong> @pedido.TarjetaID</p>
+                                                        <p><strong>Comentarios:</strong> @pedido.Comentarios</p>
+                                                        <p><strong>Id Supervisor de Carga:</strong> @pedido.IdSupervisor</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> *@
+
+                                        <!-- Modal Dialog Scrollable -->
+                                        <div class="modal fade" id="modalDetallePedido" tabindex="-1">
+                                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Detalle del Pedido</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="detallePedidoContent" class="text-center text-muted">
+                                                            Cargando...
+                                                        </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-success btn-sm">Aprobar</button>
-                                                        <button type="button" class="btn btn-danger btn-sm">Cancelar</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+
                                     }
+
                                 }
                             </tbody>
                         </table>
@@ -127,3 +152,27 @@
 
     </div>
 </section>
+
+
+<script>
+    const modalDetallePedido = document.getElementById('modalDetallePedido');
+
+    modalDetallePedido.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const idPedido = button.getAttribute('data-id-pedido');
+        const detalleContent = document.getElementById('detallePedidoContent');
+
+        // Mostrar mensaje de carga
+        detalleContent.innerHTML = "Cargando...";
+
+        // Cargar contenido dinámicamente desde el controlador
+        fetch(`/Pedidos/DetallePedido?idPedido=${idPedido}`)
+            .then(response => response.text())
+            .then(html => {
+                detalleContent.innerHTML = html;
+            })
+            .catch(error => {
+                detalleContent.innerHTML = `<div class="text-danger">Error al cargar el detalle: ${error.message}</div>`;
+            });
+    });
+</script>
