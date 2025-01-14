@@ -81,16 +81,21 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
                     if (jsonResponse != null)
                     {
-                        Console.WriteLine("SE OBTIENE TOKEN");
-
-                        // Guardar en sesión y redirigir
                         HttpContext.Session.SetString("UsuarioLogueado", jsonResponse.User.NombreUsuario);
                         HttpContext.Session.SetString("Role", jsonResponse.User.Rol);
                         HttpContext.Session.SetString("Token", jsonResponse.Token);
-                        //HttpContext.Session.SetString("IsLoggedIn", "true"); // Indica que el usuario está logueado
+
+                        // Si el usuario es Cliente, configura ClienteId en la sesión
+                        if (jsonResponse.User.Rol == "Cliente")
+                        {
+                            HttpContext.Session.SetString("ClienteId", jsonResponse.User.IdUsuario.ToString());
+                        }
+                        if (jsonResponse.User.Rol == "Vendedor")
+                        {
+                            HttpContext.Session.SetString("VendedorId", jsonResponse.User.IdUsuario.ToString());
+                        }
 
 
-                        // Redirigir al Home
                         return RedirectToAction("Index", "Home");
                     }
                     else
