@@ -33,7 +33,8 @@
                                 <div class="col-md-4">
                                     <label for="inputEstado" class="form-label">Estado</label>
                                     <select name="estado" class="form-select form-select-sm" id="inputEstado">
-                                        <option value="Pendiente" selected>Pedidos Pendientes</option>
+                                        <option value="" selected>Seleccione un estado</option>
+                                        <option value="Pendiente">Pedidos Pendientes</option>
                                         <option value="En viaje">Pedidos En viaje</option>
                                     </select>
                                 </div>
@@ -88,7 +89,14 @@
                                             <td>                                                
                                                 @if (role == "Administracion")
                                                 {
-                                                    <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Preparar</button>
+                                                    @if (@pedido.Estado == "Pendiente")
+                                                    {
+                                                     <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Preparar</button>   
+                                                    } 
+                                                    else if (@pedido.Estado == "En viaje")
+                                                    {
+                                                     <button class="btn btn-outline-success btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Entregado')">Entregado</button>   
+                                                    } 
                                                     <button class="btn btn-outline-danger btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Cancelado')">Cancelar</button>
                                                 }
                                                 else if (role == "Supervisor de Carga" && pedido.Estado == "Preparando")
@@ -107,55 +115,7 @@
 
         </div>
     </section>
-@* 
-    <!-- Modales de Detalle -->
-    @foreach (var pedido in Model.Pedidos)
-    {
-        <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p><strong>Cliente:</strong> @pedido.IdCliente</p>
-                        <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
-                        <p><strong>Estado:</strong> @pedido.Estado</p>
-                        <h6>Productos</h6>
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Nombre</th>
-                                    <th>Precio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (pedido.LineasPedido != null && pedido.LineasPedido.Any())
-                                {
-                                    @foreach (var linea in pedido.LineasPedido)
-                                    {
-                                        <tr>
-                                            <td>@linea.Codigo</td>
-                                            <td>Producto @linea.Codigo</td>
-                                            <td>@linea.PrecioUnitario.ToString("C")</td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted">No hay productos asociados.</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>                    
-                </div>
-            </div>
-        </div>
-    } *@
+
 
     <!-- Modal Detalle Pedido -->
     <div class="modal fade" id="modalDetallePedido" tabindex="-1" aria-labelledby="detallePedidoLabel" aria-hidden="true">

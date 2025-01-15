@@ -48,7 +48,21 @@ namespace Front_End_Gestion_Pedidos.Controllers
         {
             var pedidos = await ObtenerPedidos();
 
-            // Filtrar pedidos
+            // Obtener el rol del usuario desde la sesión
+             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+
+            // Filtrar pedidos según el rol del usuario
+            if (rolUsuario == "Supervisor de Carga")
+            {
+                pedidos = pedidos.Where(p => p.Estado.Equals("Preparando", StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            else if (rolUsuario == "Administracion")
+            {
+                pedidos = pedidos.Where(p => p.Estado.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) ||
+                                             p.Estado.Equals("En viaje", StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            // Aplicar filtros adicionales según los parámetros
             if (!string.IsNullOrEmpty(cliente))
                 pedidos = pedidos.Where(p => p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
 
