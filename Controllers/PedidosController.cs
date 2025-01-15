@@ -147,6 +147,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             // Validar sesión
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+            var idUsuarioSesion = _httpContextAccessor.HttpContext.Session.GetString("ClienteId"); // Para clientes
 
             if (string.IsNullOrEmpty(usuarioLogueado))
                 return RedirectToAction("Login", "Account");
@@ -154,11 +155,20 @@ namespace Front_End_Gestion_Pedidos.Controllers
             // Obtener todos los pedidos
             var pedidos = await ObtenerPedidos();
 
-            // Aplicar filtros si se proporcionan
+            // Filtrar pedidos con estado "Entregado" o "Cancelado"
+            pedidos = pedidos.Where(p => p.Estado == "Entregado" || p.Estado == "Cancelado").ToList();
+
+            // Si el usuario es Cliente, filtrar por IdCliente correspondiente
+            if (rolUsuario == "Cliente" && !string.IsNullOrEmpty(idUsuarioSesion))
+            {
+                var idUsuario = int.Parse(idUsuarioSesion); // Convertir idUsuario de la sesión a entero
+                pedidos = pedidos.Where(p => p.IdCliente == idUsuario).ToList();
+            }
+
+            // Aplicar filtros adicionales si se proporcionan
             if (!string.IsNullOrEmpty(cliente))
             {
                 pedidos = pedidos.Where(p => p.IdCliente != null && p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
-
             }
 
             if (!string.IsNullOrEmpty(vendedor))
@@ -179,9 +189,10 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 pedidos = pedidos.Where(p => p.FechaCreacion.Date <= fechaFin.Value.Date).ToList();
             }
 
-
+            // Retornar la vista con los pedidos filtrados
             return View(pedidos);
         }
+
 
 
         // --------------------------------------------------------------------------------------

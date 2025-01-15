@@ -9,6 +9,20 @@
     <div class="pagetitle">
         <h1>Supervisar pedidos</h1>
     </div>
+    @if (role == "Administracion")
+    {
+        <div class="alert alert-info d-inline-block" role="alert">
+            Se muestran únicamente los pedidos pendientes y en viaje. Los pedidos a preparar pasarán a los supervisores de carga.
+        </div>
+
+        
+    } else if (role == "Supervisor de Carga")
+    {
+        <div class="alert alert-info d-inline-block"  role="alert">
+            Se muestran únicamente los pedidos a preparar. Una vez embarcado un pedido, coordinar con administración por la confirmación de su entrega.
+        </div>
+    }
+
 
 
     <!-- Sección Principal -->
