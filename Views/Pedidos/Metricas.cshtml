@@ -1,18 +1,96 @@
-﻿
+﻿@using System.Text.Json
 
-    <div class="pagetitle">
-        <h1>Chart.js</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                <li class="breadcrumb-item">Charts</li>
-                <li class="breadcrumb-item active">Chart.js</li>
-            </ol>
-        </nav>
-    </div><!-- End Page Title -->
 
-    <p>Chart.JS Examples. You can check the <a href="https://www.chartjs.org/docs/latest/samples/" target="_blank">official website</a> for more examples.</p>
+<div class="pagetitle">
+    <h1>Métricas</h1>
+</div>
 
+<div class="alert alert-info" role="alert">
+    Mostrando datos del último mes por defecto. Use el filtro para personalizar el rango de fechas.
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Seleccionar Rango de Fechas</h5>
+        <form method="get" asp-action="ProductosMasVendidos">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+                    <input type="date" name="fechaInicio" id="fechaInicio" class="form-control" value="@ViewBag.FechaInicio" required />
+                </div>
+                <div class="col-md-5">
+                    <label for="fechaFin" class="form-label">Fecha Fin</label>
+                    <input type="date" name="fechaFin" id="fechaFin" class="form-control" value="@ViewBag.FechaFin" required />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Productos Más Vendidos</h5>
+        @if (ViewBag.ProductosLabels != null && ViewBag.ProductosCantidades != null && ViewBag.ProductosLabels.Count > 0)
+        {
+            <!-- Bar Chart -->
+            <canvas id="barChart" style="max-height: 400px;"></canvas>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    new Chart(document.querySelector('#barChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: @Html.Raw(JsonSerializer.Serialize(ViewBag.ProductosLabels)),
+                            datasets: [{
+                                label: 'Cantidad Vendida',
+                                data: @Html.Raw(JsonSerializer.Serialize(ViewBag.ProductosCantidades)),
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+            <!-- End Bar Chart -->
+        }
+        else
+        {
+            <p class="text-muted">No hay datos disponibles para mostrar en este rango de fechas.</p>
+        }
+    </div>
+</div>
+
+
+<!-- Validación de rango de fechas -->
+<script>
+    document.querySelector("form").addEventListener("submit", function (e) {
+        const fechaInicio = new Date(document.getElementById("fechaInicio").value);
+        const fechaFin = new Date(document.getElementById("fechaFin").value);
+
+        if (fechaInicio > fechaFin) {
+            e.preventDefault();
+            alert("La fecha de inicio debe ser menor o igual a la fecha de fin.");
+        }
+    });
+</script>
+
+
+
+
+
+<!-- TEMPLATE DE GRÁFICOS DE NICEADMIN -->
+@* 
     <section class="section">
         <div class="row">
 
@@ -426,3 +504,4 @@
         </div>
     </section>
 
+ *@

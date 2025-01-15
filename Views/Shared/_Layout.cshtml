@@ -129,6 +129,12 @@
                             <span>Supervisar Pedidos</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" asp-controller="Pedidos" asp-action="Metricas">
+                            <i class="bi bi-bar-chart"></i>
+                            <span>Métricas</span>
+                        </a>
+                    </li>
                 }
                 else if (role == "Vendedor")
                 {
@@ -155,7 +161,13 @@
                             <i class="bi bi-people"></i>
                             <span>Clientes</span>
                         </a>
-                    </li>  
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" asp-controller="Pedidos" asp-action="Metricas">
+                            <i class="bi bi-bar-chart"></i>
+                            <span>Métricas</span>
+                        </a>
+                    </li>
                 }
                 <li class="nav-item mt-auto border-top pt-3 text-center">
                     <span class="d-block mb-2 text-muted">Usuario: <strong>@usuario</strong></span>

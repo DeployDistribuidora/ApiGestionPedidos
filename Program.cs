@@ -50,3 +50,11 @@ app.MapControllerRoute(
 
 // Ejecuta la aplicación
 app.Run();
+
+
+
+//AGREGAR LUEGO EN EL ORDEN CORRECTO:
+//builder.Services.AddHttpClient("PedidosClient", client =>
+//{
+//    client.BaseAddress = new Uri("http://localhost:5000"); // Reemplaza con la URL de tu API
+//});

@@ -2,6 +2,7 @@
 using Front_End_Gestion_Pedidos.Models;
 using Front_End_Gestion_Pedidos.Models.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
@@ -172,13 +173,147 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // --------------------------------------------------------------------------------------
         // MÉTRICAS (Vista: Metricas)
         // --------------------------------------------------------------------------------------
-        // Vista principal para mostrar el historial de pedidos
-        [RoleAuthorize("Administracion")]
+        // Vista principal para mostrar las gráficas
+        [RoleAuthorize("Administracion", "Supervisor de Carga", "Vendedor")]
         public async Task<IActionResult> Metricas()
         {
-            
+            var fechaFin = DateTime.Now;
+            var fechaInicio = fechaFin.AddMonths(-1); // Último mes
 
-            return View();
+            // Pasar fechas seleccionadas a la vista
+            ViewBag.FechaInicio = fechaInicio.ToString("yyyy-MM-dd");
+            ViewBag.FechaFin = fechaFin.ToString("yyyy-MM-dd");
+
+            // Obtener pedidos y generar datos de las gráficas
+            return await ProductosMasVendidos(fechaInicio, fechaFin);
+        }
+
+
+
+        // Acción para calcular los productos más vendidos y redirigir a Métricas
+        [RoleAuthorize("Administracion", "Supervisor de Carga", "Vendedor", "Cliente")]
+        public async Task<IActionResult> ProductosMasVendidos(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            // Validar sesión
+            var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
+            if (string.IsNullOrEmpty(usuarioLogueado))
+                return RedirectToAction("Login", "Account");
+
+            // Pasar fechas seleccionadas a la vista
+            ViewBag.FechaInicio = fechaInicio?.ToString("yyyy-MM-dd");
+            ViewBag.FechaFin = fechaFin?.ToString("yyyy-MM-dd");
+
+            // Obtener pedidos con estado "Entregado" desde la API
+            var pedidos = await ObtenerPedidosPorEstado("Entregado");
+
+            // Filtrar por rango de fechas
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                // Ajustar rango de fechas para incluir todos los pedidos creados en esas fechas
+                var fechaInicioFormateada = fechaInicio.Value.Date; // Inicio del día
+                var fechaFinFormateada = fechaFin.Value.Date.AddDays(1).AddTicks(-1); // Fin del día
+
+                pedidos = pedidos.Where(p => p.FechaCreacion >= fechaInicioFormateada && p.FechaCreacion <= fechaFinFormateada).ToList();
+            }
+
+
+            // Calcular los productos más vendidos con la descripción como clave
+            var productosMasVendidos = pedidos
+                .SelectMany(p => p.LineasPedido)
+                .GroupBy(lp => lp.Codigo) // Aquí "Codigo" ya contiene la descripción del producto
+                .Select(g => new
+                {
+                    Producto = g.Key, // Este será el nombre (descripción)
+                    CantidadTotal = g.Sum(lp => lp.Cantidad)
+                })
+                .OrderByDescending(p => p.CantidadTotal)
+                .Take(10)
+                .ToList();
+
+            // Serializar datos para las gráficas
+            ViewBag.ProductosLabels = productosMasVendidos.Select(p => p.Producto).ToList(); // Ahora son descripciones
+            ViewBag.ProductosCantidades = productosMasVendidos.Select(p => p.CantidadTotal).ToList();
+
+
+            // Renderizar la vista Métricas con los datos actualizados
+            return View("Metricas");
+        }
+
+        // Método para obtener pedidos filtrados por estado
+        private async Task<List<Pedido>> ObtenerPedidosPorEstado(string estado)
+        {
+            var client = _httpClientFactory.CreateClient();
+
+            // Obtener pedidos con el estado especificado
+            var response = await client.GetAsync($"https://localhost:7078/api/Pedidos/Estado/{estado}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+
+                // Deserializar los pedidos
+                var pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (pedidos != null)
+                {
+                    var codigosConsultados = new Dictionary<string, string>();
+
+                    foreach (var pedido in pedidos)
+                    {
+                        // Obtener las líneas de pedido
+                        var lineasResponse = await client.GetAsync($"https://localhost:7078/api/Pedidos/{pedido.IdPedido}/lineas");
+
+                        if (lineasResponse.IsSuccessStatusCode)
+                        {
+                            var lineasJson = await lineasResponse.Content.ReadAsStringAsync();
+                            var lineas = JsonSerializer.Deserialize<List<LineaPedido>>(lineasJson, new JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            });
+
+                            if (lineas != null)
+                            {
+                                foreach (var linea in lineas)
+                                {
+                                    // Evitar solicitudes duplicadas para el mismo código
+                                    if (!codigosConsultados.ContainsKey(linea.Codigo))
+                                    {
+                                        var stockResponse = await client.GetAsync($"https://localhost:7078/api/Stocks/{linea.Codigo}");
+                                        if (stockResponse.IsSuccessStatusCode)
+                                        {
+                                            var stockJson = await stockResponse.Content.ReadAsStringAsync();
+                                            var stock = JsonSerializer.Deserialize<Producto>(stockJson, new JsonSerializerOptions
+                                            {
+                                                PropertyNameCaseInsensitive = true
+                                            });
+
+                                            if (stock != null)
+                                            {
+                                                codigosConsultados[linea.Codigo] = stock.Descripcion; // Guardamos la descripción
+                                            }
+                                        }
+                                    }
+
+                                    // Asignar la descripción al producto de la línea
+                                    linea.Codigo = codigosConsultados.ContainsKey(linea.Codigo)
+                                        ? codigosConsultados[linea.Codigo]
+                                        : linea.Codigo; // Si no se encuentra, usar el código original
+
+                                }
+
+                                pedido.LineasPedido = lineas;
+                            }
+                        }
+                    }
+
+                    return pedidos;
+                }
+            }
+
+            return new List<Pedido>();
         }
 
 
