@@ -1,4 +1,5 @@
-﻿using Front_End_Gestion_Pedidos.Models;
+﻿using Front_End_Gestion_Pedidos.Filters;
+using Front_End_Gestion_Pedidos.Models;
 using Front_End_Gestion_Pedidos.Models.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // --------------------------------------------------------------------------------------
 
         // Vista principal para crear un nuevo pedido
+        [RoleAuthorize("Administracion", "Vendedor", "Cliente")]
         public async Task<IActionResult> NuevoPedido()
         {
             var clientes = await ObtenerClientes();
@@ -40,7 +42,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // --------------------------------------------------------------------------------------
         // SUPERVISAR PEDIDOS (Vista: SupervisarPedidos)
         // --------------------------------------------------------------------------------------
-
+        [RoleAuthorize("Administracion", "Supervisor de Carga")]
         public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "", string estado = "", int? idPedido = null)
         {
             var pedidos = await ObtenerPedidos();
@@ -86,73 +88,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
-        //public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "")
-        //{
-        //    var pedidos = await ObtenerPedidos();
-
-        //    pedidos = pedidos.Where(p => p.Estado.Equals("Pendiente", StringComparison.OrdinalIgnoreCase)).ToList();
-
-        //    if (!string.IsNullOrEmpty(cliente))
-        //    {
-        //        pedidos = pedidos.Where(p => p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
-        //    }
-
-        //    if (!string.IsNullOrEmpty(vendedor))
-        //    {
-        //        pedidos = pedidos.Where(p => p.IdVendedor.ToString().Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
-        //    }
-
-        //    var viewModel = new SupervisarPedidosViewModel
-        //    {
-        //        Pedidos = pedidos,
-        //        Cliente = cliente,
-        //        Vendedor = vendedor,
-        //        Estado = "Pendiente"
-        //    };
-
-        //    return View(viewModel);
-        //}
-
-        // Detalles del pedido en un modal (usado en la vista SupervisarPedidos)
-        /* public async Task<IActionResult> DetallesPedido(int id)
-         {
-             var client = _httpClientFactory.CreateClient();
-             var responsePedido = await client.GetAsync($"https://localhost:7078/api/Pedidos/Pedido/{id}");
-
-             if (!responsePedido.IsSuccessStatusCode)
-             {
-                 TempData["Error"] = "Error al cargar los detalles del pedido.";
-                 return RedirectToAction("SupervisarPedidos");
-             }
-
-             var jsonPedido = await responsePedido.Content.ReadAsStringAsync();
-             var pedido = JsonSerializer.Deserialize<Pedido>(jsonPedido, new JsonSerializerOptions
-             {
-                 PropertyNameCaseInsensitive = true
-             });
-
-             var productos = new List<Producto>();
-
-             if (pedido.LineasPedido != null)
-             {
-                 foreach (var linea in pedido.LineasPedido)
-                 {
-                     var productoResultado = await filtroStock($"?codigo={linea.Codigo}");
-                     productos.AddRange(productoResultado);
-                 }
-             }
-
-             var detallesViewModel = new PedidoDetalleViewModel
-             {
-                 Pedido = pedido,
-                 Productos = productos
-             };
-
-             return PartialView("_DetallePedido", detallesViewModel);
-         }*/
-
-
-
         // Acción para cambiar el estado de un pedido
         [HttpPost]
         public async Task<IActionResult> CambiarEstadoPedido(int id, string nuevoEstado)
@@ -191,6 +126,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // --------------------------------------------------------------------------------------
 
         // Vista principal para mostrar el historial de pedidos
+        [RoleAuthorize("Administracion", "Supervisor de Carga", "Vendedor", "Cliente")]
         public async Task<IActionResult> BuscarPedidos(string cliente, string vendedor, DateTime? fechaInicio, DateTime? fechaFin)
         {
             // Validar sesión
@@ -233,18 +169,22 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
-        //public async Task<IActionResult> BuscarPedidos()
-        //{
-        //    var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
-        //    var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+        // --------------------------------------------------------------------------------------
+        // MÉTRICAS (Vista: Metricas)
+        // --------------------------------------------------------------------------------------
+        // Vista principal para mostrar el historial de pedidos
+        [RoleAuthorize("Administracion")]
+        public async Task<IActionResult> Metricas()
+        {
+            
 
-        //    if (string.IsNullOrEmpty(usuarioLogueado))
-        //        return RedirectToAction("Login", "Account");
+            return View();
+        }
 
-        //    var pedidos = await ObtenerPedidos();
 
-        //    return View(pedidos);
-        //}
+
+
+
 
         // --------------------------------------------------------------------------------------
         // MÉTODOS AUXILIARES

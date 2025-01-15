@@ -1,4 +1,5 @@
-﻿using Front_End_Gestion_Pedidos.Helpers;
+﻿using Front_End_Gestion_Pedidos.Filters;
+using Front_End_Gestion_Pedidos.Helpers;
 using Front_End_Gestion_Pedidos.Models;
 using Front_End_Gestion_Pedidos.Models.ViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,8 @@ namespace Front_End_Gestion_Pedidos.Controllers
             _httpContextAccessor = httpContextAccessor;
             _httpClientFactory = httpClientFactory;
         }
-             
+
+        [RoleAuthorize("Administracion", "Vendedor")]
         public async Task<IActionResult> Index()
         {
             // Recuperar usuario desde la sesión

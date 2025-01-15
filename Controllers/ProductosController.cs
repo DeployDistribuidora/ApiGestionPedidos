@@ -1,4 +1,5 @@
-﻿using Front_End_Gestion_Pedidos.Models;
+﻿using Front_End_Gestion_Pedidos.Filters;
+using Front_End_Gestion_Pedidos.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text.Json;
@@ -15,6 +16,8 @@ namespace Front_End_Gestion_Pedidos.Controllers
             _httpContextAccessor = httpContextAccessor;
             _httpClientFactory = httpClientFactory;
         }
+
+        [RoleAuthorize("Administracion", "Vendedor", "Cliente")]
         public async Task<IActionResult> Index()
         {
 

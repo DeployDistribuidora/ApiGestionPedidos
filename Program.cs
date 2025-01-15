@@ -1,7 +1,10 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Agregar Servicios al Contenedor
-builder.Services.AddControllersWithViews(); // Habilita controladores y vistas para MVC
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<Front_End_Gestion_Pedidos.Filters.SessionAuthorizeFilter>(); // Filtro global para verificar sesión
+});
 builder.Services.AddHttpClient(); // Habilita IHttpClientFactory para el uso de HttpClient
 builder.Services.AddHttpContextAccessor(); // Permite acceso al contexto HTTP (incluidas sesiones)
 builder.Services.AddDistributedMemoryCache(); // Agrega soporte para sesiones en memoria
