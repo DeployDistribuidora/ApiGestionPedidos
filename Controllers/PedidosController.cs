@@ -106,6 +106,52 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
+        [RoleAuthorize("Cliente", "Vendedor")]
+        public async Task<IActionResult> PedidosEnCurso(string cliente = "", string vendedor = "")
+        {
+            var pedidos = await ObtenerPedidos();
+
+            // Filtrar pedidos por estado (Excluir "Cancelado" y "Entregado")
+            pedidos = pedidos.Where(p => p.Estado != "Cancelado" && p.Estado != "Entregado").ToList();
+
+            // Obtener el rol del usuario desde la sesión
+            var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+            var idUsuario = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
+
+            if (rolUsuario == "Cliente")
+            {
+                // Convertir idUsuario a long antes de comparar
+                if (long.TryParse(idUsuario, out var idUsuarioLong))
+                {
+                    pedidos = pedidos.Where(p => p.IdCliente == idUsuarioLong).ToList();
+                }
+            }
+
+
+            // Aplicar filtros adicionales
+            if (!string.IsNullOrEmpty(cliente))
+            {
+                pedidos = pedidos.Where(p => p.IdCliente.ToString().Contains(cliente, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(vendedor))
+            {
+                pedidos = pedidos.Where(p => p.IdVendedor.ToString().Contains(vendedor, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            // Preparar el modelo
+            var viewModel = new SupervisarPedidosViewModel
+            {
+                Pedidos = pedidos,
+                Cliente = cliente,
+                Vendedor = vendedor
+            };
+
+            return View(viewModel);
+        }
+
+
+
         // Acción para cambiar el estado de un pedido
 
         //[HttpPost]

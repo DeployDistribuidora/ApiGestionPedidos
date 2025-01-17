@@ -1,0 +1,134 @@
+﻿@using Front_End_Gestion_Pedidos.Models.ViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+@model SupervisarPedidosViewModel
+
+@if (!string.IsNullOrEmpty(HttpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado")))
+{
+    var role = HttpContextAccessor.HttpContext.Session.GetString("Role");
+
+    <div class="pagetitle">
+        <h1>Pedidos en Curso</h1>
+    </div>
+    @if (role == "Cliente")
+    {
+        <div class="alert alert-info d-inline-block" role="alert">
+            Solo puedes añadir comentarios a los pedidos. Contacta a Administración para realizar cualquier modificación adicional.
+        </div>
+    }
+    else if (role == "Vendedor")
+    {
+        <div class="alert alert-info d-inline-block" role="alert">
+            Puedes añadir comentarios y editar pedidos en estado "Pendiente".
+        </div>
+    }
+
+    <!-- Sección Principal -->
+    <section class="section">
+        <div class="row">
+            <!-- Filtros de Búsqueda -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Filtros de Búsqueda</h5>
+                        <form method="get" asp-action="PedidosEnCurso" class="row g-3">
+                            <div class="col-md-4">
+                                <label for="inputCliente" class="form-label">Cliente</label>
+                                <input type="text" name="cliente" class="form-control form-control-sm" id="inputCliente" placeholder="Cliente" value="@Model.Cliente">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="inputVendedor" class="form-label">Vendedor</label>
+                                <input type="text" name="vendedor" class="form-control form-control-sm" id="inputVendedor" placeholder="Vendedor" value="@Model.Vendedor">
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Pedidos -->
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Pedidos</h5>
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">Nro</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.Pedidos.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No se encontraron pedidos en curso.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var pedido in Model.Pedidos)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <button class="btn btn-link text-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
+                                                        data-id-pedido="@pedido.IdPedido" title="Ver Detalle">
+                                                    <i class="bi bi-zoom-in"></i>
+                                                </button>
+                                            </td>
+
+                                            <td>@pedido.IdPedido</td>
+                                            <td>@pedido.IdCliente</td>
+                                            <td>@pedido.Estado</td>
+                                            <td>
+                                                @if (role == "Cliente")
+                                                {
+                                                    <!-- Solo añadir comentarios -->
+                                                    <button class="btn btn-outline-primary btn-sm" onclick="añadirComentario(@pedido.IdPedido)">Añadir Comentario</button>
+                                                }
+                                                else if (role == "Vendedor")
+                                                {
+                                                    <!-- Añadir comentarios y editar si el estado es Pendiente -->
+                                                    <button class="btn btn-outline-primary btn-sm" onclick="añadirComentario(@pedido.IdPedido)">Añadir Comentario</button>
+                                                    @if (pedido.Estado == "Pendiente")
+                                                    {
+                                                        <button class="btn btn-outline-warning btn-sm" onclick="editarPedido(@pedido.IdPedido)">Editar</button>
+                                                    }
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Modal Detalle Pedido -->
+    <div class="modal fade" id="modalDetallePedido" tabindex="-1" aria-labelledby="detallePedidoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detallePedidoLabel">Detalle del Pedido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detallePedidoContent">
+                    <div class="text-center text-muted">
+                        <p>Cargando...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
