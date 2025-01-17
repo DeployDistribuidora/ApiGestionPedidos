@@ -256,12 +256,12 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
 
         // --------------------------------------------------------------------------------------
-        // HISTORIAL DE PEDIDOS (Vista: BuscarPedidos)
+        // HISTORIAL DE PEDIDOS (Vista: HistorialPedidos)
         // --------------------------------------------------------------------------------------
 
         // Vista principal para mostrar el historial de pedidos
         [RoleAuthorize("Administracion", "Supervisor de Carga", "Vendedor", "Cliente")]
-        public async Task<IActionResult> BuscarPedidos(string cliente, string vendedor, DateTime? fechaInicio, DateTime? fechaFin)
+        public async Task<IActionResult> HistorialPedidos(string cliente, string vendedor, DateTime? fechaInicio, DateTime? fechaFin)
         {
             // Validar sesión
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");

@@ -132,3 +132,26 @@
         </div>
     </div>
 }
+
+<script>
+    const modalDetallePedido = document.getElementById('modalDetallePedido');
+
+    modalDetallePedido.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const idPedido = button.getAttribute('data-id-pedido');
+        const detalleContent = document.getElementById('detallePedidoContent');
+
+        // Mostrar mensaje de carga
+        detalleContent.innerHTML = "Cargando...";
+
+        // Cargar contenido dinámicamente desde el controlador
+        fetch(`/Pedidos/DetallePedido?idPedido=${idPedido}`)
+            .then(response => response.text())
+            .then(html => {
+                detalleContent.innerHTML = html;
+            })
+            .catch(error => {
+                detalleContent.innerHTML = `<div class="text-danger">Error al cargar el detalle: ${error.message}</div>`;
+            });
+    });
+</script>
