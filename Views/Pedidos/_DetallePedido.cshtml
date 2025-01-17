@@ -1,7 +1,7 @@
 ﻿@model Front_End_Gestion_Pedidos.Models.ViewModel.DetallePedidoViewModel
 
 <div class="container">
-    <h5 class="text-primary">Detalle del Pedido</h5>
+    @* <h5 class="text-primary">Detalle del Pedido</h5> *@
 
     <!-- Información del Pedido -->
     <div class="row mb-3">
@@ -39,10 +39,9 @@
             <table class="table table-hover table-sm">
                 <thead>
                     <tr>
-                        <th>Código</th>
                         <th>Nombre</th>
                         <th>Cantidad</th>
-                        <th>Precio Unitario</th>
+                        <th>Precio</th>
                         <th>Subtotal</th>
                     </tr>
                 </thead>
@@ -50,7 +49,6 @@
                     @foreach (var linea in Model.LineasPedido)
                     {
                         <tr>
-                            <td>@linea.Codigo</td>
                             <td>Producto @linea.Codigo</td>
                             <td>@linea.Cantidad</td>
                             <td>@linea.PrecioUnitario.ToString("C")</td>

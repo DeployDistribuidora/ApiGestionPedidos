@@ -23,7 +23,20 @@
         </div>
     }
 
+            <!-- Mensajes de Éxito o Error -->
+@*         <div class="container mt-4">
+        @if (TempData["Mensaje"] != null)
+        {
+            var mensaje = TempData["Mensaje"].ToString();
+            var exito = TempData["Exito"] != null && (bool)TempData["Exito"];
+            var alertClass = exito ? "alert-success" : "alert-danger";
 
+                    <div class="alert @alertClass alert-dismissible fade show" role="alert">
+                @mensaje
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+        }
+        </div> *@
 
     <!-- Sección Principal -->
     <section class="section">
@@ -154,20 +167,7 @@
 
 
 
-    <!-- Mensajes de Éxito o Error -->
-    <div class="container mt-4">
-        @if (TempData["Mensaje"] != null)
-        {
-            var mensaje = TempData["Mensaje"].ToString();
-            var exito = TempData["Exito"] != null && (bool)TempData["Exito"];
-            var alertClass = exito ? "alert-success" : "alert-danger";
 
-            <div class="alert @alertClass alert-dismissible fade show" role="alert">
-                @mensaje
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
-    </div>
 
     <!-- Modal de Confirmación -->
     @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmarCambioEstado">
@@ -194,6 +194,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para Mensajes -->
+<div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mensajeModalLabel">Notificación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí se mostrará el mensaje -->
+                <p id="mensajeModalTexto"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 
 }
 
@@ -235,4 +257,30 @@
 </script>
 
 
+<!-- Script para activar el modal si hay un mensaje -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const mensaje = @Html.Raw(Json.Serialize(TempData["Mensaje"]));
+        const exito = '@(TempData["Exito"] != null && (bool)TempData["Exito"])';
+
+        if (mensaje) {
+            const mensajeModalTexto = document.getElementById("mensajeModalTexto");
+            const mensajeModal = new bootstrap.Modal(document.getElementById("mensajeModal"));
+
+            // Asigna el mensaje al modal
+            mensajeModalTexto.textContent = mensaje;
+
+            // Cambia el estilo del modal según el éxito o error
+            const modalTitle = document.getElementById("mensajeModalLabel");
+            if (exito === "True") {
+                modalTitle.textContent = "Operación Exitosa";
+            } else {
+                modalTitle.textContent = "Error";
+            }
+
+            // Muestra el modal
+            mensajeModal.show();
+        }
+    });
+</script>
 

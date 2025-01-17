@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace Front_End_Gestion_Pedidos.Controllers
@@ -54,7 +56,8 @@ namespace Front_End_Gestion_Pedidos.Controllers
             // Filtrar pedidos según el rol del usuario
             if (rolUsuario == "Supervisor de Carga")
             {
-                pedidos = pedidos.Where(p => p.Estado.Equals("Preparando", StringComparison.OrdinalIgnoreCase)).ToList();
+                pedidos = pedidos.Where(p => p.Estado.Equals("Preparando", StringComparison.OrdinalIgnoreCase) ||
+                                             p.Estado.Equals("En viaje", StringComparison.OrdinalIgnoreCase)).ToList();
             }
             else if (rolUsuario == "Administracion")
             {
@@ -104,6 +107,76 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
 
         // Acción para cambiar el estado de un pedido
+
+        //[HttpPost]
+        //public async Task<IActionResult> CambiarEstadoPedido(int id, string nuevoEstado)
+        //{
+        //    try
+        //    {
+        //        var usuarioLogueado = HttpContext.Session.GetString("UsuarioLogueado");
+        //        var idUsuario = HttpContext.Session.GetString("IdUsuario");
+        //        var rolUsuario = HttpContext.Session.GetString("Role");
+
+        //        if (string.IsNullOrEmpty(usuarioLogueado) || string.IsNullOrEmpty(idUsuario))
+        //        {
+        //            TempData["Mensaje"] = "Error: Sesión de usuario no válida.";
+        //            TempData["Exito"] = false;
+        //            return RedirectToAction("SupervisarPedidos");
+        //        }
+
+        //        // Obtener el pedido actual
+        //        var pedido = await ObtenerPedidoPorId(id);
+        //        if (pedido == null)
+        //        {
+        //            TempData["Mensaje"] = $"Error: No se encontró el pedido con ID {id}.";
+        //            TempData["Exito"] = false;
+        //            return RedirectToAction("SupervisarPedidos");
+        //        }
+
+        //        // Actualizar campos específicos según el nuevo estado
+        //        pedido.Estado = nuevoEstado;
+        //        pedido.Comentarios = $"[{usuarioLogueado} {DateTime.Now:dd/MM/yyyy HH:mm}]: {nuevoEstado}" +
+        //                             (string.IsNullOrWhiteSpace(pedido.Comentarios) ? "" : Environment.NewLine + pedido.Comentarios);
+
+        //        if (rolUsuario == "Supervisor de Carga")
+        //        {
+        //            pedido.IdSupervisor = int.Parse(idUsuario);
+        //        }
+        //        else if (rolUsuario == "Administracion")
+        //        {
+        //            pedido.IdAdministracion = int.Parse(idUsuario);
+        //        }
+
+        //        // Si el estado es "Entregado", actualizar fechaEntregado
+        //        if (nuevoEstado.Equals("Entregado", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            pedido.FechaEntregado = DateTime.Now;
+        //        }
+
+        //        // Delegar la actualización al método ActualizarPedido
+        //        var resultado = await ActualizarPedido(pedido);
+        //        if (resultado)
+        //        {
+        //            TempData["Mensaje"] = "El estado del pedido se actualizó correctamente.";
+        //            TempData["Exito"] = true;
+        //        }
+        //        else
+        //        {
+        //            TempData["Mensaje"] = "Error: No se pudo actualizar el estado del pedido.";
+        //            TempData["Exito"] = false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["Mensaje"] = $"Error inesperado: {ex.Message}";
+        //        TempData["Exito"] = false;
+        //    }
+
+        //    return RedirectToAction("SupervisarPedidos");
+        //}
+
+
+
         [HttpPost]
         public async Task<IActionResult> CambiarEstadoPedido(int id, string nuevoEstado)
         {
@@ -478,6 +551,24 @@ namespace Front_End_Gestion_Pedidos.Controllers
             return pedidos;
         }
 
+        private async Task<Pedido> ObtenerPedidoPorId(int idPedido)
+        {
+            var client = _httpClientFactory.CreateClient();
+            
+            var response = await client.GetAsync($"https://localhost:7078/api/Pedidos/Pedido/{idPedido}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Pedido>(jsonResponse, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> DetallePedido(int idPedido)
@@ -531,9 +622,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
         }
 
 
-
-
-
         // Filtrar stock por código
         private async Task<IEnumerable<Producto>> filtroStock(string filtro)
         {
@@ -552,5 +640,52 @@ namespace Front_End_Gestion_Pedidos.Controllers
             return new List<Producto>();
         }
 
+
+        private async Task<bool> ActualizarPedido(Pedido pedido)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var jsonContent = JsonSerializer.Serialize(pedido);
+                Console.WriteLine($"JSON Enviado desde Frontend: {jsonContent}");
+
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                var response = await client.PutAsync($"https://localhost:7078/api/Pedidos/{pedido.IdPedido}", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDetails = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error detallado del backend: {errorDetails}");
+                    TempData["Mensaje"] = $"Error al actualizar el pedido: {errorDetails}";
+                    return false;
+                }
+
+                TempData["Mensaje"] = "Pedido actualizado correctamente.";
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inesperado: {ex.Message}");
+                TempData["Mensaje"] = $"Error inesperado: {ex.Message}";
+                return false;
+            }
+        }
+
+
+
+        //private async Task<bool> ActualizarPedidoEnBaseDeDatos(Pedido pedido)
+        //{
+        //    var client = _httpClientFactory.CreateClient();
+        //    var jsonContent = JsonSerializer.Serialize(pedido);
+        //    var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+        //    var response = await client.PutAsync($"https://localhost:7078/api/Pedidos/{pedido.IdPedido}", content);
+        //    return response.IsSuccessStatusCode;
+        //}
+
+
+
     }
+
 }

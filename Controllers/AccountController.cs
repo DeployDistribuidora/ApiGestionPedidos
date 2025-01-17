@@ -84,6 +84,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                         HttpContext.Session.SetString("UsuarioLogueado", jsonResponse.User.NombreUsuario);
                         HttpContext.Session.SetString("Role", jsonResponse.User.Rol);
                         HttpContext.Session.SetString("Token", jsonResponse.Token);
+                        HttpContext.Session.SetString("IdUsuario", jsonResponse.User.IdUsuario.ToString());
 
                         // Si el usuario es Cliente, configura ClienteId en la sesión
                         if (jsonResponse.User.Rol == "Cliente")

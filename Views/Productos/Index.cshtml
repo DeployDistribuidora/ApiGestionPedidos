@@ -1,8 +1,10 @@
-﻿@model List<Front_End_Gestion_Pedidos.Models.Producto>
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@model List<Front_End_Gestion_Pedidos.Models.Producto>
 
 @{
     ViewData["Title"] = "Gestión de Productos";
     string searchTerm = ViewBag.SearchTerm;
+    var role = HttpContextAccessor.HttpContext.Session.GetString("Role");
 }
 
 <div class="pagetitle">
@@ -59,7 +61,10 @@
                             <th></th>
                             <th>ID</th>
                             <th>Nombre</th>
-                            <th>Stock</th>
+                                    @if (role != "Cliente")
+                                    {
+                                        <th>Stock</th> <!-- Muestra solo si no es Cliente -->
+                                    }
                             <th>Precio</th>
                         </tr>
                     </thead>
@@ -101,16 +106,19 @@
                                             </td>
                                             <td>@producto.Codigo</td>
                                             <td>@producto.Descripcion</td>
-                                            <td>@producto.Stock_Actual</td>
+                                            @if (role != "Cliente")
+                                            {
+                                                <td>@producto.Stock_Actual</td> <!-- Muestra solo si no es Cliente -->
+                                            }
                                             <td>@producto.Precio</td>
                                         </tr>
                                     }
                                 }
                                 else
                                 {
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">No se encontraron resultados</td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="@((role != "Cliente") ? 4 : 3)" class="text-center">No se encontraron productos</td>
+                                    </tr>
                                 }
                     </tbody>
                 </table>

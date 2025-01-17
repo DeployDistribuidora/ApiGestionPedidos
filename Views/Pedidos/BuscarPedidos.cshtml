@@ -12,7 +12,7 @@
 <section class="section">
     <div class="row">
         <!-- Filtro de Pedidos -->
-        <div class="col-lg-7">
+        <div class="col-12 col-lg-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Filtros de Búsqueda</h5>
@@ -27,17 +27,17 @@
 
                     <!-- Formulario de Búsqueda -->
                     <form method="get" asp-action="BuscarPedidos" class="row g-3 align-items-center mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="inputCliente" class="form-label">Cliente</label>
                             <input type="text" id="inputCliente" name="cliente" class="form-control form-control-sm"
                                    placeholder="Nombre del cliente" value="@HttpContextAccessor.HttpContext.Request.Query["cliente"]" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="inputVendedor" class="form-label">Vendedor</label>
                             <input type="text" id="inputVendedor" name="vendedor" class="form-control form-control-sm"
                                    placeholder="Nombre del vendedor" value="@HttpContextAccessor.HttpContext.Request.Query["vendedor"]" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="inputFechas" class="form-label">Rango de Fechas</label>
                             <div class="input-group">
                                 <input type="date" id="fechaInicio" name="fechaInicio" class="form-control form-control-sm"
@@ -56,7 +56,7 @@
         </div>
 
         <!-- Tabla de Pedidos -->
-        <div class="col-lg-10">
+        <div class="col-lg-7">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Pedidos</h5>
@@ -98,29 +98,6 @@
                                             <td>@pedido.Estado</td>
                                             <td class="d-none d-md-table-cell">@pedido.FechaCreacion.ToShortDateString()</td>
                                         </tr>
-
-                                        @* <!-- Modal de Detalle -->
-                                        <div class="modal fade" id="detalleModal-@pedido.IdPedido" tabindex="-1" aria-labelledby="detalleModalLabel-@pedido.IdPedido" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="detalleModalLabel-@pedido.IdPedido">Detalle del Pedido #@pedido.IdPedido</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Cliente:</strong> @pedido.IdCliente</p>
-                                                        <p><strong>Vendedor:</strong> @pedido.IdVendedor</p>
-                                                        <p><strong>Estado:</strong> @pedido.Estado</p>
-                                                        <p><strong>Fecha de Creación:</strong> @pedido.FechaCreacion.ToShortDateString()</p>
-                                                        <p><strong>Fecha de Entrega:</strong> @pedido.FechaEntrega</p>
-                                                        <p><strong>Método de pago:</strong> @pedido.MetodoPago</p>
-                                                        <p><strong>Tarjeta:</strong> @pedido.TarjetaID</p>
-                                                        <p><strong>Comentarios:</strong> @pedido.Comentarios</p>
-                                                        <p><strong>Id Supervisor de Carga:</strong> @pedido.IdSupervisor</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> *@
 
                                         <!-- Modal Dialog Scrollable -->
                                         <div class="modal fade" id="modalDetallePedido" tabindex="-1">
