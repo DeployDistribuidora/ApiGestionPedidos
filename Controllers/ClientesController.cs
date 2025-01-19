@@ -11,12 +11,12 @@ namespace Front_End_Gestion_Pedidos.Controllers
     public class ClientesController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClient _httpClient;
 
         public ClientesController(IHttpContextAccessor httpContextAccessor, IHttpClientFactory httpClientFactory)
         {
             _httpContextAccessor = httpContextAccessor;
-            _httpClientFactory = httpClientFactory;
+            _httpClient = httpClientFactory.CreateClient("PedidosClient");
         }
 
         [RoleAuthorize("Administracion", "Vendedor")]
@@ -67,8 +67,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var model = new PedidoViewModel();
             List<Cliente> clientes1 = new List<Cliente>();
 
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync("https://localhost:7078/api/v1/Clientes");
+           var response = await _httpClient.GetAsync($"/api/v1/Clientes");
 
             if (response.IsSuccessStatusCode)
             {

@@ -9,12 +9,12 @@ namespace Front_End_Gestion_Pedidos.Controllers
     public class ProductosController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClient _httpClient;
 
         public ProductosController(IHttpContextAccessor httpContextAccessor, IHttpClientFactory httpClientFactory)
         {
             _httpContextAccessor = httpContextAccessor;
-            _httpClientFactory = httpClientFactory;
+            _httpClient = httpClientFactory.CreateClient("PedidosClient");
         }
 
         [RoleAuthorize("Administracion", "Vendedor", "Cliente")]
@@ -53,21 +53,22 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
                     if (productosFiltrados.Count > 0)
                     {
-                        return View(productosFiltrados);
+                        return View("Index", productosFiltrados);
                     }
                     else
                     {
                         ViewBag.Alerta = "No se encontraron productos que coincidan con el término de búsqueda.";
-                        return View(productos);
+                        return View("Index", productos);
                     }
                 }
 
-                return View(productos);
+                return View("Index", productos);
+                 
             }
             catch (Exception ex)
             {
                 ViewBag.Error = $"Error al buscar productos: {ex.Message}";
-                return View(new List<Producto>());
+                return View("Index", new List<Producto>());
             }
         }
 
@@ -77,8 +78,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             //var model = new PedidoViewModel();
             IEnumerable<Producto> productosResponse = new List<Producto>();
 
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync("https://localhost:7078/api/Stocks");
+            var response = await _httpClient.GetAsync($"/api/Stocks");
 
             if (response.IsSuccessStatusCode)
             {

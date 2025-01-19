@@ -41,14 +41,14 @@
         <header id="header" class="header fixed-top d-flex align-items-center">
 
             <div class="d-flex align-items-center justify-content-between">
-                <a class="logo d-flex align-items-center">
+                <a href="@Url.Action("Index", "Home")" class="logo d-flex align-items-center">
                     <span class="d-none d-lg-block">Gestión de Pedidos</span>
                 </a>
                 <i class="bi bi-list toggle-sidebar-btn"></i>
             </div><!-- End Logo -->         
 
-
         </header>
+
 
         <!-- End Header -->
         <!-- ======= Sidebar ======= -->
@@ -57,6 +57,12 @@
             <ul class="sidebar-nav" id="sidebar-nav">
                 @if (role == "Cliente")
                 {
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" asp-controller="Pedidos" asp-action="ClienteNuevoPedido">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>Cliente Nuevo Pedido</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link collapsed" asp-controller="Pedidos" asp-action="NuevoPedido">
                             <i class="bi bi-plus-circle"></i>

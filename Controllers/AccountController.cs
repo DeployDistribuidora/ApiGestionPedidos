@@ -12,11 +12,11 @@ namespace Front_End_Gestion_Pedidos.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClient _httpClient;
 
         public AccountController(IHttpClientFactory httpClientFactory)
         {
-            _httpClientFactory = httpClientFactory;
+            _httpClient = httpClientFactory.CreateClient("PedidosClient");
         }
 
         public IActionResult Login()
@@ -39,13 +39,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             {
                 return View(model); // Devuelve la vista si el modelo no es válido.
             }
-
-            var client = _httpClientFactory.CreateClient();
-
-            // URL del Backend-API
-            var url = "https://localhost:7078/api/Login/login";
-            //var url = "https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/Login/login";
-                       
+           
             // Crea el objeto de solicitud
             var loginRequest = new LoginRequest
             {
@@ -63,7 +57,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             try
             {
                 // Envía la solicitud POST al backend
-                var response = await client.PostAsync(url, content);
+                var response = await _httpClient.PostAsync($"/api/Login/login", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -84,7 +78,9 @@ namespace Front_End_Gestion_Pedidos.Controllers
                         HttpContext.Session.SetString("UsuarioLogueado", jsonResponse.User.NombreUsuario);
                         HttpContext.Session.SetString("Role", jsonResponse.User.Rol);
                         HttpContext.Session.SetString("Token", jsonResponse.Token);
-                        HttpContext.Session.SetString("IdUsuario", jsonResponse.User.IdUsuario.ToString());
+                        //HttpContext.Session.SetString("IdUsuario", jsonResponse.User.IdUsuario.ToString());
+                        HttpContext.Session.SetInt32("IdUsuario", (int)jsonResponse.User.IdUsuario);
+
 
                         // Si el usuario es Cliente, configura ClienteId en la sesión
                         if (jsonResponse.User.Rol == "Cliente")

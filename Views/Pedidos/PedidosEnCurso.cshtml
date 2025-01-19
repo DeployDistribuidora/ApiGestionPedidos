@@ -1,6 +1,7 @@
 ﻿@using Front_End_Gestion_Pedidos.Models.ViewModel
 @inject IHttpContextAccessor HttpContextAccessor
-@model SupervisarPedidosViewModel
+@model Front_End_Gestion_Pedidos.Models.ViewModel.SupervisarPedidosViewModel
+
 
 @if (!string.IsNullOrEmpty(HttpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado")))
 {
@@ -87,12 +88,10 @@
                                             <td>
                                                 @if (role == "Cliente")
                                                 {
-                                                    <!-- Solo añadir comentarios -->
                                                     <button class="btn btn-outline-primary btn-sm" onclick="añadirComentario(@pedido.IdPedido)">Añadir Comentario</button>
                                                 }
                                                 else if (role == "Vendedor")
                                                 {
-                                                    <!-- Añadir comentarios y editar si el estado es Pendiente -->
                                                     <button class="btn btn-outline-primary btn-sm" onclick="añadirComentario(@pedido.IdPedido)">Añadir Comentario</button>
                                                     @if (pedido.Estado == "Pendiente")
                                                     {
@@ -141,10 +140,8 @@
         const idPedido = button.getAttribute('data-id-pedido');
         const detalleContent = document.getElementById('detallePedidoContent');
 
-        // Mostrar mensaje de carga
         detalleContent.innerHTML = "Cargando...";
 
-        // Cargar contenido dinámicamente desde el controlador
         fetch(`/Pedidos/DetallePedido?idPedido=${idPedido}`)
             .then(response => response.text())
             .then(html => {

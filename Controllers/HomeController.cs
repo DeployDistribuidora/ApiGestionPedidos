@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Text.Json;
 using Front_End_Gestion_Pedidos.Models;
 using Front_End_Gestion_Pedidos.Models.ViewModel;
@@ -5,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 
 public class HomeController : Controller
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient _httpClient;
 
     public HomeController(IHttpClientFactory httpClientFactory)
     {
-        _httpClientFactory = httpClientFactory;
+        _httpClient = httpClientFactory.CreateClient("PedidosClient");
     }
 
     public async Task<IActionResult> Index()
@@ -118,8 +119,7 @@ public class HomeController : Controller
 
     private async Task<List<Pedido>> ObtenerPedidos()
     {
-        var client = _httpClientFactory.CreateClient();
-        var response = await client.GetAsync("https://localhost:7078/api/Pedidos");
+       var response = await _httpClient.GetAsync($"/api/Pedidos");
 
         if (!response.IsSuccessStatusCode)
             return new List<Pedido>();
@@ -133,8 +133,7 @@ public class HomeController : Controller
 
     private async Task<List<Pedido>> ObtenerPedidosCliente(int clienteId)
     {
-        var client = _httpClientFactory.CreateClient();
-        var response = await client.GetAsync($"https://localhost:7078/api/Pedidos/Cliente/{clienteId}");
+       var response = await _httpClient.GetAsync($"/api/Pedidos/Cliente/{clienteId}");
 
         if (!response.IsSuccessStatusCode)
             return new List<Pedido>();
@@ -148,8 +147,7 @@ public class HomeController : Controller
 
     private async Task<List<Pedido>> ObtenerPedidosVendedor(int vendedorId)
     {
-        var client = _httpClientFactory.CreateClient();
-        var response = await client.GetAsync($"https://localhost:7078/api/Pedidos/Vendedor/{vendedorId}");
+       var response = await _httpClient.GetAsync($"/api/Pedidos/Vendedor/{vendedorId}");
 
         if (!response.IsSuccessStatusCode)
         {

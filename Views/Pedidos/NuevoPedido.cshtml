@@ -12,23 +12,22 @@
 
 <section class="section">
     <div class="row">
-
-
         <!-- Selección de Cliente y Medio de Pago -->
-        <div class="col-12 col-md-6">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Selección de Cliente y Medio de Pago</h5>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="cliente" class="form-label">Cliente</label>
-                            <select id="cliente" name="clienteId" class="form-select form-select-sm" onchange="cargarDirecciones()">
+                            <select id="cliente" name="clienteId" class="form-select form-select-sm" onchange="cambiarCliente()">
                                 <option value="" disabled selected>Seleccione un cliente</option>
                                 @foreach (var cliente in Model.Clientes)
                                 {
                                     <option value="@cliente.NroCliente"
                                             data-dircliente="@cliente.DirCliente"
                                             data-dir2cliente="@cliente.Dir2Cliente"
+                                            data-nrocliente="@cliente.NroCliente"
                                             selected="@(Model.ClienteSeleccionado?.NroCliente == cliente.NroCliente ? "selected" : null)">
                                         @cliente.NombreCliente
                                     </option>
@@ -44,45 +43,32 @@
                                 <option value="Tarjeta">Tarjeta</option>
                             </select>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="direccion" class="form-label">Dirección</label>
-                            <select id="direccion" name="direccion" class="form-select form-select-sm">
-                                <option value="" disabled selected>Seleccione una dirección</option>
-                            </select>
-                        </div>
-
                     </div>
                 </div>
             </div>
         </div>
 
+        <input type="hidden" id="puntosCliente" value="@Model.ClienteSeleccionado?.NroCliente" />
 
-        <!-- Confirmar Pedido -->
+        <!-- Selección de Dirección -->
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title"> Comentarios y confirmación</h5>
+                    <h5 class="card-title">Dirección</h5>
                     <div class="mb-3">
-                        <textarea id="comentarios" class="form-control form-control-sm" rows="3" placeholder="Escribe algún comentario..."></textarea>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <br />
-                        <span class="text-danger fw-bold">Total $0</span>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-outline-primary btn-sm">Ver carrito</a>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="enviarPedido()">Realizar Pedido</button>
-                        </div>
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <select id="direccion" name="direccion" class="form-select form-select-sm">
+                            <option value="" disabled selected>Seleccione una dirección</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Selección de Productos -->
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Selección de Productos</h5>
+                    <h5 class="card-title">Filtro de Productos</h5>
                     <div class="mb-3">
                         <label for="filtroProductos" class="form-label">Buscar Productos</label>
                         <input type="text" id="filtroProductos" class="form-control form-control-sm" placeholder="Buscar producto..." />
@@ -91,55 +77,149 @@
                             <button type="button" class="btn btn-secondary btn-sm" onclick="limpiarFiltro()">Limpiar Filtro</button>
                         </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover table-sm" id="tablaProductos">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="text-nowrap">Nombre</th>
-                                    <th class="text-nowrap">Precio</th>
-                                    <th class="text-nowrap">Cantidad</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var producto in Model.Productos)
-                                {
-                                    <tr data-nombre="@producto.Descripcion">
-                                        <td class="text-nowrap">@producto.Descripcion</td>
-                                        <td class="text-nowrap">@producto.Precio</td>
-                                        <td class="text-nowrap">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <!-- Botón de decremento -->
-                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle px-2"
-                                                        onclick="actualizarCantidad('cantidad_@producto.Codigo', -1)">
-                                                    <i class="bi bi-dash"></i>
-                                                </button>
-                                                <!-- Input de cantidad -->
-                                                <input type="number" id="cantidad_@producto.Codigo"
-                                                       class="form-control form-control-sm text-center mx-1"
-                                                       value="0" min="0" style="width: 60px;" />
-                                                <!-- Botón de incremento -->
-                                                <button type="button" class="btn btn-outline-success btn-sm rounded-circle px-2"
-                                                        onclick="actualizarCantidad('cantidad_@producto.Codigo', 1)">
-                                                    <i class="bi bi-plus"></i>
-                                                </button>
-                                            </div>
-                                        </td>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-sm" id="tablaProductos">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-nowrap">Nombre</th>
+                        <th class="text-nowrap d-none d-md-table-cell">Detalle</th>
+                        <th class="text-nowrap">Precio</th>
+                        <th class="text-nowrap" width="35%">Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProductosBody">
+                    <!-- El contenido de las filas será generado dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <nav id="navPaginacion" class="d-flex justify-content-center align-items-center mt-0">
+            <button class="btn btn-sm btn-secondary mx-1" onclick="paginaAnterior()">
+                &larr;
+            </button>
+            <div id="paginacion" class="d-flex gap-1"></div>
+            <button class="btn btn-sm btn-secondary mx-1" onclick="paginaSiguiente()">
+                &rarr;
+            </button>
+        </nav>
+
+
+
+        <!-- Comentarios -->
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Comentarios</h5>
+                    <div class="mb-3">
+                        <textarea id="comentarios" class="form-control form-control-sm" rows="3" placeholder="Escribe algún comentario..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- footer del pedido -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <br />
+                        <span class="text-danger fw-bold">Total: $<span id="totalFooter">0.00</span></span>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCarrito" onclick="mostrarCarrito()">Ver carrito</a>
+
+                            <button type="button" class="btn btn-primary btn-sm" onclick="enviarPedido()">realizar pedido</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Ver Carrito -->
+        <div class="modal fade" id="modalCarrito" tabindex="-1" aria-labelledby="modalCarritoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalCarritoLabel">Carrito</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-nowrap">Producto</th>
+                                        <th class="text-nowrap">Precio</th>
+                                        <th class="text-nowrap">Cantidad</th>
+                                        <th class="text-nowrap">Subtotal</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody id="tablaCarritoBody">
+                                    <!-- Las filas se generarán dinámicamente con JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <span class="fw-bold">Total: $<span id="totalCarrito">0</span></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
         </div>
 
 
-    </div>
+
+        <!-- Modal de Mensaje -->
+        <div class="modal fade" id="modalMensaje" tabindex="-1" aria-labelledby="modalMensajeLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalMensajeLabel"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="mensajeModal"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+
+
 </section>
 
 
 <!-- Scripts -->
 <script>
+    let puntos = 0;
+
+    let cantidadesSeleccionadas = {};
+
+    function cambiarCliente() {
+        const clienteSelect = document.getElementById('cliente');
+        // const puntosCliente = parseInt(clienteSelect.options[clienteSelect.selectedIndex].getAttribute('data-nrocliente')) || 0;
+
+        const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
+
+
+        puntos = parseInt(selectedOption.getAttribute("data-nroCliente"));
+
+        cargarDirecciones(); // Refrescar direcciones
+        renderizarTabla(); // Refrescar precios
+
+    }
+
+
+
     // Cargar direcciones según cliente seleccionado
     function cargarDirecciones() {
         const clienteSelect = document.getElementById("cliente");
@@ -171,33 +251,233 @@
         }
     }
 
-    // Filtro de productos
-    function aplicarFiltro() {
-        const filtro = document.getElementById('filtroProductos').value.toLowerCase();
-        const filas = document.querySelectorAll('#tablaProductos tbody tr');
 
-        filas.forEach(fila => {
-            const nombreProducto = fila.getAttribute('data-nombre').toLowerCase();
-            fila.style.display = nombreProducto.includes(filtro) ? '' : 'none';
+
+    function actualizarTablaCantidades() {
+        const cantidadesInputs = document.querySelectorAll('[id^="cantidad_"]');
+        cantidadesInputs.forEach(input => {
+            input.value = 0; // Establecer el valor a 0
         });
+
+        let total = 0;
+        document.getElementById("totalFooter").textContent = total.toFixed(2);
     }
 
+    function actualizarCantidad(codigo, cantidad) {
+        cantidad = parseInt(cantidad) || 0; // Convertir a entero o asignar 0 si es inválido
+
+        // Obtener la fila correspondiente al producto
+        const fila = document.querySelector(`#cantidad_${codigo}`).closest("tr");
+
+        // Leer el precio desde la celda correspondiente en esa fila
+        const precio = parseFloat(fila.querySelector("td:nth-child(3)").textContent);
+
+        // Actualizar o eliminar la cantidad y precio seleccionados
+        if (cantidad > 0) {
+            // Guardar la cantidad y el precio en un objeto
+            cantidadesSeleccionadas[codigo] = { cantidad: cantidad, precio: precio };
+        } else {
+            // Eliminar del objeto si la cantidad es 0
+            delete cantidadesSeleccionadas[codigo];
+        }
+
+        // Calcular el total
+        let total = 0;
+        Object.keys(cantidadesSeleccionadas).forEach(codigo => {
+            const item = cantidadesSeleccionadas[codigo];
+            total += item.precio * item.cantidad; // Calcular el subtotal
+        });
+
+        // Actualizar el total en el footer
+        document.getElementById("totalFooter").textContent = total.toFixed(2);
+    }
+
+
+
+
+
+    function mostrarCarrito() {
+        const tablaCarritoBody = document.getElementById("tablaCarritoBody");
+        const totalCarrito = document.getElementById("totalCarrito");
+
+        let total = 0;
+
+        // Limpiar la tabla del carrito antes de agregar nuevas filas
+        tablaCarritoBody.innerHTML = "";
+
+        Object.keys(cantidadesSeleccionadas).forEach(codigo => {
+            const cantidad = cantidadesSeleccionadas[codigo].cantidad;
+            const producto = productosOriginales.find(p => p.codigo == codigo);
+
+            if (producto && cantidad > 0) {
+                let precio = producto.precio; // Precio por defecto
+                if (puntos === 1) precio = producto.stock_2;
+                if (puntos === 2) precio = producto.stock_3;
+                if (puntos === 3) precio = producto.stock_4;
+                if (puntos === 4) precio = producto.stock_5;
+
+                const subtotal = precio * cantidad;
+                total += subtotal;
+
+                // Agregar fila al modal
+                const filaCarrito = document.createElement("tr");
+                filaCarrito.innerHTML = `
+                        <td>${producto.descripcion}</td>
+                        <td>$${precio.toFixed(2)}</td>
+                        <td>${cantidad}</td>
+                        <td>$${subtotal.toFixed(2)}</td>
+                    `;
+                tablaCarritoBody.appendChild(filaCarrito);
+            }
+        });
+
+        // Actualizar el total en el modal
+        totalCarrito.textContent = total.toFixed(2);
+    }
+
+
+
+    let productosPorPagina = 8;
+    let paginaActual = 1;
+    let productosOriginales = @Html.Raw(Json.Serialize(Model.Productos)); // Lista original de productos
+    let productosFiltrados = [...productosOriginales]; // Inicializar lista filtrada con todos los productos
+
+    // Función para renderizar la tabla
+    function renderizarTabla() {
+        //const puntosCliente = parseInt(document.getElementById("puntosCliente").value, 10) || 0; // Capturar puntos del cliente
+        const puntosCliente = puntos;
+        const inicio = (paginaActual - 1) * productosPorPagina;
+        const fin = inicio + productosPorPagina;
+        const productosPagina = productosFiltrados.slice(inicio, fin);
+
+        const cuerpoTabla = document.querySelector("#tablaProductos tbody");
+        cuerpoTabla.innerHTML = ""; // Limpiar contenido anterior
+
+        productosPagina.forEach(producto => {
+
+            const cantidadSeleccionada = cantidadesSeleccionadas[producto.codigo] || 0; // Recuperar cantidad seleccionada
+
+
+
+            // Determinar el precio según los puntos del cliente
+            let precio = producto.precio; // Precio por defecto
+            if (puntosCliente === 1) precio = producto.stock_2;
+            if (puntosCliente === 2) precio = producto.stock_3;
+            if (puntosCliente === 3) precio = producto.stock_4;
+            if (puntosCliente === 4) precio = producto.stock_5;
+
+            const fila = document.createElement("tr");
+
+            if (cantidadSeleccionada.cantidad >= 1) {
+                fila.innerHTML = `
+                        <td>${producto.descripcion}</td>
+                        <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
+                        <td>${precio.toFixed(2)}</td>
+                        <td>
+                           <input
+                                type="number"
+                                id="cantidad_${producto.codigo}"
+                                class="form-control form-control-sm text-center"
+                                min="0"
+                                value="${cantidadSeleccionada.cantidad}"
+                                onchange="actualizarCantidad(${producto.codigo}, this.value)" />
+                        </td>
+
+                    `;
+                cuerpoTabla.appendChild(fila);
+            }
+            else {
+                fila.innerHTML = `
+                    <td>${producto.descripcion}</td>
+                    <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
+                    <td>${precio.toFixed(2)}</td>
+                    <td>
+                       <input
+                            type="number"
+                            id="cantidad_${producto.codigo}"
+                            class="form-control form-control-sm text-center"
+                            min="0"
+                            value="${cantidadSeleccionada}"
+                            onchange="actualizarCantidad(${producto.codigo}, this.value)" />
+                    </td>
+
+                `;
+                cuerpoTabla.appendChild(fila);
+            }
+        });
+
+        renderizarPaginacion(); // Actualizar la paginación
+    }
+
+
+    // Función para renderizar la paginación
+    function renderizarPaginacion() {
+        const paginacionDiv = document.getElementById("paginacion");
+        paginacionDiv.innerHTML = ""; // Limpiar contenido anterior
+
+        const totalPaginas = Math.ceil(productosFiltrados.length / productosPorPagina);
+
+        for (let i = 1; i <= totalPaginas; i++) {
+            const boton = document.createElement("button");
+            boton.innerText = i;
+            boton.className = `btn btn-sm ${i === paginaActual ? "btn-primary" : "btn-secondary"}`;
+            boton.onclick = () => {
+                paginaActual = i;
+                renderizarTabla();
+            };
+            paginacionDiv.appendChild(boton);
+        }
+    }
+
+    function paginaAnterior() {
+        if (paginaActual > 1) {
+            paginaActual--;
+            renderizarTabla();
+        }
+    }
+
+    function paginaSiguiente() {
+        const totalPaginas = Math.ceil(productosFiltrados.length / productosPorPagina);
+        if (paginaActual < totalPaginas) {
+            paginaActual++;
+            renderizarTabla();
+        }
+    }
+
+    // Función para aplicar el filtro
+    function aplicarFiltro() {
+        const filtro = document.getElementById("filtroProductos").value.trim().toLowerCase();
+        productosFiltrados = productosOriginales.filter(producto =>
+            producto.descripcion.toLowerCase().includes(filtro)
+        );
+
+        paginaActual = 1; // Reiniciar a la primera página
+        renderizarTabla();
+    }
+
+    // Función para limpiar el filtro
     function limpiarFiltro() {
-        document.getElementById('filtroProductos').value = '';
-        const filas = document.querySelectorAll('#tablaProductos tbody tr');
-        filas.forEach(fila => fila.style.display = '');
+        document.getElementById("filtroProductos").value = ""; // Limpiar input
+        productosFiltrados = [...productosOriginales]; // Restaurar productos originales
+
+        paginaActual = 1; // Reiniciar a la primera página
+        renderizarTabla();
     }
 
-    // Función para incrementar o decrementar la cantidad
-    function actualizarCantidad(inputId, valor) {
-        const input = document.getElementById(inputId);
-        let cantidad = parseInt(input.value) || 0; // Si el valor no es válido, inicia en 0
-        cantidad += valor;
+    // Inicializar tabla y paginación al cargar la página
+    document.addEventListener("DOMContentLoaded", () => {
+        renderizarTabla();
+    });
 
-        // Asegurarse de que no sea menor que 0
-        if (cantidad < 0) cantidad = 0;
+    //MUestra si tiro success o error el pedido
+    function mostrarMensajeModal(titulo, mensaje) {
+        // Establecer el título y el mensaje del modal
+        document.getElementById('modalMensajeLabel').textContent = titulo;
+        document.getElementById('mensajeModal').textContent = mensaje;
 
-        input.value = cantidad;
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('modalMensaje'));
+        modal.show();
     }
 
 
@@ -213,7 +493,7 @@
                 idCliente: parseInt(clienteId),
                 idAdministracion: 1,
                 fechaCreacion: new Date().toISOString(),
-                estado: "Pendiente",
+                estado: "Preparando",
                 metodoPago,
                 total: 0,
                 comentarios
@@ -221,16 +501,31 @@
             lineasPedido: []
         };
 
-        const cantidadesInputs = document.querySelectorAll('[id^="cantidad_"]');
+
         let total = 0;
 
-        cantidadesInputs.forEach(input => {
-            const codigo = input.id.split('_')[1];
-            const cantidad = parseInt(input.value) || 0;
+
+        // Iterar sobre el objeto "cantidadesSeleccionadas" en lugar de inputs visibles
+        Object.keys(cantidadesSeleccionadas).forEach(codigo => {
+            const cantidad = cantidadesSeleccionadas[codigo].cantidad;
             if (cantidad > 0) {
-                const precio = parseFloat(input.closest('tr').querySelector('td:nth-child(2)').innerText);
-                total += precio * cantidad;
-                pedido.lineasPedido.push({ codigo, cantidad, precioUnitario: precio });
+                //const producto = productosOriginales.find(p => p.codigo === codigo); // Buscar el producto en la lista original
+                const producto = productosOriginales.find(p => String(p.codigo) === String(codigo));
+                if (producto) {
+
+                    let precio = producto.precio; // Precio por defecto
+                    if (puntos === 1) precio = producto.stock_2;
+                    if (puntos === 2) precio = producto.stock_3;
+                    if (puntos === 3) precio = producto.stock_4;
+                    if (puntos === 4) precio = producto.stock_5;
+                    const subtotal = precio * cantidad;
+                    total += subtotal;
+                    pedido.lineasPedido.push({
+                        codigo: producto.codigo,
+                        cantidad: cantidad,
+                        precioUnitario: precio
+                    });
+                }
             }
         });
 
@@ -243,16 +538,26 @@
         })
             .then(response => {
                 if (response.ok) {
-                    alert('Pedido realizado con éxito.');
+                    return response.json();
                 } else {
-                    response.json().then(err => console.error(err));
-                    alert('Error al realizar el pedido.');
+                    throw new Error('Error al realizar el pedido.');
                 }
             })
+            .then(data => {
+                mostrarMensajeModal('Pedido Realizado', 'El pedido fue realizado con éxito.');
+
+                // Limpiar cantidades seleccionadas
+                cantidadesSeleccionadas = {};
+                actualizarTablaCantidades();
+
+                // Limpiar comentarios
+                document.getElementById('comentarios').value = '';
+            })
             .catch(error => {
+                mostrarMensajeModal('Error', 'Hubo un problema al realizar el pedido. Inténtelo nuevamente.');
                 console.error('Error:', error);
-                alert('Error de conexión con la API.');
             });
     }
 </script>
+
 
