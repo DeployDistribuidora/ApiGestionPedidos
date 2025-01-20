@@ -42,6 +42,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             return View(model);
         }
 
+        [RoleAuthorize("Cliente")]
         public async Task<IActionResult> ClienteNuevoPedido()
         {
             int clienteLogueadoId = (int)HttpContext.Session.GetInt32("IdUsuario");
@@ -622,105 +623,106 @@ namespace Front_End_Gestion_Pedidos.Controllers
             });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CambiarEstadoPedido(int id, string nuevoEstado)
-        {
-            try
-            {
-                // Realiza una solicitud PUT al backend API
-                var response = await _httpClient.PutAsJsonAsync($"/api/Pedidos/Estado/{id}", nuevoEstado);
-
-
-
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["Mensaje"] = $"El estado del pedido #{id} se actualizó correctamente a '{nuevoEstado}'.";
-                    TempData["Exito"] = true; // Indicador de éxito
-                }
-                else
-                {
-                    TempData["Mensaje"] = $"Error al actualizar el estado del pedido #{id}: {response.ReasonPhrase}.";
-                    TempData["Exito"] = false; // Indicador de error
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Mensaje"] = $"Error al comunicarse con el backend: {ex.Message}";
-                TempData["Exito"] = false;
-            }
-
-            return RedirectToAction("SupervisarPedidos");
-        }
-
-
-        // Acción para cambiar el estado de un pedido
-
         //[HttpPost]
         //public async Task<IActionResult> CambiarEstadoPedido(int id, string nuevoEstado)
         //{
         //    try
         //    {
-        //        var usuarioLogueado = HttpContext.Session.GetString("UsuarioLogueado");
-        //        var idUsuario = HttpContext.Session.GetString("IdUsuario");
-        //        var rolUsuario = HttpContext.Session.GetString("Role");
+        //        // Realiza una solicitud PUT al backend API
+        //        var response = await _httpClient.PutAsJsonAsync($"/api/Pedidos/Estado/{id}", nuevoEstado);
 
-        //        if (string.IsNullOrEmpty(usuarioLogueado) || string.IsNullOrEmpty(idUsuario))
-        //        {
-        //            TempData["Mensaje"] = "Error: Sesión de usuario no válida.";
-        //            TempData["Exito"] = false;
-        //            return RedirectToAction("SupervisarPedidos");
-        //        }
 
-        //        // Obtener el pedido actual
-        //        var pedido = await ObtenerPedidoPorId(id);
-        //        if (pedido == null)
-        //        {
-        //            TempData["Mensaje"] = $"Error: No se encontró el pedido con ID {id}.";
-        //            TempData["Exito"] = false;
-        //            return RedirectToAction("SupervisarPedidos");
-        //        }
 
-        //        // Actualizar campos específicos según el nuevo estado
-        //        pedido.Estado = nuevoEstado;
-        //        pedido.Comentarios = $"[{usuarioLogueado} {DateTime.Now:dd/MM/yyyy HH:mm}]: {nuevoEstado}" +
-        //                             (string.IsNullOrWhiteSpace(pedido.Comentarios) ? "" : Environment.NewLine + pedido.Comentarios);
-
-        //        if (rolUsuario == "Supervisor de Carga")
+        //        if (response.IsSuccessStatusCode)
         //        {
-        //            pedido.IdSupervisor = int.Parse(idUsuario);
-        //        }
-        //        else if (rolUsuario == "Administracion")
-        //        {
-        //            pedido.IdAdministracion = int.Parse(idUsuario);
-        //        }
-
-        //        // Si el estado es "Entregado", actualizar fechaEntregado
-        //        if (nuevoEstado.Equals("Entregado", StringComparison.OrdinalIgnoreCase))
-        //        {
-        //            pedido.FechaEntregado = DateTime.Now;
-        //        }
-
-        //        // Delegar la actualización al método ActualizarPedido
-        //        var resultado = await ActualizarPedido(pedido);
-        //        if (resultado)
-        //        {
-        //            TempData["Mensaje"] = "El estado del pedido se actualizó correctamente.";
-        //            TempData["Exito"] = true;
+        //            TempData["Mensaje"] = $"El estado del pedido #{id} se actualizó correctamente a '{nuevoEstado}'.";
+        //            TempData["Exito"] = true; // Indicador de éxito
         //        }
         //        else
         //        {
-        //            TempData["Mensaje"] = "Error: No se pudo actualizar el estado del pedido.";
-        //            TempData["Exito"] = false;
+        //            TempData["Mensaje"] = $"Error al actualizar el estado del pedido #{id}: {response.ReasonPhrase}.";
+        //            TempData["Exito"] = false; // Indicador de error
         //        }
         //    }
         //    catch (Exception ex)
         //    {
-        //        TempData["Mensaje"] = $"Error inesperado: {ex.Message}";
+        //        TempData["Mensaje"] = $"Error al comunicarse con el backend: {ex.Message}";
         //        TempData["Exito"] = false;
         //    }
 
         //    return RedirectToAction("SupervisarPedidos");
         //}
+
+
+        // Acción para cambiar el estado de un pedido
+
+        [HttpPost]
+        public async Task<IActionResult> CambiarEstadoPedido(int id, string nuevoEstado)
+        {
+            try
+            {
+                var usuarioLogueado = HttpContext.Session.GetString("UsuarioLogueado");
+                //var idUsuario = HttpContext.Session.GetString("IdUsuario");
+                var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+                var rolUsuario = HttpContext.Session.GetString("Role");
+
+                if (string.IsNullOrEmpty(usuarioLogueado))
+                {
+                    TempData["Mensaje"] = "Error: Sesión de usuario no válida.";
+                    TempData["Exito"] = false;
+                    return RedirectToAction("SupervisarPedidos");
+                }
+
+                // Obtener el pedido actual
+                var pedido = await ObtenerPedidoPorId(id);
+                if (pedido == null)
+                {
+                    TempData["Mensaje"] = $"Error: No se encontró el pedido con ID {id}.";
+                    TempData["Exito"] = false;
+                    return RedirectToAction("SupervisarPedidos");
+                }
+
+                // Actualizar campos específicos según el nuevo estado
+                pedido.Estado = nuevoEstado;
+                pedido.Comentarios = $"[{usuarioLogueado} {DateTime.Now:dd/MM/yyyy HH:mm}]: {nuevoEstado}" +
+                                     (string.IsNullOrWhiteSpace(pedido.Comentarios) ? "" : Environment.NewLine + pedido.Comentarios);
+
+                if (rolUsuario == "Supervisor de Carga")
+                {
+                    pedido.IdSupervisor = idUsuario.Value;
+                }
+                else if (rolUsuario == "Administracion")
+                {
+                    pedido.IdAdministracion = idUsuario.Value;
+                }
+
+                // Si el estado es "Entregado", actualizar fechaEntregado
+                if (nuevoEstado.Equals("Entregado", StringComparison.OrdinalIgnoreCase))
+                {
+                    pedido.FechaEntregado = DateTime.Now;
+                }
+
+                // Delegar la actualización al método ActualizarPedido
+                var resultado = await ActualizarPedido(pedido);
+                if (resultado)
+                {
+                    TempData["Mensaje"] = "El estado del pedido se actualizó correctamente.";
+                    TempData["Exito"] = true;
+                }
+                else
+                {
+                    TempData["Mensaje"] = "Error: No se pudo actualizar el estado del pedido.";
+                    TempData["Exito"] = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Mensaje"] = $"Error inesperado: {ex.Message}";
+                TempData["Exito"] = false;
+            }
+
+            return RedirectToAction("SupervisarPedidos");
+        }
 
         private async Task<IEnumerable<Pedido>> ObtenerPedidosPorCliente(string idCliente)
         {

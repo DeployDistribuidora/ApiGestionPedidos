@@ -194,7 +194,7 @@
         </div>
 </section>
 
-
+       
 </section>
 
 
@@ -205,14 +205,14 @@
     let cantidadesSeleccionadas = {};
 
     function cambiarCliente() {
-        const clienteSelect = document.getElementById('cliente');
+         const clienteSelect = document.getElementById('cliente');
         // const puntosCliente = parseInt(clienteSelect.options[clienteSelect.selectedIndex].getAttribute('data-nrocliente')) || 0;
 
         const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
 
-
+     
         puntos = parseInt(selectedOption.getAttribute("data-nroCliente"));
-
+        
         cargarDirecciones(); // Refrescar direcciones
         renderizarTabla(); // Refrescar precios
 
@@ -299,7 +299,7 @@
     function mostrarCarrito() {
         const tablaCarritoBody = document.getElementById("tablaCarritoBody");
         const totalCarrito = document.getElementById("totalCarrito");
-
+       
         let total = 0;
 
         // Limpiar la tabla del carrito antes de agregar nuevas filas
@@ -322,11 +322,11 @@
                 // Agregar fila al modal
                 const filaCarrito = document.createElement("tr");
                 filaCarrito.innerHTML = `
-                        <td>${producto.descripcion}</td>
-                        <td>$${precio.toFixed(2)}</td>
-                        <td>${cantidad}</td>
-                        <td>$${subtotal.toFixed(2)}</td>
-                    `;
+                    <td>${producto.descripcion}</td>
+                    <td>$${precio.toFixed(2)}</td>
+                    <td>${cantidad}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                `;
                 tablaCarritoBody.appendChild(filaCarrito);
             }
         });
@@ -357,7 +357,7 @@
 
             const cantidadSeleccionada = cantidadesSeleccionadas[producto.codigo] || 0; // Recuperar cantidad seleccionada
 
-
+            
 
             // Determinar el precio según los puntos del cliente
             let precio = producto.precio; // Precio por defecto
@@ -365,28 +365,10 @@
             if (puntosCliente === 2) precio = producto.stock_3;
             if (puntosCliente === 3) precio = producto.stock_4;
             if (puntosCliente === 4) precio = producto.stock_5;
-
+            
             const fila = document.createElement("tr");
 
             if (cantidadSeleccionada.cantidad >= 1) {
-                fila.innerHTML = `
-                        <td>${producto.descripcion}</td>
-                        <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
-                        <td>${precio.toFixed(2)}</td>
-                        <td>
-                           <input
-                                type="number"
-                                id="cantidad_${producto.codigo}"
-                                class="form-control form-control-sm text-center"
-                                min="0"
-                                value="${cantidadSeleccionada.cantidad}"
-                                onchange="actualizarCantidad(${producto.codigo}, this.value)" />
-                        </td>
-
-                    `;
-                cuerpoTabla.appendChild(fila);
-            }
-            else {
                 fila.innerHTML = `
                     <td>${producto.descripcion}</td>
                     <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
@@ -397,12 +379,30 @@
                             id="cantidad_${producto.codigo}"
                             class="form-control form-control-sm text-center"
                             min="0"
-                            value="${cantidadSeleccionada}"
+                            value="${cantidadSeleccionada.cantidad}"
                             onchange="actualizarCantidad(${producto.codigo}, this.value)" />
                     </td>
 
                 `;
                 cuerpoTabla.appendChild(fila);
+            }
+            else { 
+            fila.innerHTML = `
+                <td>${producto.descripcion}</td>
+                <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
+                <td>${precio.toFixed(2)}</td>
+                <td>
+                   <input
+                        type="number"
+                        id="cantidad_${producto.codigo}"
+                        class="form-control form-control-sm text-center"
+                        min="0"
+                        value="${cantidadSeleccionada}"
+                        onchange="actualizarCantidad(${producto.codigo}, this.value)" />
+                </td>
+                
+            `;
+            cuerpoTabla.appendChild(fila);
             }
         });
 
