@@ -135,15 +135,19 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
             List<Pedido> pedidos = new List<Pedido>();
 
-            // Lógica según el rol del usuario
+            // Obtener pedidos según el rol del usuario
             if (rolUsuario == "Cliente" && !string.IsNullOrEmpty(idUsuarioSesion))
             {
-                // Obtener pedidos del cliente directamente
-                pedidos = (await ObtenerPedidosPorCliente(idUsuarioSesion)).ToList();
+                // Obtener pedidos del cliente y filtrar por estados correspondientes
+                pedidos = (await ObtenerPedidosPorCliente(idUsuarioSesion))
+                    .Where(p => p.Estado.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) ||
+                                p.Estado.Equals("Preparando", StringComparison.OrdinalIgnoreCase) ||
+                                p.Estado.Equals("En viaje", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
             }
             else if (rolUsuario == "Vendedor")
             {
-                // Obtener todos los pedidos y filtrar por los estados correspondientes
+                // Obtener todos los pedidos y filtrar por estados correspondientes
                 pedidos = (await ObtenerPedidos())
                     .Where(p => p.Estado.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) ||
                                 p.Estado.Equals("Preparando", StringComparison.OrdinalIgnoreCase) ||
@@ -152,7 +156,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
             }
 
             // Preparar el modelo para la vista
-            //var viewModel = new PedidosEnCursoViewModel
             var viewModel = new SupervisarPedidosViewModel
             {
                 Pedidos = pedidos
@@ -160,6 +163,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
             return View(viewModel);
         }
+
 
         //[RoleAuthorize("Cliente", "Vendedor")]
         //public async Task<IActionResult> PedidosEnCurso(string cliente = "", int? idPedido = null)
@@ -214,6 +218,66 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         //    return View(viewModel);
         //}
+
+        [HttpPost]
+        [RoleAuthorize("Cliente", "Vendedor")]
+        public async Task<IActionResult> AñadirComentario(int id, string comentario)
+        {
+            try
+            {
+                // Validar usuario logueado
+                var usuarioLogueado = HttpContext.Session.GetString("UsuarioLogueado");
+                if (string.IsNullOrEmpty(usuarioLogueado))
+                {
+                    TempData["Mensaje"] = "Error: Sesión de usuario no válida.";
+                    TempData["Exito"] = false;
+                    return RedirectToAction("PedidosEnCurso");
+                }
+
+                // Validar que el comentario no esté vacío
+                if (string.IsNullOrWhiteSpace(comentario))
+                {
+                    TempData["Mensaje"] = "Error: El comentario no puede estar vacío.";
+                    TempData["Exito"] = false;
+                    return RedirectToAction("PedidosEnCurso");
+                }
+
+                // Obtener el pedido actual
+                var pedido = await ObtenerPedidoPorId(id);
+                if (pedido == null)
+                {
+                    TempData["Mensaje"] = $"Error: No se encontró el pedido con ID {id}.";
+                    TempData["Exito"] = false;
+                    return RedirectToAction("PedidosEnCurso");
+                }
+
+                // Concatenar el nuevo comentario con los existentes
+                var nuevoComentario = $"[{usuarioLogueado} {DateTime.Now:dd/MM/yyyy HH:mm}]: {comentario}";
+                pedido.Comentarios = string.IsNullOrWhiteSpace(pedido.Comentarios)
+                    ? nuevoComentario
+                    : nuevoComentario + Environment.NewLine + pedido.Comentarios;
+
+                // Actualizar el pedido en el sistema
+                var resultado = await ActualizarPedido(pedido);
+                if (resultado)
+                {
+                    TempData["Mensaje"] = "Comentario añadido correctamente.";
+                    TempData["Exito"] = true;
+                }
+                else
+                {
+                    TempData["Mensaje"] = "Error: No se pudo guardar el comentario.";
+                    TempData["Exito"] = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Mensaje"] = $"Error inesperado: {ex.Message}";
+                TempData["Exito"] = false;
+            }
+
+            return RedirectToAction("PedidosEnCurso");
+        }
 
 
 
@@ -691,10 +755,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 {
                     pedido.IdSupervisor = idUsuario.Value;
                 }
-                else if (rolUsuario == "Administracion")
-                {
-                    pedido.IdAdministracion = idUsuario.Value;
-                }
 
                 // Si el estado es "Entregado", actualizar fechaEntregado
                 if (nuevoEstado.Equals("Entregado", StringComparison.OrdinalIgnoreCase))
@@ -746,12 +806,13 @@ namespace Front_End_Gestion_Pedidos.Controllers
         {
             try
             {
-                var jsonContent = JsonSerializer.Serialize(pedido);                
+                var jsonContent = JsonSerializer.Serialize(pedido);
 
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-                _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                using var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
+                // Realizar la solicitud PUT
                 var response = await _httpClient.PutAsync($"/api/Pedidos/{pedido.IdPedido}", content);
+
 
                 if (!response.IsSuccessStatusCode)
                 {

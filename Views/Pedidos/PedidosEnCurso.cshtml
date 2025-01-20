@@ -88,11 +88,13 @@
                                             <td>
                                                 @if (role == "Cliente")
                                                 {
-                                                    <button class="btn btn-outline-primary btn-sm" onclick="añadirComentario(@pedido.IdPedido)">Añadir Comentario</button>
+                                                    <button class="btn btn-outline-primary btn-sm" onclick="mostrarModalComentario(@pedido.IdPedido)">Añadir Comentario</button>
+
                                                 }
                                                 else if (role == "Vendedor")
                                                 {
-                                                    <button class="btn btn-outline-primary btn-sm" onclick="añadirComentario(@pedido.IdPedido)">Añadir Comentario</button>
+                                                    <button class="btn btn-outline-primary btn-sm" onclick="mostrarModalComentario(@pedido.IdPedido)">Añadir Comentario</button>
+
                                                     @if (pedido.Estado == "Pendiente")
                                                     {
                                                         <button class="btn btn-outline-warning btn-sm" onclick="editarPedido(@pedido.IdPedido)">Editar</button>
@@ -130,6 +132,48 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para añadir comentario -->
+    <div class="modal fade" id="modalComentario" tabindex="-1" aria-labelledby="modalComentarioLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalComentarioLabel">Añadir Comentario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-action="AñadirComentario" asp-controller="Pedidos">
+                    <div class="modal-body">
+                        <input type="hidden" id="pedidoId" name="id" />
+                        <textarea name="comentario" id="comentario" class="form-control" rows="4" placeholder="Escribe tu comentario aquí..." required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mensajeModalLabel">Notificación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p id="mensajeModalTexto"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 }
 
 <script>
@@ -151,4 +195,22 @@
                 detalleContent.innerHTML = `<div class="text-danger">Error al cargar el detalle: ${error.message}</div>`;
             });
     });
+
+
+
+        function mostrarModalComentario(idPedido) {
+        document.getElementById("pedidoId").value = idPedido;
+        const modalComentario = new bootstrap.Modal(document.getElementById("modalComentario"));
+        modalComentario.show();
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const mensaje = '@TempData["Mensaje"]';
+        if (mensaje) {
+            document.getElementById("mensajeModalTexto").innerText = mensaje;
+            const mensajeModal = new bootstrap.Modal(document.getElementById("mensajeModal"));
+            mensajeModal.show();
+        }
+    });
+
 </script>
