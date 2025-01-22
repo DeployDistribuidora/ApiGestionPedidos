@@ -12,7 +12,6 @@
 
 <section class="section">
     <div class="row">
-        <!-- Selección de Cliente y Medio de Pago -->
 
         <input type="hidden" id="clienteId" value="@Model.ClienteSeleccionado.NroCliente" />
 
@@ -105,8 +104,6 @@
     </nav>
 
 
-
-    <!-- Comentarios -->
     <div class="col-lg-7">
         <div class="card">
             <div class="card-body">
@@ -128,7 +125,7 @@
                     <div class="d-flex gap-2">
                         <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCarrito" onclick="mostrarCarrito()">Ver carrito</a>
 
-                        <button type="button" class="btn btn-primary btn-sm" onclick="RepetirPedidoCliente()">realizar pedido</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="ModificarPedidoCliente()">realizar pedido</button>
                     </div>
                 </div>
             </div>
@@ -233,15 +230,7 @@
         actualizarTotal();
 
 
-        // Calcular el total
-        // let total = 0;
-        // Object.keys(cantidadesSeleccionadas).forEach(codigo => {
-        //     const item = cantidadesSeleccionadas[codigo];
-        //     total += item.precio * item.cantidad; // Calcular el subtotal
-        // });
-
-        // // Actualizar el total en el footer
-        // document.getElementById("totalFooter").textContent = total.toFixed(2);
+       
     }
 
     function actualizarTotal() {
@@ -450,49 +439,50 @@
     }
 
 
-    // Enviar el pedido
-    function RepetirPedidoCliente() {
-        var pedidoModificado = @Html.Raw(Json.Serialize(Model.Pedidos));
+    
 
-        const clienteId = document.getElementById('clienteId').value;
-        const direccion = document.getElementById('direccion').value;
-        const metodoPago = document.getElementById('medioPago').value;
-        const comentarios = document.getElementById('comentarios').value;
-
-        const pedido = {
+    function ModificarPedidoCliente() {
+        // Crear el objeto base pedidoModificado con el formato correcto
+        const pedidoModificado = {
             pedido: {
-                idCliente: parseInt(clienteId),
-                idAdministracion: 1,
-                fechaCreacion: new Date().toISOString(),
+                idPedido: @Html.Raw(Json.Serialize(Model.Pedidos.IdPedido)),
+                idVendedor: @Html.Raw(Json.Serialize(Model.Pedidos.IdVendedor)), // Ajusta según tu modelo
+                idCliente: parseInt(document.getElementById('clienteId').value, 10),
+                idAdministracion:  1, 
+                idSupervisor: @Html.Raw(Json.Serialize(Model.Pedidos.IdSupervisor)),
+                fechaCreacion: @Html.Raw(Json.Serialize(Model.Pedidos.FechaCreacion)),
+                fechaEntrega: @Html.Raw(Json.Serialize(Model.Pedidos.FechaEntrega)),
+                fechaEntregado: null, // Asegurar que sea null
                 estado: "Preparando",
-                metodoPago,
-                total: 0,
-                comentarios
+                metodoPago: document.getElementById('medioPago').value,
+                total: 0, // Se calculará después
+                comentarios: document.getElementById('comentarios').value,
+                tarjetaID: @Html.Raw(Json.Serialize(Model.Pedidos.TarjetaID))
             },
-            lineasPedido: []
+            lineasPedido: [] // Se rellenará con las líneas del pedido
         };
 
-        console.log(pedidoModificado.LineasPedido);
-
+        // Variables auxiliares
         let total = 0;
-        let puntosCliente = parseInt(document.getElementById("puntosCliente").value, 10) || 0; // Capturar puntos del cliente
+        const puntosCliente = parseInt(document.getElementById("puntosCliente").value, 10) || 0; // Capturar puntos del cliente
 
-        // Iterar sobre el objeto "cantidadesSeleccionadas" en lugar de inputs visibles
+        // Iterar sobre los productos seleccionados y construir las líneas del pedido
         Object.keys(cantidadesSeleccionadas).forEach(codigo => {
             const cantidad = cantidadesSeleccionadas[codigo].cantidad;
             if (cantidad > 0) {
-                //const producto = productosOriginales.find(p => p.codigo === codigo); // Buscar el producto en la lista original
                 const producto = productosOriginales.find(p => String(p.codigo) === String(codigo));
                 if (producto) {
-
-                    let precio = producto.precio; // Precio por defecto
+                    let precio = producto.precio;
                     if (puntosCliente === 1) precio = producto.stock_2;
                     if (puntosCliente === 2) precio = producto.stock_3;
                     if (puntosCliente === 3) precio = producto.stock_4;
                     if (puntosCliente === 4) precio = producto.stock_5;
+
                     const subtotal = precio * cantidad;
                     total += subtotal;
-                    pedido.lineasPedido.push({
+
+                    // Agregar línea de pedido
+                    pedidoModificado.lineasPedido.push({
                         codigo: producto.codigo,
                         cantidad: cantidad,
                         precioUnitario: precio
@@ -501,14 +491,16 @@
             }
         });
 
-        pedido.pedido.total = total;
+        // Asignar el total calculado
+        pedidoModificado.pedido.total = total;
 
-        console.log(pedidoModificado.LineasPedido);
+        console.log("Pedido a enviar:", pedidoModificado);
 
-        fetch('https://localhost:7078/api/Pedidos', {
+        // Enviar el pedido al backend
+        fetch(`https://localhost:7078/api/Pedidos/${pedidoModificado.pedido.idPedido}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pedido)
+            body: JSON.stringify(pedidoModificado)
         })
             .then(response => {
                 if (response.ok) {
@@ -518,7 +510,7 @@
                 }
             })
             .then(data => {
-                mostrarMensajeModal('Pedido Realizado', 'El pedido fue realizado con éxito.', true); // Redirigir tras cerrar el modal
+                mostrarMensajeModal('Pedido Actualizado', 'El pedido fue actualizado con éxito.', true);
 
                 // Limpiar cantidades seleccionadas
                 cantidadesSeleccionadas = {};
@@ -528,10 +520,12 @@
                 document.getElementById('comentarios').value = '';
             })
             .catch(error => {
-                mostrarMensajeModal('Error', 'Hubo un problema al realizar el pedido. Inténtelo nuevamente.');
+                mostrarMensajeModal('Error', 'Hubo un problema al actualizar el pedido. Inténtelo nuevamente.');
                 console.error('Error:', error);
             });
     }
+    
+
 
 
 </script>

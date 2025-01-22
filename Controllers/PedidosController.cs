@@ -85,6 +85,12 @@ namespace Front_End_Gestion_Pedidos.Controllers
             try
             {
                 Pedido p = await ObtenerPedidoPorId(idPedido);
+
+                if(p.Estado == "Entregado" || p.Estado == "Cancelado")
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
                 List<LineaPedido> lista = await ObtenerLineasPedidoBDModel(idPedido);
                 Cliente cli = await ObtenerClientePorId(p.IdCliente);
 
