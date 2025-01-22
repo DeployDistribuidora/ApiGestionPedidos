@@ -357,7 +357,8 @@
 
             const cantidadSeleccionada = cantidadesSeleccionadas[producto.codigo] || 0; // Recuperar cantidad seleccionada
 
-            
+
+           
 
             // Determinar el precio según los puntos del cliente
             let precio = producto.precio; // Precio por defecto
@@ -365,11 +366,11 @@
             if (puntosCliente === 2) precio = producto.stock_3;
             if (puntosCliente === 3) precio = producto.stock_4;
             if (puntosCliente === 4) precio = producto.stock_5;
-            
+
             const fila = document.createElement("tr");
 
-            if (cantidadSeleccionada.cantidad >= 1) {
-                fila.innerHTML = `
+                if (cantidadSeleccionada.cantidad >= 1) {
+                    fila.innerHTML = `
                     <td>${producto.descripcion}</td>
                     <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
                     <td>${precio.toFixed(2)}</td>
@@ -380,14 +381,14 @@
                             class="form-control form-control-sm text-center"
                             min="0"
                             value="${cantidadSeleccionada.cantidad}"
-                            onchange="actualizarCantidad(${producto.codigo}, this.value)" />
+                                onchange="actualizarCantidad('${producto.codigo}', this.value)" />
                     </td>
 
                 `;
-                cuerpoTabla.appendChild(fila);
-            }
-            else { 
-            fila.innerHTML = `
+                    cuerpoTabla.appendChild(fila);
+                }
+                else if (producto.precio > 0) {
+                    fila.innerHTML = `
                 <td>${producto.descripcion}</td>
                 <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
                 <td>${precio.toFixed(2)}</td>
@@ -398,12 +399,30 @@
                         class="form-control form-control-sm text-center"
                         min="0"
                         value="${cantidadSeleccionada}"
-                        onchange="actualizarCantidad(${producto.codigo}, this.value)" />
+                            onchange="actualizarCantidad('${producto.codigo}', this.value)" />
                 </td>
                 
             `;
-            cuerpoTabla.appendChild(fila);
-            }
+                    cuerpoTabla.appendChild(fila);
+                } else {
+                    fila.innerHTML = `
+                    <td>${producto.descripcion}</td>
+                    <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
+                    <td>${0}</td>
+                    <td>
+                       <input
+                            type="number"
+                            id="cantidad_${producto.codigo}"
+                            class="form-control form-control-sm text-center"
+                            min="0"
+                            value="${cantidadSeleccionada}"
+                            onchange="actualizarCantidad('${producto.codigo}', this.value)" />
+                    </td>
+
+                `;
+                    cuerpoTabla.appendChild(fila);
+                }
+        
         });
 
         renderizarPaginacion(); // Actualizar la paginación
@@ -486,7 +505,8 @@
         const clienteId = document.getElementById('cliente').value;
         const direccion = document.getElementById('direccion').value;
         const metodoPago = document.getElementById('medioPago').value;
-        const comentarios = "[Comentarios iniciales]: "document.getElementById('comentarios').value;
+        // const comentarios = "[Comentarios iniciales]: "document.getElementById('comentarios').value;
+        const comentarios = document.getElementById('comentarios').value;
 
         const pedido = {
             pedido: {
@@ -538,7 +558,7 @@
         })
             .then(response => {
                 if (response.ok) {
-                    return response.json();
+                    return response.status;
                 } else {
                     throw new Error('Error al realizar el pedido.');
                 }

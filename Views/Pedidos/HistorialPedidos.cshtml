@@ -97,6 +97,12 @@
                                             <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
                                             <td>@pedido.Estado</td>
                                             <td class="d-none d-md-table-cell">@pedido.FechaCreacion.ToShortDateString()</td>
+                                            <td>
+                                                <a href="@Url.Action("RepetirPedido", "Pedidos", new { idPedido = pedido.IdPedido })"
+                                                   class="btn btn-sm btn-success" title="Repetir Pedido">
+                                                    Repetir Pedido
+                                                </a>
+                                            </td>
                                         </tr>
 
                                         <!-- Modal Dialog Scrollable -->

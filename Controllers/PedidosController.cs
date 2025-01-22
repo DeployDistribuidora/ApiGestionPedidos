@@ -42,6 +42,70 @@ namespace Front_End_Gestion_Pedidos.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> RepetirPedido(int idPedido)
+        {
+            try
+            {
+                int clienteLogueadoId = (int)HttpContext.Session.GetInt32("IdUsuario");
+                string rol = HttpContext.Session.GetString("Role");
+
+               
+                List<LineaPedido> productosSeleccionados = await ObtenerLineasPedidoBDModel(idPedido);
+                Pedido p = await ObtenerPedidoPorId(idPedido);
+
+              
+                
+                 if (p == null) return RedirectToAction("Index","Home");
+               
+                 if (rol == "Cliente" && clienteLogueadoId != p.IdCliente) return RedirectToAction("Index", "Home");
+
+                Cliente cli = await ObtenerClientePorId(p.IdCliente);
+
+
+                var model = new PedidoViewModel
+                {
+                    Productos = await ObtenerStock(),
+                    ClienteSeleccionado = cli,
+                    ProductosSeleccionados = productosSeleccionados,
+                    Comentarios = p.Comentarios,
+                    
+
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index","Home");
+            }
+        }
+
+        public async Task<IActionResult> ModificarPedido(int idPedido)
+        {
+            try
+            {
+                Pedido p = await ObtenerPedidoPorId(idPedido);
+                List<LineaPedido> lista = await ObtenerLineasPedidoBDModel(idPedido);
+                Cliente cli = await ObtenerClientePorId(p.IdCliente);
+
+                var model = new ModificarPedidoModel
+                {
+                    Pedidos = p,
+                    ClienteSeleccionado = cli,
+                    ProductoSeleccionados=lista,
+                    Productos = await ObtenerStock()
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            
+        }
+        
+        
         [RoleAuthorize("Cliente")]
         public async Task<IActionResult> ClienteNuevoPedido()
         {
@@ -618,6 +682,26 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         //    return pedidos;
         //}
+
+        private async Task<List<LineaPedido>> ObtenerLineasPedidoBDModel(int idPedido)
+        {
+            var response = await _httpClient.GetAsync($"/api/Pedidos/{idPedido}/lineas");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(string.Empty, $"Error al obtener las líneas del pedido {idPedido}.");
+                return new List<LineaPedido>();
+            }
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var lineasPedido = JsonSerializer.Deserialize<List<LineaPedido>>(jsonResponse, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? new List<LineaPedido>();
+
+            return lineasPedido;
+
+        }
 
 
         private async Task<List<LineaPedido>> ObtenerLineasPedido(int idPedido)

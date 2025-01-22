@@ -13,5 +13,7 @@ namespace Front_End_Gestion_Pedidos.Models.ViewModel
         public decimal Total { get; set; }
         public Cliente ClienteSeleccionado { get; set; }
         public string MensajeError { get; set; } // Para errores
+        public List<LineaPedido> ProductosSeleccionados { get; set; }
     }
 }
+

@@ -113,7 +113,13 @@
                                             <td>@pedido.IdCliente</td>
                                             <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
                                             <td>@pedido.Estado</td>
-                                            <td>                                                
+                                            <td>
+                                                <a href="@Url.Action("ModificarPedido", "Pedidos", new { idPedido = pedido.IdPedido })"
+                                                   class="btn btn-sm btn-success" title="Repetir Pedido">
+                                                    Modificar Pedido
+                                                </a>
+                                                @* <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Modificar Pedido</button> *@
+
                                                 @if (role == "Administracion")
                                                 {
                                                     @if (@pedido.Estado == "Pendiente")
