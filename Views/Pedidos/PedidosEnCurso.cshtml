@@ -32,14 +32,26 @@
                     <div class="card-body">
                         <h5 class="card-title">Filtros de Búsqueda</h5>
                         <form method="get" asp-action="PedidosEnCurso" class="row g-3">
+                            @if (role == "Vendedor")
+                            {
                             <div class="col-md-4">
                                 <label for="inputCliente" class="form-label">Cliente</label>
                                 <input type="text" name="cliente" class="form-control form-control-sm" id="inputCliente" placeholder="Cliente" value="@Model.Cliente">
                             </div>
+                            }
                             <div class="col-md-4">
                                 <label for="inputVendedor" class="form-label">Vendedor</label>
                                 <input type="text" name="vendedor" class="form-control form-control-sm" id="inputVendedor" placeholder="Vendedor" value="@Model.Vendedor">
                             </div>
+                                <div class="col-md-4">
+                                    <label for="inputEstado" class="form-label">Estado</label>
+                                    <select name="estado" class="form-select form-select-sm" id="inputEstado">
+                                        <option value="" selected>Seleccione un estado</option>
+                                        <option value="Pendiente">Pendientes</option>
+                                        <option value="Preparando">Preparando</option>
+                                        <option value="En viaje">En viaje</option>
+                                    </select>
+                                </div>
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
                             </div>
