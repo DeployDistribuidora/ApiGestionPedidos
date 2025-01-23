@@ -8,8 +8,8 @@ builder.Services.AddControllersWithViews(options =>
 
 builder.Services.AddHttpClient("PedidosClient", client =>
 {
-    //client.BaseAddress = new Uri("https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net");
-    client.BaseAddress = new Uri("https://localhost:7078");
+    client.BaseAddress = new Uri("https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net");
+    //client.BaseAddress = new Uri("https://localhost:7078");
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDistributedMemoryCache();

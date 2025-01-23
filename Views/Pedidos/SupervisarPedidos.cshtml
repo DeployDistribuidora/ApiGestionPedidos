@@ -46,10 +46,17 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Filtros de Búsqueda</h5>
-                        <form method="get" asp-action="SupervisarPedidos" class="row g-3">
+                        <form method="get" asp-action="SupervisarPedidos" class="row g-3">                           
                             <div class="col-md-4">
-                                <label for="inputCliente" class="form-label">Cliente</label>
-                                <input type="text" name="cliente" class="form-control form-control-sm" id="inputCliente" placeholder="Cliente" value="@Model.Cliente">
+                                <label for="selectCliente" class="form-label">Cliente</label>
+                                <input type="text" id="filterCliente" class="form-control form-control-sm mb-2" placeholder="Escribe para filtrar...">
+                                <select name="cliente" id="selectCliente" class="form-select form-select-sm">
+                                    <option value="" selected>Seleccione un Cliente</option>
+                                    @foreach (var cliente in Model.Clientes)
+                                    {
+                                        <option value="@cliente.NroCliente">@cliente.NombreCliente.Trim()</option>
+                                    }
+                                </select>
                             </div>
                             <div class="col-md-4">
                                 <label for="inputVendedor" class="form-label">Vendedor</label>
@@ -290,3 +297,16 @@
     });
 </script>
 
+
+<script>
+    document.getElementById('filterCliente').addEventListener('input', function () {
+        const filter = this.value.toLowerCase();
+        const options = document.querySelectorAll('#selectCliente option');
+
+        options.forEach(option => {
+            if (option.value === "") return; // No filtrar la opción predeterminada
+            const text = option.textContent.toLowerCase();
+            option.style.display = text.includes(filter) ? 'block' : 'none';
+        });
+    });
+</script>

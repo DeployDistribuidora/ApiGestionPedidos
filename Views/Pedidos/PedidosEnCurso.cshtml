@@ -35,9 +35,18 @@
                             @if (role == "Vendedor")
                             {
                             <div class="col-md-4">
-                                <label for="inputCliente" class="form-label">Cliente</label>
-                                <input type="text" name="cliente" class="form-control form-control-sm" id="inputCliente" placeholder="Cliente" value="@Model.Cliente">
+                                <label for="selectCliente" class="form-label">Cliente</label>
+                                <input type="text" id="filterCliente" class="form-control form-control-sm mb-2" placeholder="Escribe para filtrar...">
+                                <select name="cliente" id="selectCliente" class="form-select form-select-sm">
+                                    <option value="" selected>Seleccione un Cliente</option>
+                                    @foreach (var cliente in Model.Clientes)
+                                    {
+                                        <option value="@cliente.NroCliente">@cliente.NombreCliente.Trim()</option>
+                                    }
+                                </select>
                             </div>
+
+
                             }
                             <div class="col-md-4">
                                 <label for="inputVendedor" class="form-label">Vendedor</label>
@@ -68,18 +77,17 @@
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th scope="col"></th>
+                                    <th scope="col" class="text-center">Acciones</th>
                                     <th scope="col">Nro</th>
                                     <th scope="col">Cliente</th>
                                     <th scope="col">Estado</th>
-                                    <th scope="col">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if (!Model.Pedidos.Any())
                                 {
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">No se encontraron pedidos en curso.</td>
+                                        <td colspan="4" class="text-center text-muted">No se encontraron pedidos en curso.</td>
                                     </tr>
                                 }
                                 else
@@ -87,32 +95,35 @@
                                     @foreach (var pedido in Model.Pedidos)
                                     {
                                         <tr>
-                                            <td>
-                                                <button class="btn btn-link text-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
-                                                        data-id-pedido="@pedido.IdPedido" title="Ver Detalle">
-                                                    <i class="bi bi-zoom-in"></i>
-                                                </button>
-                                            </td>
+                                            <td class="text-center">
+                                                <!-- Contenedor flex para los botones -->
+                                                <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-2">
+                                                    <!-- Botón para Ver Detalle -->
+                                                    <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
+                                                            data-id-pedido="@pedido.IdPedido" title="Ver Detalle">
+                                                        <i class="bi bi-zoom-in"></i>
+                                                    </button>
 
+                                                    <!-- Botón para Añadir Comentario -->
+                                                    @if (role == "Cliente" || role == "Vendedor")
+                                                    {
+                                                        <button class="btn btn-link text-primary p-0" onclick="mostrarModalComentario(@pedido.IdPedido)" title="Añadir Comentario">
+                                                            <i class="bi bi-chat-dots"></i>
+                                                        </button>
+                                                    }
+
+                                                    <!-- Botón para Editar (solo para Vendedor y estado "Pendiente") -->
+                                                    @if (role == "Vendedor" && pedido.Estado == "Pendiente")
+                                                    {
+                                                        <button class="btn btn-link text-warning p-0" onclick="editarPedido(@pedido.IdPedido)" title="Editar">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
                                             <td>@pedido.IdPedido</td>
                                             <td>@pedido.IdCliente</td>
                                             <td>@pedido.Estado</td>
-                                            <td>
-                                                @if (role == "Cliente")
-                                                {
-                                                    <button class="btn btn-outline-primary btn-sm" onclick="mostrarModalComentario(@pedido.IdPedido)">Añadir Comentario</button>
-
-                                                }
-                                                else if (role == "Vendedor")
-                                                {
-                                                    <button class="btn btn-outline-primary btn-sm" onclick="mostrarModalComentario(@pedido.IdPedido)">Añadir Comentario</button>
-
-                                                    @if (pedido.Estado == "Pendiente")
-                                                    {
-                                                        <button class="btn btn-outline-warning btn-sm" onclick="editarPedido(@pedido.IdPedido)">Editar</button>
-                                                    }
-                                                }
-                                            </td>
                                         </tr>
                                     }
                                 }
@@ -225,4 +236,17 @@
         }
     });
 
+</script>
+
+<script>
+    document.getElementById('filterCliente').addEventListener('input', function () {
+        const filter = this.value.toLowerCase();
+        const options = document.querySelectorAll('#selectCliente option');
+
+        options.forEach(option => {
+            if (option.value === "") return; // No filtrar la opción predeterminada
+            const text = option.textContent.toLowerCase();
+            option.style.display = text.includes(filter) ? 'block' : 'none';
+        });
+    });
 </script>

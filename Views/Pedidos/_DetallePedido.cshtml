@@ -61,9 +61,13 @@
          HttpContextAccessor.HttpContext.Session.GetString("Role") != "Supervisor de Carga")
     {
         <div class="text-end mb-3">
-            <button type="button" class="btn btn-primary btn-sm">
-                <i class="bi bi-arrow-repeat"></i> Repetir pedido
-            </button>
+            <div class="text-end mb-3">
+                <a href="@Url.Action("RepetirPedido", "Pedidos", new { idPedido = Model.Pedido.IdPedido })"
+                   class="btn btn-primary btn-sm">
+                    <i class="bi bi-arrow-repeat"></i> Repetir pedido
+                </a>
+            </div>
+
         </div>
     }
 
