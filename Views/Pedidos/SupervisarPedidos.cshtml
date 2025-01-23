@@ -93,7 +93,7 @@
                                     <th scope="col">Nro</th>
                                     <th scope="col">Cliente</th>
                                     <th scope="col" class="d-none d-md-table-cell">Vendedor</th>
-                                    <th scope="col">Estado</th>
+                                    @* <th scope="col">Estado</th> *@
                                     <th scope="col">Acciones</th>
                                 </tr>
                             </thead>
@@ -108,6 +108,7 @@
                                 {
                                     @foreach (var pedido in Model.Pedidos)
                                     {
+                                        var cliente = Model.Clientes.FirstOrDefault(c => c.NroCliente == pedido.IdCliente);
                                         <tr>
                                             <td>
                                                 <button class="btn btn-link text-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
@@ -117,26 +118,25 @@
                                             </td>
 
                                             <td>@pedido.IdPedido</td>
-                                            <td>@pedido.IdCliente</td>
+                                            <td>@(cliente != null ? cliente.NombreCliente.Trim() : "Cliente desconocido")</td>
                                             <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
-                                            <td>@pedido.Estado</td>
+                                            @* <td>@pedido.Estado</td> *@
                                             <td>
                                                 <a href="@Url.Action("ModificarPedido", "Pedidos", new { idPedido = pedido.IdPedido })"
                                                    class="btn btn-sm btn-success" title="Repetir Pedido">
                                                     Modificar Pedido
                                                 </a>
-                                                @* <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Modificar Pedido</button> *@
 
                                                 @if (role == "Administracion")
                                                 {
-                                                    @if (@pedido.Estado == "Pendiente")
+                                                    @if (pedido.Estado == "Pendiente")
                                                     {
-                                                     <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Preparar</button>   
-                                                    } 
-                                                    else if (@pedido.Estado == "En viaje")
+                                                        <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Preparar</button>
+                                                    }
+                                                    else if (pedido.Estado == "En viaje")
                                                     {
-                                                     <button class="btn btn-outline-success btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Entregado')">Entregado</button>   
-                                                    } 
+                                                        <button class="btn btn-outline-success btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Entregado')">Entregado</button>
+                                                    }
                                                     <button class="btn btn-outline-danger btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Cancelado')">Cancelar</button>
                                                 }
                                                 else if (role == "Supervisor de Carga" && pedido.Estado == "Preparando")
@@ -148,6 +148,7 @@
                                     }
                                 }
                             </tbody>
+
                         </table>
                     </div>
                 </div>

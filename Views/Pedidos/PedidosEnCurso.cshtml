@@ -94,6 +94,7 @@
                                 {
                                     @foreach (var pedido in Model.Pedidos)
                                     {
+                                        var cliente = Model.Clientes.FirstOrDefault(c => c.NroCliente == pedido.IdCliente);
                                         <tr>
                                             <td class="text-center">
                                                 <!-- Contenedor flex para los botones -->
@@ -122,12 +123,13 @@
                                                 </div>
                                             </td>
                                             <td>@pedido.IdPedido</td>
-                                            <td>@pedido.IdCliente</td>
+                                            <td>@(cliente != null ? cliente.NombreCliente.Trim() : "Cliente desconocido")</td>
                                             <td>@pedido.Estado</td>
                                         </tr>
                                     }
                                 }
                             </tbody>
+
                         </table>
                     </div>
                 </div>
