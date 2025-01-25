@@ -266,7 +266,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             // Caso 1: Si se filtra por cliente
             if (!string.IsNullOrEmpty(cliente))
             {
-                var response = await _httpClient.GetAsync($"/api/Pedidos/Cliente/{cliente}");
+                var response = await _httpClient.GetAsync($"/Pedidos/Cliente/{cliente}");
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -279,7 +279,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             // Caso 2: Si se filtra por vendedor
             else if (!string.IsNullOrEmpty(vendedor))
             {
-                var response = await _httpClient.GetAsync($"/api/Pedidos/Vendedor/{vendedor}");
+                var response = await _httpClient.GetAsync($"/Pedidos/Vendedor/{vendedor}");
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -294,7 +294,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             {
                 foreach (var estadoPermitido in estadosPermitidos)
                 {
-                    var responseEstado = await _httpClient.GetAsync($"/api/Pedidos/Estado/{estadoPermitido}");
+                    var responseEstado = await _httpClient.GetAsync($"/Pedidos/Estado/{estadoPermitido}");
                     if (responseEstado.IsSuccessStatusCode)
                     {
                         var jsonResponse = await responseEstado.Content.ReadAsStringAsync();
@@ -452,7 +452,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 var estadosPermitidos = new[] { "Pendiente", "Preparando", "En viaje" };
                 foreach (var estado in estadosPermitidos)
                 {
-                    var response = await _httpClient.GetAsync($"/api/Pedidos/Estado/{estado}");
+                    var response = await _httpClient.GetAsync($"/Pedidos/Estado/{estado}");
                     if (response.IsSuccessStatusCode)
                     {
                         var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -700,7 +700,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             foreach (var pedido in pedidos)
             {
                 // Obtén las líneas del pedido
-                var lineasResponse = await _httpClient.GetAsync($"/api/Pedidos/{pedido.IdPedido}/lineas");
+                var lineasResponse = await _httpClient.GetAsync($"/Pedidos/{pedido.IdPedido}/lineas");
 
                 if (lineasResponse.IsSuccessStatusCode)
                 {
@@ -714,7 +714,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                             // Evitar solicitudes duplicadas al endpoint de stocks
                             if (!codigosConsultados.ContainsKey(linea.Codigo))
                             {
-                                var stockResponse = await _httpClient.GetAsync($"/api/Stocks/{linea.Codigo}");
+                                var stockResponse = await _httpClient.GetAsync($"/Stocks/{linea.Codigo}");
                                 if (stockResponse.IsSuccessStatusCode)
                                 {
                                     var stockJson = await stockResponse.Content.ReadAsStringAsync();
@@ -829,7 +829,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // Obtener todos los pedidos
         private async Task<IEnumerable<Pedido>> ObtenerPedidos()
         {
-            var response = await _httpClient.GetAsync($"/api/Pedidos");
+            var response = await _httpClient.GetAsync($"/Pedidos");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -851,7 +851,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             // Ejecuta las solicitudes en paralelo
             var tasks = estados.Select(async estado =>
             {
-                var response = await _httpClient.GetAsync($"/api/Pedidos/Estado/{estado}");
+                var response = await _httpClient.GetAsync($"/Pedidos/Estado/{estado}");
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -898,7 +898,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         private async Task<List<LineaPedido>> ObtenerLineasPedidoBDModel(int idPedido)
         {
-            var response = await _httpClient.GetAsync($"/api/Pedidos/{idPedido}/lineas");
+            var response = await _httpClient.GetAsync($"/Pedidos/{idPedido}/lineas");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -970,7 +970,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         private async Task<Pedido> ObtenerPedidoPorId(int idPedido)
         {
-            var response = await _httpClient.GetAsync($"/api/Pedidos/Pedido/{idPedido}");
+            var response = await _httpClient.GetAsync($"/Pedidos/Pedido/{idPedido}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1083,7 +1083,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         private async Task<IEnumerable<Pedido>> ObtenerPedidosPorCliente(string idCliente)
         {
-            var response = await _httpClient.GetAsync($"/api/Pedidos/Cliente/{idCliente}");
+            var response = await _httpClient.GetAsync($"/Pedidos/Cliente/{idCliente}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1100,7 +1100,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         private async Task<IEnumerable<Pedido>> ObtenerPedidosPorVendedor(string idVendedor)
         {
-            var response = await _httpClient.GetAsync($"/api/Pedidos/Vendedor/{idVendedor}");
+            var response = await _httpClient.GetAsync($"/Pedidos/Vendedor/{idVendedor}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1126,7 +1126,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 using var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                 // Realizar la solicitud PUT
-                var response = await _httpClient.PutAsync($"/api/Pedidos/sin-lineas/{pedido.IdPedido}", content);
+                var response = await _httpClient.PutAsync($"/Pedidos/sin-lineas/{pedido.IdPedido}", content);
 
                 var responseContent = await response.Content.ReadAsStringAsync();
 
@@ -1220,7 +1220,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // Obtener la lista de CLIENTES
         private async Task<List<Cliente>> ObtenerClientes()
         {
-           var response = await _httpClient.GetAsync("/api/v1/Clientes");
+           var response = await _httpClient.GetAsync("/v1/Clientes");
 
             if (response.IsSuccessStatusCode)
             {
@@ -1238,7 +1238,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // Obtener un cliente por ID
         private async Task<Cliente> ObtenerClientePorId(long clienteId)
         {
-            var response = await _httpClient.GetAsync($"/api/v1/Clientes/{clienteId}");
+            var response = await _httpClient.GetAsync($"/Clientes/{clienteId}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -1258,7 +1258,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // Obtener la lista de PRODUCTOS
         private async Task<List<Producto>> ObtenerStock()
         {
-            var response = await _httpClient.GetAsync("/api/Stocks");
+            var response = await _httpClient.GetAsync("/Stocks");
 
             if (response.IsSuccessStatusCode)
             {
@@ -1284,8 +1284,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             {
 
                 // Llamar al endpoint correcto en el Backend
-                //var pedidoResponse = await _httpClient.GetAsync($"https://localhost:7078/api/Pedidos/Pedido/{idPedido}");
-                var pedidoResponse = await _httpClient.GetAsync($"/api/Pedidos/Pedido/{idPedido}");
+                var pedidoResponse = await _httpClient.GetAsync($"/Pedidos/Pedido/{idPedido}");
 
                 if (!pedidoResponse.IsSuccessStatusCode)
                 {
@@ -1300,8 +1299,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 });
 
                 // Cargar las líneas del pedido
-                //var lineasResponse = await _httpClient.GetAsync($"https://localhost:7078/api/Pedidos/{idPedido}/lineas");
-                var lineasResponse = await _httpClient.GetAsync($"/api/Pedidos/{idPedido}/lineas");
+                var lineasResponse = await _httpClient.GetAsync($"/Pedidos/{idPedido}/lineas");
 
                 if (!lineasResponse.IsSuccessStatusCode)
                 {

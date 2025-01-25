@@ -476,8 +476,9 @@
 
         pedido.pedido.total = total;
 
-
-        fetch('https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/Pedidos', {
+        //https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net
+        //https://localhost:7078
+        fetch('https://localhost:7078/api/Pedidos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(pedido)

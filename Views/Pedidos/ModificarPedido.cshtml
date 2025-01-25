@@ -497,7 +497,9 @@
         console.log("Pedido a enviar:", pedidoModificado);
 
         // Enviar el pedido al backend
-        fetch(`https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/Pedidos/${pedidoModificado.pedido.idPedido}`, {
+        //https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net
+        //https://localhost:7078
+        fetch(`https://localhost:7078/api/Pedidos/${pedidoModificado.pedido.idPedido}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(pedidoModificado)

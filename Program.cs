@@ -1,18 +1,30 @@
-var builder = WebApplication.CreateBuilder(args);
+using Front_End_Gestion_Pedidos.Handlers;
+using Front_End_Gestion_Pedidos.Helpers;
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
 // Configurar servicios
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<Front_End_Gestion_Pedidos.Filters.SessionAuthorizeFilter>(); // Filtro global
 });
 
+builder.Services.AddHttpClient("NoAuthClient", client =>
+{
+    client.BaseAddress = new Uri("https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/v1/");
+    //client.BaseAddress = new Uri("https://localhost:7078/api/v1/");
+});
+
 builder.Services.AddHttpClient("PedidosClient", client =>
 {
-    client.BaseAddress = new Uri("https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net");
-    //client.BaseAddress = new Uri("https://localhost:7078");
-});
+    client.BaseAddress = new Uri("https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/v1");
+    //client.BaseAddress = new Uri("https://localhost:7078/api/v1");
+}).AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDistributedMemoryCache();
+builder.Services.AddScoped<SessionHelper>();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);

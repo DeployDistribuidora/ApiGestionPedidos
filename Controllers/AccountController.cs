@@ -13,10 +13,12 @@ namespace Front_End_Gestion_Pedidos.Controllers
     public class AccountController : Controller
     {
         private readonly HttpClient _httpClient;
+        private readonly HttpClient _noAuthClient;
 
         public AccountController(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient("PedidosClient");
+            _noAuthClient = httpClientFactory.CreateClient("NoAuthClient");
         }
 
         public IActionResult Login()
@@ -57,7 +59,8 @@ namespace Front_End_Gestion_Pedidos.Controllers
             try
             {
                 // Envía la solicitud POST al backend
-                var response = await _httpClient.PostAsync($"/api/Login/login", content);
+                //var response = await _noAuthClient.PostAsync($"/Login/login", content);
+                var response = await _noAuthClient.PostAsync("Login/login", content);
 
                 if (response.IsSuccessStatusCode)
                 {

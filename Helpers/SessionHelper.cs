@@ -4,8 +4,33 @@ using System.Text.Json;
 
 namespace Front_End_Gestion_Pedidos.Helpers
 {
-    public static class SessionHelper
+    public class SessionHelper
     {
+       
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public SessionHelper(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public async Task<string> ObtenerTokenJwt()
+        {
+            if (_httpContextAccessor.HttpContext == null)
+            {
+                throw new Exception("HttpContext no está disponible.");
+            }
+
+            string token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new UnauthorizedAccessException("No se ha encontrado un token válido en la sesión.");
+            }
+
+            return await Task.FromResult(token);
+        }
+    
+
         private const string SessionKey = "UsuarioSesion";
 
         public static void SetUsuario(HttpContext httpContext, Usuario usuario)
@@ -26,5 +51,7 @@ namespace Front_End_Gestion_Pedidos.Helpers
         {
             httpContext.Session.Remove(SessionKey);
         }
+
+       
     }
 }
