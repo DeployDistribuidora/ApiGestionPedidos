@@ -17,8 +17,8 @@ builder.Services.AddHttpClient("NoAuthClient", client =>
 
 builder.Services.AddHttpClient("PedidosClient", client =>
 {
-    client.BaseAddress = new Uri("https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/v1");
-    //client.BaseAddress = new Uri("https://localhost:7078/api/v1");
+    client.BaseAddress = new Uri("https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/v1/");
+    //client.BaseAddress = new Uri("https://localhost:7078/api/v1/");
 }).AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
 
 builder.Services.AddHttpContextAccessor();
