@@ -4,13 +4,12 @@ namespace Front_End_Gestion_Pedidos.Models.ViewModel
 {
     public class SupervisarPedidosViewModel
     {
-        public IEnumerable<Pedido> Pedidos { get; set; }
-        public string Cliente { get; set; }
-        public string Vendedor { get; set; }
-        public string Estado { get; set; }
-        public List<LineaPedido> DetallePedido { get; set; } // Nueva propiedad
-
-        public List<Cliente> Clientes { get; set; } // Lista de clientes para el desplegable
+        public IEnumerable<Pedido> Pedidos { get; set; } = Enumerable.Empty<Pedido>();
+        public string Cliente { get; set; } = string.Empty;
+        public string Vendedor { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
+        public List<LineaPedido> DetallePedido { get; set; } = new List<LineaPedido>();
+        public List<Cliente> Clientes { get; set; } = new List<Cliente>();
     }
 
 }
