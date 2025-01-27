@@ -216,16 +216,27 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // Comparador para realizar intersecciones entre listas de pedidos
         public class PedidoComparer : IEqualityComparer<Pedido>
         {
-            public bool Equals(Pedido x, Pedido y)
+            public bool Equals(Pedido? x, Pedido? y)
             {
+                // Si ambos son null, son iguales
+                if (x == null && y == null) return true;
+
+                // Si uno es null y el otro no, no son iguales
+                if (x == null || y == null) return false;
+
+                // Comparar los IdPedido
                 return x.IdPedido == y.IdPedido;
             }
 
             public int GetHashCode(Pedido obj)
             {
+                // Verifica si obj es null para evitar errores de referencia nula
+                if (obj == null) throw new ArgumentNullException(nameof(obj));
+
                 return obj.IdPedido.GetHashCode();
             }
         }
+
 
 
 
