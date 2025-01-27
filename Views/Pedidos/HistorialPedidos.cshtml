@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Front_End_Gestion_Pedidos.Models.Pedido>
+﻿@model Front_End_Gestion_Pedidos.Models.ViewModel.HistorialPedidosViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 
 <div class="pagetitle">
@@ -11,50 +11,69 @@
 
 <section class="section">
     <div class="row">
-        <!-- Filtro de Pedidos -->
-        <div class="col-12 col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Filtros de Búsqueda</h5>
+ <!-- Filtros de Búsqueda -->
+<div class="col-lg-5">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Filtros de Búsqueda</h5>
+            <form method="get" asp-action="HistorialPedidos" class="row g-3">
 
-                    <!-- TempData para mensajes -->
-                    @if (TempData["Mensaje"] != null)
-                    {
-                        <div class="alert alert-info text-center">
-                            @TempData["Mensaje"]
-                        </div>
-                    }
-
-                    <!-- Formulario de Búsqueda -->
-                    <form method="get" asp-action="BuscarPedidos" class="row g-3 align-items-center mb-3">
-                        <div class="col-md-6">
-                            <label for="inputCliente" class="form-label">Cliente</label>
-                            <input type="text" id="inputCliente" name="cliente" class="form-control form-control-sm"
-                                   placeholder="Nombre del cliente" value="@HttpContextAccessor.HttpContext.Request.Query["cliente"]" />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="inputVendedor" class="form-label">Vendedor</label>
-                            <input type="text" id="inputVendedor" name="vendedor" class="form-control form-control-sm"
-                                   placeholder="Nombre del vendedor" value="@HttpContextAccessor.HttpContext.Request.Query["vendedor"]" />
-                        </div>
-
-                        <div class="col-md-12">
-                            <label for="inputFechas" class="form-label">Rango de Fechas</label>
-                            <div class="input-group">
-                                <input type="date" id="fechaInicio" name="fechaInicio" class="form-control form-control-sm"
-                                       value="@HttpContextAccessor.HttpContext.Request.Query["fechaInicio"]" />
-                                <span class="input-group-text">a</span>
-                                <input type="date" id="fechaFin" name="fechaFin" class="form-control form-control-sm"
-                                       value="@HttpContextAccessor.HttpContext.Request.Query["fechaFin"]" />
-                            </div>
-                        </div>
-                        <div class="text-center mt-3">
-                            <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
-                        </div>
-                    </form>
+                <!-- Filtro por ID de Pedido -->
+                <div class="col-md-6">
+                    <label for="inputIdPedido" class="form-label">ID de Pedido</label>
+                    <input type="text" id="inputIdPedido" name="idPedido" class="form-control form-control-sm"
+                           placeholder="ID del pedido" value="@HttpContextAccessor.HttpContext.Request.Query["idPedido"]">
                 </div>
-            </div>
+
+                <!-- Filtro por Fechas -->
+                <div class="col-md-6">
+                    <label for="inputFechas" class="form-label">Rango de Fechas</label>
+                    <div class="input-group">
+                        <input type="date" id="fechaInicio" name="fechaInicio" class="form-control form-control-sm"
+                               value="@HttpContextAccessor.HttpContext.Request.Query["fechaInicio"]" />
+                        <span class="input-group-text">a</span>
+                        <input type="date" id="fechaFin" name="fechaFin" class="form-control form-control-sm"
+                               value="@HttpContextAccessor.HttpContext.Request.Query["fechaFin"]" />
+                    </div>
+                </div>
+
+                 <!-- Mostrar filtro por cliente solo si el rol no es "Cliente" -->
+                @if (HttpContextAccessor.HttpContext.Session.GetString("Role") != "Cliente")
+                {
+                    <div class="col-md-6">
+                        <label for="filterCliente" class="form-label">Cliente</label>
+                        <input type="text" id="filterCliente" class="form-control form-control-sm mb-2" 
+                               placeholder="Escribe para buscar un cliente..." oninput="filterClientes()">
+
+                        <!-- Contenedor de opciones scrolleable -->
+                        <div id="clientesContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                            @foreach (var cliente in Model.Clientes)
+                            {
+                                <div class="cliente-option" 
+                                     data-nombre="@cliente.NombreCliente" 
+                                     data-id="@cliente.NroCliente" 
+                                     onclick="selectCliente('@cliente.NombreCliente', '@cliente.NroCliente')">
+                                    @cliente.NombreCliente
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Campo oculto para enviar el cliente seleccionado -->
+                        <input type="hidden" id="selectedCliente" name="cliente">
+                    </div>
+                }
+
+
+
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                </div>
+            </form>
         </div>
+    </div>
+</div>
+
+
 
         <!-- Tabla de Pedidos -->
         <div class="col-lg-7">
@@ -66,15 +85,15 @@
                             <thead class="table-primary">
                                 <tr>
                                     <th scope="col"></th>
-                                    <th scope="col">IdPedido</th>
-                                    <th scope="col">IdCliente</th>
-                                    <th scope="col" class="d-none d-md-table-cell">IdVendedor</th>
+                                    <th scope="col">Pedido</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col" class="d-none d-md-table-cell">Vendedor</th>
                                     <th scope="col">Estado</th>
-                                    <th scope="col" class="d-none d-md-table-cell">FechaCreacion</th>
+                                    <th scope="col" class="d-none d-md-table-cell">Creación</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (!Model.Any())
+                                @if (!Model.Pedidos.Any())
                                 {
                                     <tr>
                                         <td colspan="6" class="text-center text-muted">No se encontraron pedidos con los filtros aplicados.</td>
@@ -82,8 +101,9 @@
                                 }
                                 else
                                 {
-                                    @foreach (var pedido in Model)
+                                    @foreach (var pedido in Model.Pedidos)
                                     {
+                                        var cliente = Model.Clientes.FirstOrDefault(c => c.NroCliente == pedido.IdCliente);
                                         <tr>
                                             <td>
                                                 <button class="btn btn-link text-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
@@ -91,38 +111,13 @@
                                                     <i class="bi bi-zoom-in"></i>
                                                 </button>
                                             </td>
-
-
                                             <td>@pedido.IdPedido</td>
-                                            <td>@pedido.IdCliente</td>
+                                            <td>@cliente.NombreCliente</td>
                                             <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
                                             <td>@pedido.Estado</td>
                                             <td class="d-none d-md-table-cell">@pedido.FechaCreacion.ToShortDateString()</td>
                                         </tr>
-
-                                        <!-- Modal Dialog Scrollable -->
-                                        <div class="modal fade" id="modalDetallePedido" tabindex="-1">
-                                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Detalle del Pedido</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div id="detallePedidoContent" class="text-center text-muted">
-                                                            Cargando...
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
                                     }
-
                                 }
                             </tbody>
                         </table>
@@ -133,7 +128,29 @@
 
 
     </div>
+
+    <!-- Modal Dialog Scrollable -->
+    <div class="modal fade" id="modalDetallePedido" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle del Pedido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="detallePedidoContent" class="text-center text-muted">
+                        Cargando...
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </section>
+
 
 
 <script>
@@ -157,4 +174,60 @@
                 detalleContent.innerHTML = `<div class="text-danger">Error al cargar el detalle: ${error.message}</div>`;
             });
     });
+</script>
+
+
+<script>
+    // Función para cargar el contenido dinámico del detalle del pedido en el modal
+    function cargarDetallePedido(event) {
+        const button = event.relatedTarget;
+        const idPedido = button.getAttribute('data-id-pedido');
+        const detalleContent = document.getElementById('detallePedidoContent');
+
+        // Mostrar mensaje de carga
+        detalleContent.innerHTML = "Cargando...";
+
+        // Cargar contenido dinámicamente desde el controlador
+        fetch(`/Pedidos/DetallePedido?idPedido=${idPedido}`)
+            .then(response => response.text())
+            .then(html => {
+                detalleContent.innerHTML = html;
+            })
+            .catch(error => {
+                detalleContent.innerHTML = `<div class="text-danger">Error al cargar el detalle: ${error.message}</div>`;
+            });
+    }
+
+    // Función para filtrar clientes en tiempo real
+    function filterClientes() {
+        const input = document.getElementById('filterCliente').value.toLowerCase();
+        const options = document.querySelectorAll('#clientesContainer .cliente-option');
+
+        options.forEach(option => {
+            const nombre = option.dataset.nombre.toLowerCase();
+            option.style.display = nombre.includes(input) ? 'block' : 'none';
+        });
+    }
+
+    // Función para seleccionar un cliente y actualizar el campo oculto y el input de búsqueda
+    function selectCliente(nombreCliente, nroCliente) {
+    const selectedClienteInput = document.getElementById('selectedCliente');
+    const filterClienteInput = document.getElementById('filterCliente');
+    const options = document.querySelectorAll('#clientesContainer .cliente-option');
+
+    // Establecer el nroCliente seleccionado en el input oculto
+    selectedClienteInput.value = nroCliente;
+
+    // Reflejar el nombre del cliente en el campo de búsqueda
+    filterClienteInput.value = nombreCliente;
+
+    // Ocultar todas las opciones tras la selección
+    options.forEach(option => {
+        option.style.display = 'none';
+    });
+}
+
+
+    // Evento para inicializar el modal de detalle del pedido
+    document.getElementById('modalDetallePedido').addEventListener('show.bs.modal', cargarDetallePedido);
 </script>
