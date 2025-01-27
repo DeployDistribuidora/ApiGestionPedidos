@@ -410,7 +410,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         // Vista principal para mostrar el historial de pedidos
         [RoleAuthorize("Administracion", "Supervisor de Carga", "Vendedor", "Cliente")]
-        public async Task<IActionResult> HistorialPedidos(int? cliente, int? idPedido, DateTime? fechaInicio, DateTime? fechaFin)
+        public async Task<IActionResult> HistorialPedidos(int? cliente, int? idPedido, int? vendedor, DateTime? fechaInicio, DateTime? fechaFin)
         {
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
@@ -420,6 +420,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 return RedirectToAction("Login", "Account");
 
             var pedidos = await ObtenerPedidos();
+            var vendedores = await ObtenerVendedores();
 
             // Filtrar por estados entregado o cancelado
             pedidos = pedidos.Where(p => p.Estado == "Entregado" || p.Estado == "Cancelado").ToList();
@@ -431,10 +432,16 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 pedidos = pedidos.Where(p => p.IdCliente == idUsuario).ToList();
             }
 
-            // Aplicar filtro por nroCliente si está definido
+            // Aplicar filtro por cliente
             if (cliente.HasValue)
             {
                 pedidos = pedidos.Where(p => p.IdCliente == cliente.Value).ToList();
+            }
+
+            // Aplicar filtro por vendedor
+            if (vendedor.HasValue)
+            {
+                pedidos = pedidos.Where(p => p.IdVendedor == vendedor.Value).ToList();
             }
 
             // Aplicar filtro por idPedido
@@ -461,11 +468,15 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var viewModel = new HistorialPedidosViewModel
             {
                 Pedidos = pedidos,
-                Clientes = await ObtenerClientes()
+                Clientes = await ObtenerClientes(),
+                Vendedores = vendedores
             };
 
             return View(viewModel);
         }
+
+
+
 
 
 
@@ -942,6 +953,22 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
             ModelState.AddModelError("", "Error al obtener los clientes.");
             return new List<Cliente>();
+        }
+
+        // Método auxiliar para obtener vendedores
+        private async Task<List<Vendedor>> ObtenerVendedores()
+        {
+            var response = await _httpClient.GetAsync("Pedidos/Vendedores");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<Vendedor>>(jsonResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new List<Vendedor>();
+            }
+
+            return new List<Vendedor>();
         }
 
         // Obtener un cliente por ID

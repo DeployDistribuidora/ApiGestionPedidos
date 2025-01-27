@@ -37,6 +37,29 @@
                     </div>
                 </div>
 
+                <!-- Filtro por Vendedor -->
+                <div class="col-md-6">
+                    <label for="filterVendedor" class="form-label">Vendedor</label>
+                    <input type="text" id="filterVendedor" class="form-control form-control-sm mb-2"
+                            placeholder="Escribe para buscar un vendedor..." oninput="filterVendedores()">
+
+                    <!-- Contenedor de opciones scrolleable -->
+                    <div id="vendedoresContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                        @foreach (var vendedor in Model.Vendedores)
+                        {
+                            <div class="vendedor-option"
+                                    data-nombre="@vendedor.Nombre"
+                                    data-id="@vendedor.nro_Vendedor"
+                                    onclick="selectVendedor('@vendedor.Nombre', '@vendedor.nro_Vendedor')">
+                                @vendedor.Nombre
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Campo oculto para enviar el vendedor seleccionado -->
+                    <input type="hidden" id="selectedVendedor" name="vendedor">
+                </div>
+
                  <!-- Mostrar filtro por cliente solo si el rol no es "Cliente" -->
                 @if (HttpContextAccessor.HttpContext.Session.GetString("Role") != "Cliente")
                 {
@@ -106,14 +129,16 @@
                                         var cliente = Model.Clientes.FirstOrDefault(c => c.NroCliente == pedido.IdCliente);
                                         <tr>
                                             <td>
-                                                <button class="btn btn-link text-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
-                                                        data-id-pedido="@pedido.IdPedido" title="Ver Detalle">
-                                                    <i class="bi bi-zoom-in"></i>
+                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido" data-id-pedido="@pedido.IdPedido" title="Ver Detalles">
+                                                    <i class="bi bi-eye"></i>
                                                 </button>
                                             </td>
+
                                             <td>@pedido.IdPedido</td>
                                             <td>@cliente.NombreCliente</td>
-                                            <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
+                                            <td class="d-none d-md-table-cell">
+                                                @Model.Vendedores.FirstOrDefault(v => v.nro_Vendedor == pedido.IdVendedor)?.Nombre
+                                            </td>
                                             <td>@pedido.Estado</td>
                                             <td class="d-none d-md-table-cell">@pedido.FechaCreacion.ToShortDateString()</td>
                                         </tr>
@@ -230,4 +255,29 @@
 
     // Evento para inicializar el modal de detalle del pedido
     document.getElementById('modalDetallePedido').addEventListener('show.bs.modal', cargarDetallePedido);
+</script>
+
+<script>
+    function filterVendedores() {
+        const input = document.getElementById('filterVendedor').value.toLowerCase();
+        const options = document.querySelectorAll('#vendedoresContainer .vendedor-option');
+
+        options.forEach(option => {
+            const nombre = option.dataset.nombre.toLowerCase();
+            option.style.display = nombre.includes(input) ? 'block' : 'none';
+        });
+    }
+
+    function selectVendedor(nombre, nroVendedor) {
+        const selectedVendedorInput = document.getElementById('selectedVendedor');
+        const filterVendedorInput = document.getElementById('filterVendedor');
+        const options = document.querySelectorAll('#vendedoresContainer .vendedor-option');
+
+        selectedVendedorInput.value = nroVendedor;
+        filterVendedorInput.value = nombre;
+
+        options.forEach(option => {
+            option.style.display = 'none';
+        });
+    }
 </script>
