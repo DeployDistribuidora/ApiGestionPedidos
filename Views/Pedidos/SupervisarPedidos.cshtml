@@ -89,12 +89,11 @@
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th scope="col"></th>
+                                    <th scope="col">Acciones</th>
                                     <th scope="col">Nro</th>
                                     <th scope="col">Cliente</th>
-                                    <th scope="col" class="d-none d-md-table-cell">Vendedor</th>
-                                    @* <th scope="col">Estado</th> *@
-                                    <th scope="col">Acciones</th>
+                                    <th scope="col">Vendedor</th>
+                                    @* <th scope="col" class="d-none d-md-table-cell">Vendedor</th> *@
                                 </tr>
                             </thead>
                             <tbody>
@@ -111,48 +110,66 @@
                                         var cliente = Model.Clientes.FirstOrDefault(c => c.NroCliente == pedido.IdCliente);
 
                                         <tr>
-                                            <td>                                                
-                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido" data-id-pedido="@pedido.IdPedido" title="Ver Detalles">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
+                                            <td>
+                                                <!-- Contenedor flex con utilidades de Bootstrap -->
+                                                <div class="d-flex flex-wrap flex-md-nowrap gap-2 justify-content-md-start justify-content-center">
+                                                    <!-- Botón Ver Detalles -->
+                                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDetallePedido" data-id-pedido="@pedido.IdPedido" title="Ver Detalles">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+
+                                                    
+                                                    <button type="button" class="btn btn-outline-info btn-sm" onclick="mostrarModalComentario(@pedido.IdPedido)"
+                                                            title="Añadir Comentario">
+                                                        <i class="bi bi-chat-dots"></i>
+                                                    </button>
+
+                                                    <!-- Botones según el rol y estado -->
+                                                    @if (role == "Administracion")
+                                                    {
+                                                        <!-- Botón Modificar Pedido -->
+                                                        <a href="@Url.Action("ModificarPedido", "Pedidos", new { idPedido = pedido.IdPedido })"
+                                                           class="btn btn-outline-warning btn-sm" title="Modificar Pedido">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </a>
+                                                        @if (pedido.Estado == "Pendiente")
+                                                        {
+                                                            <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')" title="Preparar Pedido">
+                                                                <i class="bi bi-box-fill"></i>
+                                                            </button>
+
+                                                        }
+                                                        else if (pedido.Estado == "En viaje")
+                                                        {
+                                                            <button class="btn btn-outline-success btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Entregado')" title="Entregar Pedido">
+                                                                <i class="bi bi-check-circle"></i>
+                                                            </button>
+                                                        }
+
+                                                    }
+                                                    else if (role == "Supervisor de Carga" && pedido.Estado == "Preparando")
+                                                    {
+                                                        <button class="btn btn-outline-warning btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'En viaje')" title="Embarcar Pedido">
+                                                            <i class="bi bi-truck"></i>
+                                                        </button>
+                                                    }
+                                                </div>
                                             </td>
+
 
                                             <td>@pedido.IdPedido</td>
                                             <td>@(cliente != null ? cliente.NombreCliente?.Trim() : "Cliente desconocido")</td>
-                                            <td class="d-none d-md-table-cell">@pedido.IdVendedor</td>
-                                            <td>
-                                                <a href="@Url.Action("ModificarPedido", "Pedidos", new { idPedido = pedido.IdPedido })"
-                                                   class="btn btn-sm btn-success" title="Repetir Pedido">
-                                                    Modificar Pedido
-                                                </a>
-
-                                                @if (role == "Administracion")
-                                                {
-                                                    @if (pedido.Estado == "Pendiente")
-                                                    {
-                                                        <button class="btn btn-outline-info btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Preparando')">Preparar</button>
-                                                    }
-                                                    else if (pedido.Estado == "En viaje")
-                                                    {
-                                                        <button class="btn btn-outline-success btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Entregado')">Entregado</button>
-                                                    }
-                                                    <button class="btn btn-outline-danger btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'Cancelado')">Cancelar</button>
-                                                }
-                                                else if (role == "Supervisor de Carga" && pedido.Estado == "Preparando")
-                                                {
-                                                    <button class="btn btn-outline-warning btn-sm" onclick="mostrarConfirmacion(@pedido.IdPedido, 'En viaje')">Embarcar</button>
-                                                }
-                                            </td>
+                                            <td>@pedido.IdVendedor</td>
+                                            @* <td class="d-none d-md-table-cell">@pedido.IdVendedor</td> *@
                                         </tr>
                                     }
-
                                 }
                             </tbody>
-
                         </table>
                     </div>
                 </div>
             </div>
+
 
         </div>
     </section>
@@ -179,6 +196,27 @@
     </div>
 
 
+    <!-- Modal para añadir comentario -->
+    <div class="modal fade" id="modalComentario" tabindex="-1" aria-labelledby="modalComentarioLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalComentarioLabel">Añadir Comentario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-action="AñadirComentario" asp-controller="Pedidos">
+                    <div class="modal-body">
+                        <input type="hidden" id="pedidoId" name="id" />
+                        <textarea name="comentario" id="comentario" class="form-control" rows="4" placeholder="Escribe tu comentario aquí..." required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -210,23 +248,23 @@
     </div>
 
     <!-- Modal para Mensajes -->
-<div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="mensajeModalLabel">Notificación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Aquí se mostrará el mensaje -->
-                <p id="mensajeModalTexto"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+    <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mensajeModalLabel">Notificación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="mensajeModalTexto"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
 
 
 
@@ -234,31 +272,25 @@
 }
 
 <script>
+    // Mostrar modal de confirmación
     function mostrarConfirmacion(idPedido, nuevoEstado) {
         document.getElementById('idPedido').value = idPedido;
         document.getElementById('nuevoEstado').value = nuevoEstado;
         document.getElementById('estadoDestino').innerText = nuevoEstado;
 
-        // Mostrar el modal de confirmación
         const modal = new bootstrap.Modal(document.getElementById('confirmarCambioEstado'));
         modal.show();
     }
-</script>
 
-
-
-<script>
+    // Cargar detalles del pedido en modal
     const modalDetallePedido = document.getElementById('modalDetallePedido');
-
     modalDetallePedido.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
         const idPedido = button.getAttribute('data-id-pedido');
         const detalleContent = document.getElementById('detallePedidoContent');
 
-        // Mostrar mensaje de carga
         detalleContent.innerHTML = "Cargando...";
 
-        // Cargar contenido dinámicamente desde el controlador
         fetch(`/Pedidos/DetallePedido?idPedido=${idPedido}`)
             .then(response => response.text())
             .then(html => {
@@ -268,38 +300,39 @@
                 detalleContent.innerHTML = `<div class="text-danger">Error al cargar el detalle: ${error.message}</div>`;
             });
     });
-</script>
 
+    // Mostrar modal de comentarios
+    function mostrarModalComentario(idPedido) {
+        document.getElementById("pedidoId").value = idPedido;
+        const modalComentario = new bootstrap.Modal(document.getElementById("modalComentario"));
+        modalComentario.show();
+    }
 
-<!-- Script para activar el modal si hay un mensaje -->
-<script>
+    // Mostrar modal de mensajes si existe TempData["Mensaje"]
     document.addEventListener("DOMContentLoaded", function () {
-        const mensaje = @Html.Raw(Json.Serialize(TempData["Mensaje"]));
+        const mensaje = @Html.Raw(Json.Serialize(TempData["Mensaje"] ?? "")); // Asigna un string vacío si es null
         const exito = '@(TempData["Exito"] != null && (bool)TempData["Exito"])';
 
-        if (mensaje) {
+        if (mensaje !== "") { // Solo muestra el modal si hay mensaje
             const mensajeModalTexto = document.getElementById("mensajeModalTexto");
             const mensajeModal = new bootstrap.Modal(document.getElementById("mensajeModal"));
 
-            // Asigna el mensaje al modal
             mensajeModalTexto.textContent = mensaje;
 
-            // Cambia el estilo del modal según el éxito o error
             const modalTitle = document.getElementById("mensajeModalLabel");
-            if (exito === "True") {
-                modalTitle.textContent = "Operación Exitosa";
-            } else {
-                modalTitle.textContent = "Error";
-            }
+            modalTitle.textContent = exito === "True" ? "Operación Exitosa" : "Error";
 
-            // Muestra el modal
             mensajeModal.show();
         }
     });
-</script>
 
+    // Limpiar clases y fondo al cerrar el modal de mensajes
+    document.getElementById("mensajeModal").addEventListener("hidden.bs.modal", function () {
+        document.body.classList.remove("modal-open");
+        document.querySelector(".modal-backdrop")?.remove();
+    });
 
-<script>
+    // Filtro de clientes
     document.getElementById('filterCliente').addEventListener('input', function () {
         const filter = this.value.toLowerCase();
         const options = document.querySelectorAll('#selectCliente option');

@@ -56,20 +56,31 @@
         </div>
     }
 
-        <!-- Botón "Repetir pedido" -->
-    @if (Model.Pedido.Estado.Equals("Entregado", StringComparison.OrdinalIgnoreCase) && 
-         HttpContextAccessor.HttpContext.Session.GetString("Role") != "Supervisor de Carga")
+    @if (HttpContextAccessor.HttpContext.Session.GetString("Role") != "Supervisor de Carga")
     {
         <div class="text-end mb-3">
-            <div class="text-end mb-3">
+            <!-- Botón Repetir pedido -->
+            @if (Model.Pedido.Estado.Equals("Entregado", StringComparison.OrdinalIgnoreCase))
+            {
                 <a href="@Url.Action("RepetirPedido", "Pedidos", new { idPedido = Model.Pedido.IdPedido })"
-                   class="btn btn-primary btn-sm">
+                   class="btn btn-outline-primary btn-sm me-2">
                     <i class="bi bi-arrow-repeat"></i> Repetir pedido
                 </a>
-            </div>
+            }
 
+            <!-- Botón Cancelar pedido -->
+            @if (!Model.Pedido.Estado.Equals("Cancelado", StringComparison.OrdinalIgnoreCase) &&
+           !Model.Pedido.Estado.Equals("Entregado", StringComparison.OrdinalIgnoreCase))
+            {
+                <a href="@Url.Action("CancelarPedido", "Pedidos", new { idPedido = Model.Pedido.IdPedido })"
+                   class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-x-circle"></i> Cancelar pedido
+                </a>
+            }
         </div>
     }
+
+
 
         <!-- Comentarios -->
     <h5 class="text-primary">Comentarios</h5> 

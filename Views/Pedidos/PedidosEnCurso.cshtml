@@ -100,6 +100,40 @@
                                                 <!-- Contenedor flex para los botones -->
                                                 <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-2">
                                                     <!-- Botón para Ver Detalle -->
+                                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                                            data-bs-target="#modalDetallePedido" data-id-pedido="@pedido.IdPedido" title="Ver Detalle">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+
+                                                    <!-- Botón para Añadir Comentario -->
+                                                    @if (role == "Cliente" || role == "Vendedor")
+                                                    {
+                                                        <button type="button" class="btn btn-outline-info btn-sm" onclick="mostrarModalComentario(@pedido.IdPedido)"
+                                                                title="Añadir Comentario">
+                                                            <i class="bi bi-chat-dots"></i>
+                                                        </button>
+                                                    }
+
+                                                    <!-- Botón para Editar (solo para Vendedor y estado "Pendiente") -->
+                                                    @if (role == "Vendedor" && pedido.Estado == "Pendiente")
+                                                    {
+                                                        @* <button type="button" class="btn btn-outline-warning btn-sm" onclick="editarPedido(@pedido.IdPedido)"
+                                                                title="Editar">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </button> *@
+
+                                                        <a href="@Url.Action("ModificarPedido", "Pedidos", new { idPedido = pedido.IdPedido })"
+                                                           class="btn btn-outline-warning btn-sm" title="Modificar Pedido">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </td>
+
+                                            @* <td class="text-center">
+                                                <!-- Contenedor flex para los botones -->
+                                                <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-2">
+                                                    <!-- Botón para Ver Detalle -->
                                                     <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#modalDetallePedido"
                                                             data-id-pedido="@pedido.IdPedido" title="Ver Detalle">
                                                         <i class="bi bi-zoom-in"></i>
@@ -121,7 +155,7 @@
                                                         </button>
                                                     }
                                                 </div>
-                                            </td>
+                                            </td> *@
                                             <td>@pedido.IdPedido</td>
                                             <td>@(cliente != null ? cliente.NombreCliente.Trim() : "Cliente desconocido")</td>
                                             <td>@pedido.Estado</td>

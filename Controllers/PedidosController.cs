@@ -351,26 +351,33 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
 
         [HttpPost]
-        [RoleAuthorize("Cliente", "Vendedor")]
+        [RoleAuthorize("Cliente", "Vendedor", "Supervisor de Carga", "Administracion")]
         public async Task<IActionResult> AñadirComentario(int id, string comentario)
         {
+            // Obtener el rol del usuario
+            var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+            // Validar usuario logueado
+            var usuarioLogueado = HttpContext.Session.GetString("UsuarioLogueado");
+            //if (string.IsNullOrEmpty(usuarioLogueado))
+            //{
+            //    TempData["Mensaje"] = "Error: Sesión de usuario no válida.";
+            //    TempData["Exito"] = false;
+            //    return rolUsuario == "Cliente" || rolUsuario == "Vendedor"
+            //        ? RedirectToAction("PedidosEnCurso")
+            //        : RedirectToAction("SupervisarPedidos");
+            //}
             try
             {
-                // Validar usuario logueado
-                var usuarioLogueado = HttpContext.Session.GetString("UsuarioLogueado");
-                if (string.IsNullOrEmpty(usuarioLogueado))
-                {
-                    TempData["Mensaje"] = "Error: Sesión de usuario no válida.";
-                    TempData["Exito"] = false;
-                    return RedirectToAction("PedidosEnCurso");
-                }
+               
 
                 // Validar que el comentario no esté vacío
                 if (string.IsNullOrWhiteSpace(comentario))
                 {
                     TempData["Mensaje"] = "Error: El comentario no puede estar vacío.";
                     TempData["Exito"] = false;
-                    return RedirectToAction("PedidosEnCurso");
+                    return rolUsuario == "Cliente" || rolUsuario == "Vendedor"
+                        ? RedirectToAction("PedidosEnCurso")
+                        : RedirectToAction("SupervisarPedidos");
                 }
 
                 // Obtener el pedido actual
@@ -379,7 +386,9 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 {
                     TempData["Mensaje"] = $"Error: No se encontró el pedido con ID {id}.";
                     TempData["Exito"] = false;
-                    return RedirectToAction("PedidosEnCurso");
+                    return rolUsuario == "Cliente" || rolUsuario == "Vendedor"
+                        ? RedirectToAction("PedidosEnCurso")
+                        : RedirectToAction("SupervisarPedidos");
                 }
 
                 // Concatenar el nuevo comentario con los existentes
@@ -392,7 +401,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 var resultado = await ActualizarPedido(pedido);
                 if (resultado)
                 {
-                    TempData["Mensaje"] = "Comentario añadido correctamente.";
+                    TempData["Mensaje"] = "Comentario agregado correctamente.";
                     TempData["Exito"] = true;
                 }
                 else
@@ -407,8 +416,12 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 TempData["Exito"] = false;
             }
 
-            return RedirectToAction("PedidosEnCurso");
+            // Redirigir según el rol del usuario
+            return rolUsuario == "Cliente" || rolUsuario == "Vendedor"
+                ? RedirectToAction("PedidosEnCurso")
+                : RedirectToAction("SupervisarPedidos");
         }
+
 
 
 

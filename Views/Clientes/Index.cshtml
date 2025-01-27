@@ -71,9 +71,10 @@
                                         <tr>
                                             <td>
                                                 <!-- Ícono zoom-in para Detalle -->
-                                                <div class="icon text-primary" role="button" data-bs-toggle="modal" data-bs-target="#detalleModal-@cliente.NroCliente">
-                                                    <i class="bi bi-zoom-in"></i>
-                                                </div>
+                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detalleModal-@cliente.NroCliente" title="Ver Detalles">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+
 
                                                 <!-- Modal -->
                                                 <div class="modal fade" id="detalleModal-@cliente.NroCliente" tabindex="-1" aria-labelledby="detalleModalLabel-@cliente.NroCliente" aria-hidden="true">
