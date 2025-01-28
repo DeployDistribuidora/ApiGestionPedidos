@@ -636,15 +636,26 @@ public async Task<IActionResult> SupervisarPedidos(string cliente = "", string v
 
 
             // Validar y filtrar por rango de fechas
+            /* if (fechaInicio.HasValue && fechaFin.HasValue)
+             {
+                 var fechaInicioFormateada = fechaInicio.Value.Date;
+                 var fechaFinFormateada = fechaFin.Value.Date.AddDays(1).AddTicks(-1);
+
+                 pedidos = pedidos
+                     .Where(p => p.FechaCreacion >= fechaInicioFormateada && p.FechaCreacion <= fechaFinFormateada)
+                     .ToList();
+             }*/
             if (fechaInicio.HasValue && fechaFin.HasValue)
             {
                 var fechaInicioFormateada = fechaInicio.Value.Date;
-                var fechaFinFormateada = fechaFin.Value.Date.AddDays(1).AddTicks(-1);
+                var fechaFinFormateada = fechaFin.Value.Date.AddDays(1); // Inicio del día siguiente
 
                 pedidos = pedidos
-                    .Where(p => p.FechaCreacion >= fechaInicioFormateada && p.FechaCreacion <= fechaFinFormateada)
+                    .Where(p => p.FechaCreacion != DateTime.MinValue) // Ignorar fechas inválidas
+                    .Where(p => p.FechaCreacion >= fechaInicioFormateada && p.FechaCreacion < fechaFinFormateada)
                     .ToList();
             }
+
 
             // Calcular los productos más vendidos
             var productosMasVendidos = pedidos
@@ -772,7 +783,39 @@ public async Task<IActionResult> SupervisarPedidos(string cliente = "", string v
         //    return pedidos;
         //}
 
+        private async Task<List<Pedido>> ObtenerPedidosPorEstados(params string[] estados)
+        {
+            // Lanza las solicitudes en paralelo para cada estado
+            var tasks = estados.Select(estado => ObtenerPedidosEnEstadoAsync(estado));
 
+            // Espera a que todas las tareas se completen
+            var resultados = await Task.WhenAll(tasks);
+
+            // Combina todos los resultados en una sola lista
+            return resultados.SelectMany(pedidos => pedidos).ToList();
+        }
+
+        private async Task<List<Pedido>> ObtenerPedidosEnEstadoAsync(string estado)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"Pedidos/Estado/{estado}");
+                if (!response.IsSuccessStatusCode) return new List<Pedido>();
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<Pedido>>(jsonResponse) ?? new List<Pedido>();
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores si algo falla (opcional)
+                Console.WriteLine($"Error al obtener pedidos para el estado {estado}: {ex.Message}");
+                return new List<Pedido>();
+            }
+        }
+
+
+
+        /*
         private async Task<List<Pedido>> ObtenerPedidosPorEstados(params string[] estados)
         {
             var pedidos = new List<Pedido>();
@@ -797,7 +840,7 @@ public async Task<IActionResult> SupervisarPedidos(string cliente = "", string v
             }
 
             return pedidos;
-        }
+        }*/
 
         //private async Task<IEnumerable<Pedido>> ObtenerPedidosPorEstado(params string[] estados)
         //{
