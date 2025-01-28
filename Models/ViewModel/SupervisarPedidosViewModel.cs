@@ -10,6 +10,7 @@ namespace Front_End_Gestion_Pedidos.Models.ViewModel
         public string Estado { get; set; } = string.Empty;
         public List<LineaPedido> DetallePedido { get; set; } = new List<LineaPedido>();
         public List<Cliente> Clientes { get; set; } = new List<Cliente>();
+        public List<Vendedor> Vendedores { get; set; } = new List<Vendedor>();
     }
 
 }

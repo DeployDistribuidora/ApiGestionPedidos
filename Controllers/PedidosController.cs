@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
+
 namespace Front_End_Gestion_Pedidos.Controllers
 {
     public class PedidosController : Controller
@@ -130,88 +131,174 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // SUPERVISAR PEDIDOS (Vista: SupervisarPedidos)
         // --------------------------------------------------------------------------------------
 
-
         [RoleAuthorize("Administracion", "Supervisor de Carga")]
-        public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "", string estado = "")
+public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "", string estado = "")
+{
+    // Obtener el rol del usuario desde la sesión
+    var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+
+    // Determinar los estados permitidos según el rol del usuario
+    var estadosPermitidos = rolUsuario switch
+    {
+        "Supervisor de Carga" => new[] { "Preparando", "En viaje" },
+        "Administracion" => new[] { "Pendiente", "En viaje" },
+        _ => Array.Empty<string>()
+    };
+
+    List<Pedido> pedidos = new List<Pedido>();
+
+    // Obtener la lista de clientes para el filtro en memoria
+    var clientes = await ObtenerClientes();
+
+    // Obtener la lista de vendedores para el filtro en memoria
+    var vendedores = await ObtenerVendedores();
+
+    // Caso 1: Si se filtra por cliente
+    if (!string.IsNullOrEmpty(cliente))
+    {
+        var response = await _httpClient.GetAsync($"Pedidos/Cliente/{cliente}");
+        if (response.IsSuccessStatusCode)
         {
-            // Obtener el rol del usuario desde la sesión
-            var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
-
-            // Determinar los estados permitidos según el rol del usuario
-            var estadosPermitidos = rolUsuario switch
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
             {
-                "Supervisor de Carga" => new[] { "Preparando", "En viaje" },
-                "Administracion" => new[] { "Pendiente", "En viaje" },
-                _ => Array.Empty<string>()
-            };
-
-            List<Pedido> pedidos = new List<Pedido>();
-
-            // Obtener la lista de clientes para el filtro en memoria
-            var clientes = await ObtenerClientes();
-
-            // Caso 1: Si se filtra por cliente
-            if (!string.IsNullOrEmpty(cliente))
-            {
-                var response = await _httpClient.GetAsync($"Pedidos/Cliente/{cliente}");
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
-                    pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }).Where(p => estadosPermitidos.Contains(p.Estado, StringComparer.OrdinalIgnoreCase)).ToList();
-                }
-            }
-            // Caso 2: Si se filtra por vendedor
-            else if (!string.IsNullOrEmpty(vendedor))
-            {
-                var response = await _httpClient.GetAsync($"Pedidos/Vendedor/{vendedor}");
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
-                    pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }).Where(p => estadosPermitidos.Contains(p.Estado, StringComparer.OrdinalIgnoreCase)).ToList();
-                }
-            }
-            // Caso 3: Sin filtro de cliente ni vendedor
-            else
-            {
-                foreach (var estadoPermitido in estadosPermitidos)
-                {
-                    var responseEstado = await _httpClient.GetAsync($"Pedidos/Estado/{estadoPermitido}");
-                    if (responseEstado.IsSuccessStatusCode)
-                    {
-                        var jsonResponse = await responseEstado.Content.ReadAsStringAsync();
-                        var pedidosPorEstado = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
-                        pedidos.AddRange(pedidosPorEstado);
-                    }
-                }
-            }
-
-            // Filtrar por estado si se especifica explícitamente
-            if (!string.IsNullOrEmpty(estado))
-            {
-                pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            // Preparar el modelo para la vista
-            var viewModel = new SupervisarPedidosViewModel
-            {
-                Pedidos = pedidos,
-                Clientes = clientes,
-                Cliente = cliente,
-                Vendedor = vendedor,
-                Estado = estado
-            };
-
-            return View(viewModel);
+                PropertyNameCaseInsensitive = true
+            }).Where(p => estadosPermitidos.Contains(p.Estado, StringComparer.OrdinalIgnoreCase)).ToList();
         }
+    }
+    // Caso 2: Si se filtra por vendedor
+    else if (!string.IsNullOrEmpty(vendedor))
+    {
+        var response = await _httpClient.GetAsync($"Pedidos/Vendedor/{vendedor}");
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }).Where(p => estadosPermitidos.Contains(p.Estado, StringComparer.OrdinalIgnoreCase)).ToList();
+        }
+    }
+    // Caso 3: Sin filtro de cliente ni vendedor
+    else
+    {
+        foreach (var estadoPermitido in estadosPermitidos)
+        {
+            var responseEstado = await _httpClient.GetAsync($"Pedidos/Estado/{estadoPermitido}");
+            if (responseEstado.IsSuccessStatusCode)
+            {
+                var jsonResponse = await responseEstado.Content.ReadAsStringAsync();
+                var pedidosPorEstado = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                pedidos.AddRange(pedidosPorEstado);
+            }
+        }
+    }
+
+    // Filtrar por estado si se especifica explícitamente
+    if (!string.IsNullOrEmpty(estado))
+    {
+        pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    // Preparar el modelo para la vista
+    var viewModel = new SupervisarPedidosViewModel
+    {
+        Pedidos = pedidos,
+        Clientes = clientes,
+        Vendedores = vendedores, // Se añade la lista de vendedores
+        Cliente = cliente,
+        Vendedor = vendedor,
+        Estado = estado
+    };
+
+    return View(viewModel);
+}
+
+
+        //[RoleAuthorize("Administracion", "Supervisor de Carga")]
+        //public async Task<IActionResult> SupervisarPedidos(string cliente = "", string vendedor = "", string estado = "")
+        //{
+        //    // Obtener el rol del usuario desde la sesión
+        //    var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
+
+        //    // Determinar los estados permitidos según el rol del usuario
+        //    var estadosPermitidos = rolUsuario switch
+        //    {
+        //        "Supervisor de Carga" => new[] { "Preparando", "En viaje" },
+        //        "Administracion" => new[] { "Pendiente", "En viaje" },
+        //        _ => Array.Empty<string>()
+        //    };
+
+        //    List<Pedido> pedidos = new List<Pedido>();
+
+        //    // Obtener la lista de clientes para el filtro en memoria
+        //    var clientes = await ObtenerClientes();
+
+        //    // Caso 1: Si se filtra por cliente
+        //    if (!string.IsNullOrEmpty(cliente))
+        //    {
+        //        var response = await _httpClient.GetAsync($"Pedidos/Cliente/{cliente}");
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            var jsonResponse = await response.Content.ReadAsStringAsync();
+        //            pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
+        //            {
+        //                PropertyNameCaseInsensitive = true
+        //            }).Where(p => estadosPermitidos.Contains(p.Estado, StringComparer.OrdinalIgnoreCase)).ToList();
+        //        }
+        //    }
+        //    // Caso 2: Si se filtra por vendedor
+        //    else if (!string.IsNullOrEmpty(vendedor))
+        //    {
+        //        var response = await _httpClient.GetAsync($"Pedidos/Vendedor/{vendedor}");
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            var jsonResponse = await response.Content.ReadAsStringAsync();
+        //            pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
+        //            {
+        //                PropertyNameCaseInsensitive = true
+        //            }).Where(p => estadosPermitidos.Contains(p.Estado, StringComparer.OrdinalIgnoreCase)).ToList();
+        //        }
+        //    }
+        //    // Caso 3: Sin filtro de cliente ni vendedor
+        //    else
+        //    {
+        //        foreach (var estadoPermitido in estadosPermitidos)
+        //        {
+        //            var responseEstado = await _httpClient.GetAsync($"Pedidos/Estado/{estadoPermitido}");
+        //            if (responseEstado.IsSuccessStatusCode)
+        //            {
+        //                var jsonResponse = await responseEstado.Content.ReadAsStringAsync();
+        //                var pedidosPorEstado = JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, new JsonSerializerOptions
+        //                {
+        //                    PropertyNameCaseInsensitive = true
+        //                });
+        //                pedidos.AddRange(pedidosPorEstado);
+        //            }
+        //        }
+        //    }
+
+        //    // Filtrar por estado si se especifica explícitamente
+        //    if (!string.IsNullOrEmpty(estado))
+        //    {
+        //        pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
+        //    }
+
+        //    // Preparar el modelo para la vista
+        //    var viewModel = new SupervisarPedidosViewModel
+        //    {
+        //        Pedidos = pedidos,
+        //        Clientes = clientes,
+        //        Cliente = cliente,
+        //        Vendedor = vendedor,
+        //        Estado = estado
+        //    };
+
+        //    return View(viewModel);
+        //}
 
         // Comparador para realizar intersecciones entre listas de pedidos
         public class PedidoComparer : IEqualityComparer<Pedido>
@@ -539,42 +626,47 @@ namespace Front_End_Gestion_Pedidos.Controllers
             ViewBag.FechaInicio = fechaInicio?.ToString("yyyy-MM-dd");
             ViewBag.FechaFin = fechaFin?.ToString("yyyy-MM-dd");
 
-            // Obtener pedidos con estado "Entregado" desde la API
-            //var pedidos = await ObtenerPedidosPorEstado("Entregado");
+            // Obtener pedidos con estado "Entregado"
             var pedidos = await ObtenerPedidosPorEstados("Entregado");
 
-            // Filtrar por rango de fechas
-            if (fechaInicio.HasValue && fechaFin.HasValue)
+            foreach (var pedido in pedidos)
             {
-                // Ajustar rango de fechas para incluir todos los pedidos creados en esas fechas
-                var fechaInicioFormateada = fechaInicio.Value.Date; // Inicio del día
-                var fechaFinFormateada = fechaFin.Value.Date.AddDays(1).AddTicks(-1); // Fin del día
-
-                pedidos = pedidos.Where(p => p.FechaCreacion >= fechaInicioFormateada && p.FechaCreacion <= fechaFinFormateada).ToList();
+                Console.WriteLine($"IdPedido: {pedido.IdPedido}, FechaCreacion: {pedido.FechaCreacion}, Estado: {pedido.Estado}");
             }
 
 
-            // Calcular los productos más vendidos con la descripción como clave
+            // Validar y filtrar por rango de fechas
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                var fechaInicioFormateada = fechaInicio.Value.Date;
+                var fechaFinFormateada = fechaFin.Value.Date.AddDays(1).AddTicks(-1);
+
+                pedidos = pedidos
+                    .Where(p => p.FechaCreacion >= fechaInicioFormateada && p.FechaCreacion <= fechaFinFormateada)
+                    .ToList();
+            }
+
+            // Calcular los productos más vendidos
             var productosMasVendidos = pedidos
-                .SelectMany(p => p.LineasPedido)
-                .GroupBy(lp => lp.Codigo) // Aquí "Codigo" ya contiene la descripción del producto
+                .SelectMany(p => p.LineasPedido ?? new List<LineaPedido>()) // Manejar nullables
+                .GroupBy(lp => lp.Codigo)
                 .Select(g => new
                 {
-                    Producto = g.Key, // Este será el nombre (descripción)
+                    Producto = g.Key,
                     CantidadTotal = g.Sum(lp => lp.Cantidad)
                 })
                 .OrderByDescending(p => p.CantidadTotal)
                 .Take(10)
                 .ToList();
 
-            // Serializar datos para las gráficas
-            ViewBag.ProductosLabels = productosMasVendidos.Select(p => p.Producto).ToList(); // Ahora son descripciones
+            // Serializar datos para gráficas
+            ViewBag.ProductosLabels = productosMasVendidos.Select(p => p.Producto).ToList();
             ViewBag.ProductosCantidades = productosMasVendidos.Select(p => p.CantidadTotal).ToList();
 
-
-            // Renderizar la vista Métricas con los datos actualizados
             return View("Metricas");
         }
+
+
 
         // Método para obtener pedidos filtrados por estado
         private async Task<List<Pedido>> ObtenerPedidosConDetalles(string estado)
@@ -649,6 +741,38 @@ namespace Front_End_Gestion_Pedidos.Controllers
             }) ?? new List<Pedido>();
         }
 
+
+        //private async Task<List<Pedido>> ObtenerPedidosPorEstados(params string[] estados)
+        //{
+        //    var pedidos = new List<Pedido>();
+
+        //    var options = new JsonSerializerOptions
+        //    {
+        //        PropertyNameCaseInsensitive = true,
+        //        Converters = { new JsonStringEnumConverter(), new JsonDateTimeConverter() } // Agrega conversores personalizados si es necesario
+        //    };
+
+        //    var tasks = estados.Select(async estado =>
+        //    {
+        //        var response = await _httpClient.GetAsync($"Pedidos/Estado/{estado}");
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            var jsonResponse = await response.Content.ReadAsStringAsync();
+        //            return JsonSerializer.Deserialize<List<Pedido>>(jsonResponse, options) ?? new List<Pedido>();
+        //        }
+        //        return new List<Pedido>();
+        //    });
+
+        //    var resultados = await Task.WhenAll(tasks);
+        //    foreach (var resultado in resultados)
+        //    {
+        //        pedidos.AddRange(resultado);
+        //    }
+
+        //    return pedidos;
+        //}
+
+
         private async Task<List<Pedido>> ObtenerPedidosPorEstados(params string[] estados)
         {
             var pedidos = new List<Pedido>();
@@ -656,7 +780,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             // Ejecuta las solicitudes en paralelo
             var tasks = estados.Select(async estado =>
             {
-                var response = await _httpClient.GetAsync($"Pedidos/Estado/{estado}");
+                var response = await _httpClient.GetAsync($"/Pedidos/Estado/{estado}");
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonResponse = await response.Content.ReadAsStringAsync();
