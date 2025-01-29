@@ -622,7 +622,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             ViewBag.FechaFin = fechaFin?.ToString("yyyy-MM-dd");
 
             // Obtener pedidos con estado "Entregado"
-            var pedidos = await ObtenerPedidosPorEstados("Entregado");
+            List<Pedido> pedidos = await ObtenerPedidosPorEstados("Entregado");
 
             if (fechaInicio.HasValue && fechaFin.HasValue)
             {
@@ -635,9 +635,17 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     .ToList();
             }
 
-            await LlenarLineasPedido(pedidos);
+            List<PedidoParaMetricasViewModel> pedidosViewModel = pedidos.Select(p => new PedidoParaMetricasViewModel
+            {
+                Pedido = p,
+                lineaPedidoConProducto = new List<LineaPedidoConProductoViewModel>(),
+            }).ToList();
+
+            // Llamar al método que llena la info de las líneas en el ViewModel
+            await LlenarLineasPedido(pedidosViewModel);
+
             // Calcular los productos más vendidos
-            var productosMasVendidos = pedidos
+            /*var productosMasVendidos = pedidos
                 .SelectMany(p => p.LineasPedido ?? new List<LineaPedido>()) // Manejar nullables
                 .GroupBy(lp => lp.Codigo)
                 .Select(g => new
@@ -647,10 +655,25 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 })
                 .OrderByDescending(p => p.CantidadTotal)
                 .Take(10)
-                .ToList();
+                .ToList();*/
 
+            var productosMasVendidos = pedidosViewModel
+                .SelectMany(vm => vm.lineaPedidoConProducto)
+                .GroupBy(lp => lp.lineaPedido.Codigo)
+                .Select(g => new
+                {
+                    Codigo = g.Key,
+                    // Tomamos la descripción del primer elemento del grupo 
+                    // (asumiendo que la descripción es la misma para todos con el mismo Código)
+                    DescripcionProducto = g.First().DescripcionProducto,
+                    CantidadTotal = g.Sum(lp => lp.lineaPedido.Cantidad)
+                })
+                .OrderByDescending(p => p.CantidadTotal)
+                .Take(10)
+                .ToList();
+            
             // Serializar datos para gráficas
-            ViewBag.ProductosLabels = productosMasVendidos.Select(p => p.Producto).ToList();
+            ViewBag.ProductosLabels = productosMasVendidos.Select(p => p.DescripcionProducto).ToList();
             ViewBag.ProductosCantidades = productosMasVendidos.Select(p => p.CantidadTotal).ToList();
 
             return View("Metricas");
@@ -661,14 +684,14 @@ namespace Front_End_Gestion_Pedidos.Controllers
         /// Llama al endpoint /Pedidos/{idPedido}/lineas para cada pedido de la lista,
         /// y asigna la propiedad LineasPedido en cada uno.
         /// </summary>
-        private async Task LlenarLineasPedido(List<Pedido> pedidos)
+        private async Task LlenarLineasPedido(List<PedidoParaMetricasViewModel> pedidos)
         {
             if (pedidos == null || pedidos.Count == 0)
                 return;
 
-            foreach (var pedido in pedidos)
+            foreach (PedidoParaMetricasViewModel pedido in pedidos)
             {
-                var lineasResponse = await _httpClient.GetAsync($"Pedidos/{pedido.IdPedido}/lineas");
+                var lineasResponse = await _httpClient.GetAsync($"Pedidos/{pedido.Pedido.IdPedido}/lineas/DescProducto");
                 if (!lineasResponse.IsSuccessStatusCode)
                 {
                     // Si no fue exitosa la respuesta, seguimos con el siguiente pedido
@@ -678,16 +701,15 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 var lineasJson = await lineasResponse.Content.ReadAsStringAsync();
 
                 // Deserializa la lista de líneas (configurada para ignorar mayúsculas en el JSON)
-                var lineas = JsonSerializer.Deserialize<List<LineaPedido>>(
+                var lineas = JsonSerializer.Deserialize<List<LineaPedidoConProductoViewModel>>(
                     lineasJson,
                     new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }
                 );
-
                 // Asigna la lista de líneas al pedido (si es null, asigna lista vacía)
-                pedido.LineasPedido = lineas ?? new List<LineaPedido>();
+                pedido.lineaPedidoConProducto = lineas ?? new List<LineaPedidoConProductoViewModel>();
             }
         }
 
@@ -1123,7 +1145,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 });
 
                 // Cargar las líneas del pedido
-                var lineasResponse = await _httpClient.GetAsync($"Pedidos/{idPedido}/lineas");
+                var lineasResponse = await _httpClient.GetAsync($"Pedidos/{idPedido}/lineas/DescProducto");
 
                 if (!lineasResponse.IsSuccessStatusCode)
                 {
@@ -1131,7 +1153,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 }
 
                 var lineasJson = await lineasResponse.Content.ReadAsStringAsync();
-                var lineasPedido = JsonSerializer.Deserialize<List<LineaPedido>>(lineasJson, new JsonSerializerOptions
+                var lineasPedido = JsonSerializer.Deserialize<List<LineaPedidoConProductoViewModel>>(lineasJson, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });

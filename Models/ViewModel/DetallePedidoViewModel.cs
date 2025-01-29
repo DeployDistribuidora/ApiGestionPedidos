@@ -3,6 +3,6 @@
     public class DetallePedidoViewModel
     {
         public Pedido Pedido { get; set; }
-        public List<LineaPedido> LineasPedido { get; set; }
+        public List<LineaPedidoConProductoViewModel> LineasPedido { get; set; }
     }
 }

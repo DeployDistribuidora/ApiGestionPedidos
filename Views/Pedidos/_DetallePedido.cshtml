@@ -38,10 +38,10 @@
                     @foreach (var linea in Model.LineasPedido)
                     {
                         <tr>
-                            <td>Producto @linea.Codigo</td>
-                            <td>@linea.Cantidad</td>
-                            <td>@linea.PrecioUnitario.ToString("C")</td>
-                            <td>@linea.Subtotal.ToString("C")</td>
+                            <td>@linea.DescripcionProducto</td>
+                            <td>@linea.lineaPedido.Cantidad</td>
+                            <td>@linea.lineaPedido.PrecioUnitario.ToString("C")</td>
+                            <td>@linea.lineaPedido.Subtotal.ToString("C")</td>
                         </tr>
                     }
                 </tbody>

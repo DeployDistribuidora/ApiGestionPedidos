@@ -23,6 +23,5 @@ namespace Front_End_Gestion_Pedidos.Models
         // public List<LineaPedido> LineasPedido { get; set; }
         [JsonPropertyName("lineas_pedido")] 
         public List<LineaPedido> LineasPedido { get; set; } = new List<LineaPedido>();
-
     }
 }
