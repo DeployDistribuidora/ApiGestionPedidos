@@ -8,9 +8,11 @@
     <div class="row mb-3">
         <div class="col-md-6">
             <p><strong>ID Pedido:</strong> @Model.Pedido.IdPedido</p>
-            <p><strong>Cliente:</strong> @Model.Pedido.IdCliente</p>
-             <p><strong>Contacto:</strong> @(Model.Pedido.IdContacto.HasValue ? Model.Pedido.IdContacto.ToString() : "No asignado")</p>
+            <p><strong>Direccion:</strong> @Model.Pedido.Direccion</p>
             <p><strong>Vendedor:</strong> @(Model.Pedido.IdVendedor.HasValue ? Model.Pedido.IdVendedor.ToString() : "No asignado")</p>
+            <p><strong>Cliente:</strong> @Model.Pedido.IdCliente - @Model.Cliente.NombreCliente</p>
+            <p><strong>Cedula:</strong> @Model.Cliente.Cedula</p>
+            <p><strong>Numero de telefono:</strong> @Model.Cliente.TelefCliente</p>
         </div>
         <div class="col-md-6">
             <p><strong>Método de Pago:</strong> @Model.Pedido.MetodoPago</p>

@@ -4,5 +4,6 @@
     {
         public Pedido Pedido { get; set; }
         public List<LineaPedidoConProductoViewModel> LineasPedido { get; set; }
+        public Cliente Cliente { get; set; }
     }
 }

@@ -644,19 +644,6 @@ namespace Front_End_Gestion_Pedidos.Controllers
             // Llamar al método que llena la info de las líneas en el ViewModel
             await LlenarLineasPedido(pedidosViewModel);
 
-            // Calcular los productos más vendidos
-            /*var productosMasVendidos = pedidos
-                .SelectMany(p => p.LineasPedido ?? new List<LineaPedido>()) // Manejar nullables
-                .GroupBy(lp => lp.Codigo)
-                .Select(g => new
-                {
-                    Producto = g.Key,
-                    CantidadTotal = g.Sum(lp => lp.Cantidad)
-                })
-                .OrderByDescending(p => p.CantidadTotal)
-                .Take(10)
-                .ToList();*/
-
             var productosMasVendidos = pedidosViewModel
                 .SelectMany(vm => vm.lineaPedidoConProducto)
                 .GroupBy(lp => lp.lineaPedido.Codigo)
@@ -1158,11 +1145,14 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     PropertyNameCaseInsensitive = true
                 });
 
+                Cliente cli = await ObtenerClientePorId(pedido.IdCliente);
+
                 // Crear un modelo combinado con los detalles del pedido y las líneas
                 var detallePedidoViewModel = new DetallePedidoViewModel
                 {
                     Pedido = pedido,
-                    LineasPedido = lineasPedido
+                    LineasPedido = lineasPedido,
+                    Cliente = cli,
                 };
 
                 return PartialView("_DetallePedido", detallePedidoViewModel);
