@@ -216,6 +216,7 @@
 
 <script>
     const token = '@ViewData["Token"]';
+    const rol = '@ViewData["Role"]';
 
     let ProductosSeleccionados = @Html.Raw(Json.Serialize(Model.ProductosSeleccionados));
 
@@ -479,16 +480,23 @@
         const direccion = document.getElementById('direccion').value;
         const metodoPago = document.getElementById('medioPago').value;
         const comentarios = document.getElementById('comentarios').value;
+        let nuevoEstado = "Pendiente";
+        if (rol == "Administracion" || rol == "Vendedor") {
+            nuevoEstado = "Preparando";
+        }
+
+
 
         const pedido = {
             pedido: {
                 idCliente: parseInt(clienteId),
                 idAdministracion: 1,
                 fechaCreacion: new Date().toISOString(),
-                estado: "Pendiente",
+                estado: nuevoEstado,
                 metodoPago,
                 total: 0,
-                comentarios
+                comentarios,
+                direccion
             },
             lineasPedido: []
         };

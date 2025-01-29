@@ -40,6 +40,8 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 ClienteSeleccionado = null
             };
             ViewData["Token"] = HttpContext.Session.GetString("Token");
+            ViewData["Role"] = HttpContext.Session.GetString("Role");
+            ViewData["IdUsuario"] = HttpContext.Session.GetInt32("IdUsuario");
             return View(model);
         }
 
@@ -72,6 +74,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
 
                 };
+                ViewData["Role"] = HttpContext.Session.GetString("Role");
                 ViewData["Token"] = HttpContext.Session.GetString("Token");
                 return View(model);
             }
@@ -124,6 +127,9 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 ClienteSeleccionado = cliente
             };
 
+
+           
+            ViewData["Token"] = HttpContext.Session.GetString("Token");
             return View(model);
         }
         // --------------------------------------------------------------------------------------
@@ -419,10 +425,16 @@ namespace Front_End_Gestion_Pedidos.Controllers
             }
             else if (rolUsuario == "Vendedor")
             {
-                pedidos = (await ObtenerPedidosPorVendedor(idUsuario.Value.ToString()))
-                    .Where(p => estadosPermitidos.Contains(p.Estado, StringComparer.OrdinalIgnoreCase))
-                    .ToList();
+                pedidos = (await ObtenerPedidosPorEstados(estadosPermitidos));
             }
+            //else if (rolUsuario == "Vendedor")
+            //{
+            //    pedidos = (await ObtenerPedidosPorVendedor(idUsuario.Value.ToString()))
+            //        .Where(p => estadosPermitidos.Contains(p.Estado, StringComparer.OrdinalIgnoreCase))
+            //        .ToList();
+            //}
+
+          
 
             // Filtros adicionales para cliente, vendedor y estado
             if (!string.IsNullOrEmpty(cliente))
@@ -895,6 +907,11 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 TempData["Exito"] = resultado.Exito;
                 TempData["Advertencia"] = resultado.Advertencia;
 
+                if (rolUsuario == "Cliente" || rolUsuario == "Vendedor")
+                {
+                    return RedirectToAction("PedidosEnCurso");
+                }
+
             }
             catch (Exception ex)
             {
@@ -902,6 +919,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 TempData["Exito"] = false;
             }
 
+            
             return RedirectToAction("SupervisarPedidos");
         }
 

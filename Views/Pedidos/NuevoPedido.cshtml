@@ -13,13 +13,29 @@
 <section class="section">
     <div class="row">
         <!-- Selección de Cliente y Medio de Pago -->
-        <div class="col-lg-6">
+
+      
+
+        <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Selección de Cliente y Medio de Pago</h5>
+                    <h5 class="card-title">Selección de Cliente , Medio de Pago Y Direccion</h5>
+
+
+
                     <div class="row g-3 mb-3">
-                        <div class="col-md-8">
-                            <label for="cliente" class="form-label">Cliente</label>
+
+                        <div class="col-md-2 ">
+                            <label for="buscarCliente" class="form-label"><b>Filtro Busqueda Cliente</b></label>
+                            <div class="d-flex">
+                                <input type="text" id="buscarCliente" class="form-control form-control-sm" placeholder="Buscar cliente..." oninput="filtrarClientes()" />
+                                <button type="button" class="btn btn-secondary btn-sm ms-2" onclick="limpiarFiltroClientes()">Limpiar</button>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-5">
+                            <label for="cliente" class="form-label"><b>Elegir Cliente</b></label>
                             <div class="d-flex">
                                 <select id="cliente" name="clienteId" class="form-select form-select-sm" onchange="cambiarCliente()">
                                     <option value="" disabled selected>Seleccione un cliente</option>
@@ -53,33 +69,32 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="medioPago" class="form-label">Medio de Pago</label>
+                        <div class="col-md-2">
+                            <label for="medioPago" class="form-label"><b>Medio de Pago</b></label>
                             <select id="medioPago" class="form-select form-select-sm">
                                 <option value="Contado">Contado</option>
                                 <option value="Credito">Crédito</option>
                                 <option value="Tarjeta">Tarjeta</option>
                             </select>
                         </div>
+
+                        <!-- Selección de Dirección -->
+                        <div class="col-md-3">
+
+                            <label for="direccion" class="form-label"><b>Dirección</b></label>
+                             <select id="direccion" name="direccion" class="form-select form-select-sm">
+                                            @* <option value="" disabled selected>Seleccione una dirección</option> *@
+                             </select>
+                                   
+                                
+                            
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Selección de Dirección -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Dirección</h5>
-                    <div class="mb-3">
-                        <label for="direccion" class="form-label">Dirección</label>
-                        <select id="direccion" name="direccion" class="form-select form-select-sm">
-                            @* <option value="" disabled selected>Seleccione una dirección</option> *@
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
+       
     </div>
 
     <input type="hidden" id="puntosCliente" value="@Model.ClienteSeleccionado?.NroCliente" />
@@ -139,6 +154,7 @@
                         <tr>
                             <th class="text-nowrap">Nombre</th>
                             <th class="text-nowrap d-none d-md-table-cell">Detalle</th>
+                            <th class="text-nowrap">Stock</th>
                             <th class="text-nowrap">Precio</th>
                             <th class="text-nowrap">Cantidad</th>
                         </tr>
@@ -270,14 +286,60 @@
 
 <!-- Scripts -->
 <script>
+   
+
+
+
     // Escuchar el evento "show.bs.modal" para cargar la información
     document.getElementById("modalClienteInfo").addEventListener("show.bs.modal", cargarInformacionCliente);
 
     const token = '@ViewData["Token"]';
+    const rol = '@ViewData["Role"]';
+    const idUsuario = '@ViewData["IdUsuario"]';
 
     let puntos = 0;
 
     let cantidadesSeleccionadas = {};
+
+
+    function filtrarClientes() {
+        const filtro = document.getElementById("buscarCliente").value.trim().toLowerCase();
+        const clienteSelect = document.getElementById("cliente");
+
+        // Obtener todas las opciones originales
+        const opciones = clienteSelect.querySelectorAll("option");
+
+        // Ocultar o mostrar opciones según el filtro
+        opciones.forEach(option => {
+            if (!option.value) return; // Ignorar la opción por defecto
+            const nombre = option.getAttribute("data-nombre").toLowerCase();
+            const telefono = option.getAttribute("data-telefono").toLowerCase();
+            const coincide = nombre.includes(filtro) || telefono.includes(filtro);
+            option.style.display = coincide ? "" : "none";
+        });
+
+        // Reiniciar la selección
+        clienteSelect.selectedIndex = 0;
+    }
+
+    function limpiarFiltroClientes() {
+        const buscarCliente = document.getElementById("buscarCliente");
+        const clienteSelect = document.getElementById("cliente");
+
+        // Guardar la opción seleccionada actualmente
+        const opcionSeleccionada = clienteSelect.value;
+
+        buscarCliente.value = ""; // Limpia el campo de búsqueda
+
+        // Mostrar todas las opciones
+        const opciones = clienteSelect.querySelectorAll("option");
+        opciones.forEach(option => {
+            option.style.display = ""; // Asegura que todas las opciones sean visibles
+        });
+
+        // Restaurar la selección previa
+        clienteSelect.value = opcionSeleccionada;
+    }
 
     function cambiarCliente() {
          const clienteSelect = document.getElementById('cliente');
@@ -404,7 +466,7 @@
         const fila = document.querySelector(`#cantidad_${codigo}`).closest("tr");
 
         // Leer el precio desde la celda correspondiente en esa fila
-        const precio = parseFloat(fila.querySelector("td:nth-child(3)").textContent);
+        const precio = parseFloat(fila.querySelector("td:nth-child(4)").textContent);
 
         // Actualizar o eliminar la cantidad y precio seleccionados
         if (cantidad > 0) {
@@ -507,6 +569,7 @@
                     fila.innerHTML = `
                     <td>${producto.descripcion}</td>
                     <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
+                    <td>${producto.stock_Actual}</td>
                     <td>${precio.toFixed(2)}</td>
                     <td>
                        <input
@@ -525,6 +588,7 @@
                     fila.innerHTML = `
                 <td>${producto.descripcion}</td>
                 <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
+                <td>${producto.stock_Actual}</td>
                 <td>${precio.toFixed(2)}</td>
                 <td>
                    <input
@@ -542,6 +606,7 @@
                     fila.innerHTML = `
                     <td>${producto.descripcion}</td>
                     <td class="d-none d-md-table-cell">${producto.detalle || "Sin detalle"}</td>
+                    <td>${producto.stock_Actual}</td>
                     <td>${0}</td>
                     <td>
                        <input
@@ -659,8 +724,15 @@
         const alertCliente = document.getElementById('alertCliente');
         alertCliente.classList.add('d-none');
 
+        var idVendedor = null;
+        if (rol == "Vendedor") {
+            idVendedor = parseInt(idUsuario, 10);
+        }
+        
+
         const pedido = {
             pedido: {
+                idVendedor: idVendedor,
                 idCliente: parseInt(clienteId),
                 idAdministracion: 1,
                 fechaCreacion: new Date().toISOString(),
@@ -789,16 +861,30 @@
             vertical-align: middle; /* Centrar el texto verticalmente */
         }
 
-            #tablaProductos td:nth-child(4) {
+            #tablaProductos td:nth-child(5) {
                 text-align: center; /* Asegura que los inputs estén alineados al centro */
             }
 
-                #tablaProductos td:nth-child(4) input.form-control {
+                #tablaProductos td:nth-child(5) input.form-control {
                     width: 50%; /* Ajusta el ancho según sea necesario */
                     margin: 0 auto; /* Centra horizontalmente */
                     text-align: center; /* Centra el texto dentro del input */
                     display: block; /* Asegura el centrado en el contenedor */
-                }
+                  }
+
+    #tablaProductos td:nth-child(4) {
+       background-color: RGB(2, 117, 216);
+       color: white;
+       border-style: solid;
+                border-width: 1px;
+                border-color: black;
+    }
+
+   #tablaProductos th:nth-child(4) {
+       border-style: solid;
+       border-width: 1px;
+       border-color: black;
+   }
 
 </style>
 

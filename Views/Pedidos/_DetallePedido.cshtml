@@ -68,7 +68,7 @@
                 </a>
             }
 
-            <!-- Botón Cancelar pedido -->
+           @*  <!-- Botón Cancelar pedido -->
             @if (!Model.Pedido.Estado.Equals("Cancelado", StringComparison.OrdinalIgnoreCase) &&
            !Model.Pedido.Estado.Equals("Entregado", StringComparison.OrdinalIgnoreCase))
             {
@@ -76,6 +76,18 @@
                    class="btn btn-outline-danger btn-sm">
                     <i class="bi bi-x-circle"></i> Cancelar pedido
                 </a>
+            } *@
+
+            @if (!Model.Pedido.Estado.Equals("Cancelado", StringComparison.OrdinalIgnoreCase) &&
+           !Model.Pedido.Estado.Equals("Entregado", StringComparison.OrdinalIgnoreCase))
+            {
+                <form method="post" action="@Url.Action("CambiarEstadoPedido", "Pedidos")" style="display: inline;">
+                    <input type="hidden" name="id" value="@Model.Pedido.IdPedido" />
+                    <input type="hidden" name="nuevoEstado" value="Cancelado" />
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-x-circle"></i> Cancelar pedido
+                    </button>
+                </form>
             }
         </div>
     }
@@ -94,3 +106,4 @@
         </div>        
     </div>
 </div>
+
