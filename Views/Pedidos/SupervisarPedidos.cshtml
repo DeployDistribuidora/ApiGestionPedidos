@@ -15,28 +15,15 @@
             Se muestran únicamente los pedidos pendientes y en viaje. Los pedidos a preparar pasarán a los supervisores de carga.
         </div>
 
-        
-    } else if (role == "Supervisor de Carga")
+
+    }
+    else if (role == "Supervisor de Carga")
     {
-        <div class="alert alert-info d-inline-block"  role="alert">
+        <div class="alert alert-info d-inline-block" role="alert">
             Se muestran únicamente los pedidos a preparar. Una vez embarcado un pedido, coordinar con administración por la confirmación de su entrega.
         </div>
     }
 
-            <!-- Mensajes de Éxito o Error -->
-@*         <div class="container mt-4">
-        @if (TempData["Mensaje"] != null)
-        {
-            var mensaje = TempData["Mensaje"].ToString();
-            var exito = TempData["Exito"] != null && (bool)TempData["Exito"];
-            var alertClass = exito ? "alert-success" : "alert-danger";
-
-                    <div class="alert @alertClass alert-dismissible fade show" role="alert">
-                @mensaje
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-        }
-        </div> *@
 
     <!-- Sección Principal -->
     <section class="section">
@@ -46,8 +33,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Filtros de Búsqueda</h5>
-                        <form method="get" asp-action="SupervisarPedidos" class="row g-3">     
-                            
+                        <form method="get" asp-action="SupervisarPedidos" class="row g-3">
+
                             <!-- Filtro Cliente -->
                             <div class="col-md-6">
                                 <label for="filterCliente" class="form-label">Cliente</label>
@@ -55,10 +42,11 @@
                                        placeholder="Escribe para buscar un cliente..." oninput="filterClientes()">
 
                                 <!-- Contenedor de opciones scrolleable -->
-                                <div id="clientesContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                <div id="clientesContainer" class="border rounded p-2 bg-white shadow-sm"
+                                     style="max-height: 150px; overflow-y: auto;">
                                     @foreach (var cliente in Model.Clientes)
                                     {
-                                        <div class="cliente-option"
+                                        <div class="cliente-option p-2"
                                              data-nombre="@cliente.NombreCliente"
                                              data-id="@cliente.NroCliente"
                                              onclick="selectCliente('@cliente.NombreCliente', '@cliente.NroCliente')">
@@ -71,17 +59,6 @@
                                 <input type="hidden" id="selectedCliente" name="cliente">
                             </div>
 
-                            @* <div class="col-md-4">
-                                <label for="selectCliente" class="form-label">Cliente</label>
-                                <input type="text" id="filterCliente" class="form-control form-control-sm mb-2" placeholder="Escribe para filtrar...">
-                                <select name="cliente" id="selectCliente" class="form-select form-select-sm">
-                                    <option value="" selected>Seleccione un Cliente</option>
-                                    @foreach (var cliente in Model.Clientes)
-                                    {
-                                        <option value="@cliente.NroCliente">@cliente.NombreCliente.Trim()</option>
-                                    }
-                                </select>
-                            </div> *@
 
                             <!-- Filtro por Vendedor -->
                             <div class="col-md-6">
@@ -90,10 +67,11 @@
                                        placeholder="Escribe para buscar un vendedor..." oninput="filterVendedores()">
 
                                 <!-- Contenedor de opciones scrolleable -->
-                                <div id="vendedoresContainer" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                <div id="vendedoresContainer" class="border rounded p-2 bg-white shadow-sm"
+                                     style="max-height: 150px; overflow-y: auto;">
                                     @foreach (var vendedor in Model.Vendedores)
                                     {
-                                        <div class="vendedor-option"
+                                        <div class="vendedor-option p-2"
                                              data-nombre="@vendedor.Nombre"
                                              data-id="@vendedor.nro_Vendedor"
                                              onclick="selectVendedor('@vendedor.Nombre', '@vendedor.nro_Vendedor')">
@@ -106,12 +84,6 @@
                                 <input type="hidden" id="selectedVendedor" name="vendedor">
                             </div>
 
-
-
-                            @* <div class="col-md-4">
-                                <label for="inputVendedor" class="form-label">Vendedor</label>
-                                <input type="text" name="vendedor" class="form-control form-control-sm" id="inputVendedor" placeholder="Vendedor" value="@Model.Vendedor">
-                            </div> *@
                             @if (role == "Administracion")
                             {
                                 <div class="col-md-4">
@@ -143,7 +115,7 @@
                                     <th scope="col">Nro</th>
                                     <th scope="col">Cliente</th>
                                     <th scope="col">Vendedor</th>
-                                    @* <th scope="col" class="d-none d-md-table-cell">Vendedor</th> *@
+                                    <th scope="col" class="d-none d-md-table-cell">Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -168,7 +140,7 @@
                                                         <i class="bi bi-eye"></i>
                                                     </button>
 
-                                                    
+
                                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="mostrarModalComentario(@pedido.IdPedido)"
                                                             title="Añadir Comentario">
                                                         <i class="bi bi-chat-dots"></i>
@@ -212,7 +184,7 @@
                                             <td>
                                                 @Model.Vendedores.FirstOrDefault(v => v.nro_Vendedor == pedido.IdVendedor)?.Nombre
                                             </td>
-                                            @* <td class="d-none d-md-table-cell">@pedido.IdVendedor</td> *@
+                                            <td class="d-none d-md-table-cell">@pedido.Estado</td>
                                         </tr>
                                     }
                                 }
@@ -384,20 +356,14 @@
         document.querySelector(".modal-backdrop")?.remove();
     });
 
-    // Filtro de clientes
-    document.getElementById('filterCliente').addEventListener('input', function () {
-        const filter = this.value.toLowerCase();
-        const options = document.querySelectorAll('#selectCliente option');
 
-        options.forEach(option => {
-            if (option.value === "") return; // No filtrar la opción predeterminada
-            const text = option.textContent.toLowerCase();
-            option.style.display = text.includes(filter) ? 'block' : 'none';
-        });
-    });
 
-    // Función para filtrar clientes en tiempo real
- @*    function filterClientes() {
+
+</script>
+
+<script>
+        // Función para filtrar clientes en tiempo real
+    function filterClientes() {
         const input = document.getElementById('filterCliente').value.toLowerCase();
         const options = document.querySelectorAll('#clientesContainer .cliente-option');
 
@@ -405,38 +371,44 @@
             const nombre = option.dataset.nombre.toLowerCase();
             option.style.display = nombre.includes(input) ? 'block' : 'none';
         });
-    } *@
-
-
-</script>
-
-<script>
-        // Función para filtrar clientes en tiempo real
-        function filterClientes() {
-            const input = document.getElementById('filterCliente').value.toLowerCase();
-            const options = document.querySelectorAll('#clientesContainer .cliente-option');
-
-            options.forEach(option => {
-                const nombre = option.dataset.nombre.toLowerCase();
-                option.style.display = nombre.includes(input) ? 'block' : 'none';
-            });
-        }
+    }
 
     // Función para seleccionar un cliente y actualizar el campo oculto y el input de búsqueda
     function selectCliente(nombreCliente, nroCliente) {
         const selectedClienteInput = document.getElementById('selectedCliente');
         const filterClienteInput = document.getElementById('filterCliente');
-        const options = document.querySelectorAll('#clientesContainer .cliente-option');
 
         // Establecer el cliente seleccionado
         selectedClienteInput.value = nroCliente;
         filterClienteInput.value = nombreCliente;
 
-        // Ocultar todas las opciones tras la selección
-        options.forEach(option => {
-            option.style.display = 'none';
+        // Ocultar el contenedor de opciones (opcional)
+        const clientesContainer = document.getElementById('clientesContainer');
+        clientesContainer.style.display = 'none';
+
+        // Mostrar el contenedor si el usuario vuelve a escribir
+        filterClienteInput.addEventListener('input', () => {
+            clientesContainer.style.display = 'block';
         });
     }
+
+    // Mostrar la lista de opciones al hacer clic en el input
+    document.getElementById('filterCliente').addEventListener('click', function () {
+        const clientesContainer = document.getElementById('clientesContainer');
+        clientesContainer.classList.remove('d-none');
+    });
+
+    // Ocultar la lista de opciones cuando se hace clic fuera del input y las opciones
+    document.addEventListener('click', function (event) {
+        const filterClienteInput = document.getElementById('filterCliente');
+        const clientesContainer = document.getElementById('clientesContainer');
+
+        if (!filterClienteInput.contains(event.target) && !clientesContainer.contains(event.target)) {
+            clientesContainer.classList.add('d-none');
+        }
+    });
+
+
 </script>
 
 
@@ -453,18 +425,21 @@
     }
 
     // Función para seleccionar un vendedor y actualizar el campo oculto y el input de búsqueda
-    function selectVendedor(nombre, nroVendedor) {
+    function selectVendedor(nombreVendedor, nroVendedor) {
         const selectedVendedorInput = document.getElementById('selectedVendedor');
         const filterVendedorInput = document.getElementById('filterVendedor');
-        const options = document.querySelectorAll('#vendedoresContainer .vendedor-option');
 
         // Establecer el vendedor seleccionado
         selectedVendedorInput.value = nroVendedor;
-        filterVendedorInput.value = nombre;
+        filterVendedorInput.value = nombreVendedor;
 
-        // Ocultar todas las opciones tras la selección
-        options.forEach(option => {
-            option.style.display = 'none';
+        // Ocultar el contenedor de opciones (opcional)
+        const vendedoresContainer = document.getElementById('vendedoresContainer');
+        vendedoresContainer.style.display = 'none';
+
+        // Mostrar el contenedor si el usuario vuelve a escribir
+        filterVendedorInput.addEventListener('input', () => {
+            vendedoresContainer.style.display = 'block';
         });
     }
 </script>
