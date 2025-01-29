@@ -123,7 +123,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 Productos = await ObtenerStock(),
                 ClienteSeleccionado = cliente
             };
-
+            ViewData["Token"] = HttpContext.Session.GetString("Token");
             return View(model);
         }
         // --------------------------------------------------------------------------------------
