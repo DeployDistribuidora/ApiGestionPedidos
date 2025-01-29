@@ -39,7 +39,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 Productos = await ObtenerStock(),
                 ClienteSeleccionado = null
             };
-
+            ViewData["Token"] = HttpContext.Session.GetString("Token");
             return View(model);
         }
 
@@ -72,7 +72,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
 
                 };
-
+                ViewData["Token"] = HttpContext.Session.GetString("Token");
                 return View(model);
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
                     ProductoSeleccionados = lista,
                     Productos = await ObtenerStock()
                 };
-
+                ViewData["Token"] = HttpContext.Session.GetString("Token");
                 return View(model);
             }
             catch (Exception ex)

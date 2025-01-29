@@ -16,7 +16,7 @@
         <input type="hidden" id="clienteId" value="@Model.ClienteSeleccionado.NroCliente" />
 
         <input type="hidden" id="puntosCliente" value="@Model.ClienteSeleccionado.Puntos" />
-        
+
 
 
 
@@ -60,63 +60,75 @@
     </div>
 
 
-
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Filtro de Productos</h5>
-                <div class="mb-3">
-                    <label for="filtroProductos" class="form-label">Buscar Productos</label>
-                    <input type="text" id="filtroProductos" class="form-control form-control-sm" placeholder="Buscar producto..." />
-                    <div class="d-flex gap-2 mt-2">
-                        <button type="button" class="btn btn-primary btn-sm" onclick="aplicarFiltro()">Aplicar Filtro</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="limpiarFiltro()">Limpiar Filtro</button>
+    <!-- Filtro y Tabla -->
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Filtro de Productos</h5>
+                    <div class="mb-3">
+                        <label for="filtroProductos" class="form-label">Buscar Productos</label>
+                        <input type="text" id="filtroProductos" class="form-control form-control-sm" placeholder="Buscar producto..." />
+                        <div class="d-flex gap-2 mt-2">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="aplicarFiltro()">Aplicar Filtro</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="limpiarFiltro()">Limpiar Filtro</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+
+        <div class="col-lg-9">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm" id="tablaProductos">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-nowrap">Nombre</th>
+                            <th class="text-nowrap d-none d-md-table-cell">Detalle</th>
+                            <th class="text-nowrap">Precio</th>
+                            <th class="text-nowrap">Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaProductosBody">
+                        <!-- El contenido de las filas será generado dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+
+
+            <nav id="navPaginacion" class="d-flex justify-content-center align-items-center mt-0">
+                <button class="btn btn-sm btn-secondary mx-1" onclick="paginaAnterior()">
+                    &larr;
+                </button>
+                <div id="paginacion" class="d-flex gap-1"></div>
+                <button class="btn btn-sm btn-secondary mx-1" onclick="paginaSiguiente()">
+                    &rarr;
+                </button>
+            </nav>
+        </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover table-sm" id="tablaProductos">
-            <thead class="table-light">
-                <tr>
-                    <th class="text-nowrap">Nombre</th>
-                    <th class="text-nowrap d-none d-md-table-cell">Detalle</th>
-                    <th class="text-nowrap">Precio</th>
-                    <th class="text-nowrap" width="35%">Cantidad</th>
-                </tr>
-            </thead>
-            <tbody id="tablaProductosBody">
-                <!-- El contenido de las filas será generado dinámicamente -->
-            </tbody>
-        </table>
-    </div>
 
-    <nav id="navPaginacion" class="d-flex justify-content-center align-items-center mt-0">
-        <button class="btn btn-sm btn-secondary mx-1" onclick="paginaAnterior()">
-            &larr;
-        </button>
-        <div id="paginacion" class="d-flex gap-1"></div>
-        <button class="btn btn-sm btn-secondary mx-1" onclick="paginaSiguiente()">
-            &rarr;
-        </button>
-    </nav>
-
-
-    <div class="col-lg-7">
+    <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Comentarios</h5>
                 <div class="mb-3">
-                    <textarea id="comentarios" class="form-control form-control-sm" rows="3" placeholder="Escribe algún comentario..."></textarea>
+                    <textarea id="comentarios"
+                              class="form-control form-control-sm"
+                              rows="3"
+                              placeholder="Escribe algún comentario..."
+                              data-comentario="@Model.Pedidos.Comentarios"> 
+                </textarea>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- footer del pedido -->
-    <div class="col-lg-6">
+    @*  <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
@@ -126,6 +138,26 @@
                         <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCarrito" onclick="mostrarCarrito()">Ver carrito</a>
 
                         <button type="button" class="btn btn-primary btn-sm" onclick="ModificarPedidoCliente()">realizar pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> *@
+
+
+    <div id="footerPedido" class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <a href="#" class="bi bi-cart btn-sm" data-bs-toggle="modal" data-bs-target="#modalCarrito" onclick="mostrarCarrito()">VER</a>
+                    </div>
+
+                    <span class="text-danger fw-bold center">Total: $<span id="totalFooter">0.00</span></span>
+                    <div class="d-flex gap-2">
+
+
+                        <button type="button" id="btnModificarPedido" class="btn btn-primary btn-sm" onclick="ModificarPedidoCliente()">ENVIAR</button>
                     </div>
                 </div>
             </div>
@@ -190,6 +222,7 @@
 
 
 <script>
+    const token = '@ViewData["Token"]';
 
     let ProductosSeleccionados = @Html.Raw(Json.Serialize(Model.ProductoSeleccionados));
 
@@ -230,7 +263,7 @@
         actualizarTotal();
 
 
-       
+
     }
 
     function actualizarTotal() {
@@ -250,6 +283,17 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         // Inicializar cantidadesSeleccionadas con productos seleccionados previamente
+        // Obtén el textarea
+        const textareaComentarios = document.getElementById('comentarios');
+
+        // Lee el comentario desde el atributo data-comentario
+        const comentario = textareaComentarios.getAttribute('data-comentario');
+
+        // Establece el valor del textarea
+        if (comentario) {
+            textareaComentarios.value = comentario;
+        }
+
         productosOriginales.forEach(producto => {
             const seleccionado = ProductosSeleccionados.find(p => p.codigo === producto.codigo);
             if (seleccionado) {
@@ -439,7 +483,7 @@
     }
 
 
-    
+
 
     function ModificarPedidoCliente() {
         // Crear el objeto base pedidoModificado con el formato correcto
@@ -448,7 +492,7 @@
                 idPedido: @Html.Raw(Json.Serialize(Model.Pedidos.IdPedido)),
                 idVendedor: @Html.Raw(Json.Serialize(Model.Pedidos.IdVendedor)), // Ajusta según tu modelo
                 idCliente: parseInt(document.getElementById('clienteId').value, 10),
-                idAdministracion:  1, 
+                idAdministracion:  1,
                 idSupervisor: @Html.Raw(Json.Serialize(Model.Pedidos.IdSupervisor)),
                 fechaCreacion: @Html.Raw(Json.Serialize(Model.Pedidos.FechaCreacion)),
                 fechaEntrega: @Html.Raw(Json.Serialize(Model.Pedidos.FechaEntrega)),
@@ -494,14 +538,14 @@
         // Asignar el total calculado
         pedidoModificado.pedido.total = total;
 
-        console.log("Pedido a enviar:", pedidoModificado);
-
         // Enviar el pedido al backend
-        //https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net
         //https://localhost:7078
-        fetch(`https://localhost:7078/api/Pedidos/${pedidoModificado.pedido.idPedido}`, {
+        fetch(`https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/v1/Pedidos/${pedidoModificado.pedido.idPedido}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Incluir el token
+            },
             body: JSON.stringify(pedidoModificado)
         })
             .then(response => {
@@ -526,8 +570,66 @@
                 console.error('Error:', error);
             });
     }
-    
+
 
 
 
 </script>
+
+<style>
+
+    #footerPedido {
+        align-items: end; /* Centrado vertical del contenido interno */
+    }
+
+    #btnModificarPedido {
+        align-items: end; /* Centrado vertical del contenido interno */
+    }
+
+    #footerPedido {
+        margin-top: 20px; /* Ajusta el valor según la distancia deseada */
+    }
+
+    #btnModificarPedido {
+        margin-top: 5px; /* Ajusta el valor según sea necesario */
+    }
+
+
+    #navPaginacion {
+        margin: 0px; /* Reduce el espacio superior */
+        margin-bottom: 2rem;
+        background-color: #fff; /* Fondo blanco */
+        padding: 0.5rem; /* Espaciado interno */
+        border-radius: 0.5rem; /* Bordes redondeados */
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    }
+
+        #navPaginacion button {
+            padding: 0.5rem; /* Espaciado interno */
+            border-radius: 0.5rem; /* Bordes redondeados */
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            font-size: larger;
+            margin: 0px 2px 0px 2px;
+        }
+
+    #tablaProductos {
+        margin-bottom: 0px;
+    }
+
+        #tablaProductos th, #tablaProductos td {
+            text-align: center; /* Centrar el texto horizontalmente */
+            vertical-align: middle; /* Centrar el texto verticalmente */
+        }
+
+            #tablaProductos td:nth-child(4) {
+                text-align: center; /* Asegura que los inputs estén alineados al centro */
+            }
+
+                #tablaProductos td:nth-child(4) input.form-control {
+                    width: 50%; /* Ajusta el ancho según sea necesario */
+                    margin: 0 auto; /* Centra horizontalmente */
+                    text-align: center; /* Centra el texto dentro del input */
+                    display: block; /* Asegura el centrado en el contenedor */
+                }
+
+</style>

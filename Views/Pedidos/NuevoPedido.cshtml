@@ -18,24 +18,42 @@
                 <div class="card-body">
                     <h5 class="card-title">Selección de Cliente y Medio de Pago</h5>
                     <div class="row g-3 mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <label for="cliente" class="form-label">Cliente</label>
-                            <select id="cliente" name="clienteId" class="form-select form-select-sm" onchange="cambiarCliente()">
-                                <option value="" disabled selected>Seleccione un cliente</option>
-                                @foreach (var cliente in Model.Clientes)
-                                {
-                                    <option value="@cliente.NroCliente"
-                                            data-dircliente="@cliente.DirCliente"
-                                            data-dir2cliente="@cliente.Dir2Cliente"
-                                            data-nrocliente="@cliente.NroCliente"
-                                            selected="@(Model.ClienteSeleccionado?.NroCliente == cliente.NroCliente ? "selected" : null)">
-                                        @cliente.NombreCliente
-                                    </option>
-                                }
-                            </select>
+                            <div class="d-flex">
+                                <select id="cliente" name="clienteId" class="form-select form-select-sm" onchange="cambiarCliente()">
+                                    <option value="" disabled selected>Seleccione un cliente</option>
+                                    @foreach (var cliente in Model.Clientes)
+                                    {
+                                        <option value="@cliente.NroCliente"
+                                                data-dircliente="@cliente.DirCliente"
+                                                data-dir2cliente="@cliente.Dir2Cliente"
+                                                data-nrocliente="@cliente.NroCliente"
+                                                data-cedula="@cliente.Cedula"
+                                                data-estado="@cliente.Estado"
+                                                data-nombre="@cliente.NombreCliente"
+                                                data-punto="@cliente.Puntos"
+                                                data-telefono="@cliente.TelefCliente"
+                                                data-rut="@cliente.RUT"
+                                                selected="@(Model.ClienteSeleccionado?.NroCliente == cliente.NroCliente ? "selected" : null)">
+                                            @cliente.NombreCliente - @cliente.TelefCliente
+                                        </option>
+                                    }
+                                </select>
+                                <!-- Botón para abrir el modal -->
+                                <button type="button"
+                                        class="btn btn-primary btn-sm ms-2"
+                                        id="btnVerClienteInfo"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalClienteInfo"
+                                        onclick="cargarInformacionCliente()"
+                                        disabled>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="medioPago" class="form-label">Medio de Pago</label>
                             <select id="medioPago" class="form-select form-select-sm">
                                 <option value="Contado">Contado</option>
@@ -48,8 +66,6 @@
             </div>
         </div>
 
-        <input type="hidden" id="puntosCliente" value="@Model.ClienteSeleccionado?.NroCliente" />
-
         <!-- Selección de Dirección -->
         <div class="col-lg-6">
             <div class="card">
@@ -58,14 +74,49 @@
                     <div class="mb-3">
                         <label for="direccion" class="form-label">Dirección</label>
                         <select id="direccion" name="direccion" class="form-select form-select-sm">
-                            <option value="" disabled selected>Seleccione una dirección</option>
+                            @* <option value="" disabled selected>Seleccione una dirección</option> *@
                         </select>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-lg-6">
+    <input type="hidden" id="puntosCliente" value="@Model.ClienteSeleccionado?.NroCliente" />
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalClienteInfo" tabindex="-1" aria-labelledby="modalClienteInfoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalClienteInfoLabel">Información del Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Numero:</strong> <span id="clienteNumero"></span></p>
+                    <p><strong>Nombre:</strong> <span id="clienteNombre"></span></p>
+                    <p><strong>DNI:</strong> <span id="clienteCedula"></span></p>
+                    <p><strong>Dirección:</strong> <span id="clienteDireccion"></span></p>
+                    <p><strong>Dirección2:</strong> <span id="clienteDireccion2"></span></p>
+                    <p><strong>Teléfono:</strong> <span id="clienteTelefono"></span></p>
+                    <p><strong>Estado:</strong> <span id="clienteEstado"></span></p>
+                    <p><strong>Puntos:</strong> <span id="clientePunto"></span></p>
+                    <p><strong>Rut:</strong> <span id="clienteRut"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <!-- Filtro y Tabla -->
+    <div class="row">
+        <div class="col-lg-3">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Filtro de Productos</h5>
@@ -81,125 +132,149 @@
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-sm" id="tablaProductos">
-                <thead class="table-light">
-                    <tr>
-                        <th class="text-nowrap">Nombre</th>
-                        <th class="text-nowrap d-none d-md-table-cell">Detalle</th>
-                        <th class="text-nowrap">Precio</th>
-                        <th class="text-nowrap" width="35%">Cantidad</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaProductosBody">
-                    <!-- El contenido de las filas será generado dinámicamente -->
-                </tbody>
-            </table>
+        <div class="col-lg-9">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm" id="tablaProductos">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-nowrap">Nombre</th>
+                            <th class="text-nowrap d-none d-md-table-cell">Detalle</th>
+                            <th class="text-nowrap">Precio</th>
+                            <th class="text-nowrap">Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaProductosBody">
+                        <!-- El contenido de las filas será generado dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+
+            <nav id="navPaginacion" class="d-flex justify-content-center align-items-center mt-0">
+                <button class="btn btn-sm btn-secondary mx-1" onclick="paginaAnterior()">
+                    &larr;
+                </button>
+                <div id="paginacion" class="d-flex gap-1"></div>
+                <button class="btn btn-sm btn-secondary mx-1" onclick="paginaSiguiente()">
+                    &rarr;
+                </button>
+            </nav>
+
+
         </div>
 
-        <nav id="navPaginacion" class="d-flex justify-content-center align-items-center mt-0">
-            <button class="btn btn-sm btn-secondary mx-1" onclick="paginaAnterior()">
-                &larr;
-            </button>
-            <div id="paginacion" class="d-flex gap-1"></div>
-            <button class="btn btn-sm btn-secondary mx-1" onclick="paginaSiguiente()">
-                &rarr;
-            </button>
-        </nav>
+    </div>
 
 
+    <!-- Comentarios -->
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Comentarios</h5>
+                <div class="mb-3">
+                    <textarea id="comentarios" class="form-control form-control-sm" rows="3" placeholder="Escribe algún comentario..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- Comentarios -->
-        <div class="col-lg-7">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Comentarios</h5>
-                    <div class="mb-3">
-                        <textarea id="comentarios" class="form-control form-control-sm" rows="3" placeholder="Escribe algún comentario..."></textarea>
+
+    <!-- Cartel rojo de advertencia -->
+    <div id="alertCliente" class="alert alert-danger d-none" role="alert">
+        Por favor, seleccione un cliente antes de enviar el pedido.
+    </div>
+    <!-- footer del pedido -->
+    <div id="footerPedido" class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <a href="#" class="bi bi-cart btn-sm" data-bs-toggle="modal" data-bs-target="#modalCarrito" onclick="mostrarCarrito()">VER</a>
+                    </div>
+
+                    <span class="text-danger fw-bold center">Total: $<span id="totalFooter">0.00</span></span>
+                    <div class="d-flex gap-2">
+
+
+                        <button type="button" id="btnEnviarPedido" class="btn btn-primary btn-sm" onclick="enviarPedido()">ENVIAR</button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- footer del pedido -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <br />
-                        <span class="text-danger fw-bold">Total: $<span id="totalFooter">0.00</span></span>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCarrito" onclick="mostrarCarrito()">Ver carrito</a>
 
-                            <button type="button" class="btn btn-primary btn-sm" onclick="enviarPedido()">realizar pedido</button>
-                        </div>
+
+    <!-- Modal Ver Carrito -->
+    <div class="modal fade" id="modalCarrito" tabindex="-1" aria-labelledby="modalCarritoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCarritoLabel">Carrito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-nowrap">Producto</th>
+                                    <th class="text-nowrap">Precio</th>
+                                    <th class="text-nowrap">Cantidad</th>
+                                    <th class="text-nowrap">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCarritoBody">
+                                <!-- Las filas se generarán dinámicamente con JavaScript -->
+                            </tbody>
+                        </table>
                     </div>
+                    <div class="mt-3 text-end">
+                        <span class="fw-bold">Total: $<span id="totalCarrito">0</span></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Modal Ver Carrito -->
-        <div class="modal fade" id="modalCarrito" tabindex="-1" aria-labelledby="modalCarritoLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalCarritoLabel">Carrito</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-sm">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="text-nowrap">Producto</th>
-                                        <th class="text-nowrap">Precio</th>
-                                        <th class="text-nowrap">Cantidad</th>
-                                        <th class="text-nowrap">Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaCarritoBody">
-                                    <!-- Las filas se generarán dinámicamente con JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-3 text-end">
-                            <span class="fw-bold">Total: $<span id="totalCarrito">0</span></span>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
+
+
+    <!-- Modal de Mensaje -->
+    <div class="modal fade" id="modalMensaje" tabindex="-1" aria-labelledby="modalMensajeLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalMensajeLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="mensajeModal"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
+    </div>
 
 
 
-        <!-- Modal de Mensaje -->
-        <div class="modal fade" id="modalMensaje" tabindex="-1" aria-labelledby="modalMensajeLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalMensajeLabel"></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="mensajeModal"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 </section>
 
-       
-</section>
+
+
 
 
 <!-- Scripts -->
 <script>
+    // Escuchar el evento "show.bs.modal" para cargar la información
+    document.getElementById("modalClienteInfo").addEventListener("show.bs.modal", cargarInformacionCliente);
+
+    const token = '@ViewData["Token"]';
+
     let puntos = 0;
 
     let cantidadesSeleccionadas = {};
@@ -210,15 +285,73 @@
 
         const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
 
-     
+        // Verificar si hay un cliente seleccionado
+        const btnVerClienteInfo = document.getElementById("btnVerClienteInfo");
+        if (clienteSelect.value) {
+            btnVerClienteInfo.disabled = false; // Habilitar botón
+        } else {
+            btnVerClienteInfo.disabled = true; // Deshabilitar botón
+        }
+
+
         puntos = parseInt(selectedOption.getAttribute("data-nroCliente"));
-        
+
         cargarDirecciones(); // Refrescar direcciones
         renderizarTabla(); // Refrescar precios
 
+        // Recalcular el total con los nuevos precios asociados al cliente
+        let total = 0;
+        Object.keys(cantidadesSeleccionadas).forEach(codigo => {
+            const cantidad = cantidadesSeleccionadas[codigo].cantidad;
+            const producto = productosOriginales.find(p => p.codigo == codigo);
+
+            if (producto && cantidad > 0) {
+                // Actualizar el precio según los puntos del cliente
+                let precio = producto.precio; // Precio por defecto
+                if (puntos === 1) precio = producto.stock_2;
+                if (puntos === 2) precio = producto.stock_3;
+                if (puntos === 3) precio = producto.stock_4;
+                if (puntos === 4) precio = producto.stock_5;
+
+                // Actualizar el total
+                total += precio * cantidad;
+
+                // Actualizar el precio en cantidades seleccionadas
+                cantidadesSeleccionadas[codigo].precio = precio;
+            }
+        });
+
+        // Actualizar el total en el footer
+        document.getElementById("totalFooter").textContent = total.toFixed(2);
     }
 
+    //Cargo modal detalles cliente
+    function cargarInformacionCliente() {
+        const clienteSelect = document.getElementById("cliente");
+        const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
 
+        // Obtener atributos personalizados del cliente seleccionado
+        const numero = selectedOption.getAttribute("data-nrocliente");
+        const nombre = selectedOption.getAttribute("data-nombre");
+        const cedula = selectedOption.getAttribute("data-cedula");
+        const direccion = selectedOption.getAttribute("data-dircliente");
+        const direccion2 = selectedOption.getAttribute("data-dir2cliente");
+        const telefono = selectedOption.getAttribute("data-telefono");
+        const estado = selectedOption.getAttribute("data-estado");
+        const punto = selectedOption.getAttribute("data-punto");
+        const rut = selectedOption.getAttribute("data-rut");
+
+        // Actualizar los elementos del modal con la información del cliente
+        document.getElementById("clienteNumero").textContent = numero;
+        document.getElementById("clienteNombre").textContent = nombre;
+        document.getElementById("clienteCedula").textContent = cedula;
+        document.getElementById("clienteDireccion").textContent = direccion;
+        document.getElementById("clienteDireccion2").textContent = direccion2;
+        document.getElementById("clienteTelefono").textContent = telefono;
+        document.getElementById("clienteEstado").textContent = estado;
+        document.getElementById("clientePunto").textContent = punto;
+        document.getElementById("clienteRut").textContent = rut;
+    }
 
     // Cargar direcciones según cliente seleccionado
     function cargarDirecciones() {
@@ -226,8 +359,9 @@
         const direccionSelect = document.getElementById("direccion");
 
         // Limpiar el select de direcciones
-        direccionSelect.innerHTML = '<option value="" disabled selected>Seleccione una dirección</option>';
+        //direccionSelect.innerHTML = '<option value="" disabled selected>Seleccione una dirección</option>';
 
+        direccionSelect.innerHTML = '';
         // Obtener el cliente seleccionado
         const selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
 
@@ -299,7 +433,7 @@
     function mostrarCarrito() {
         const tablaCarritoBody = document.getElementById("tablaCarritoBody");
         const totalCarrito = document.getElementById("totalCarrito");
-       
+
         let total = 0;
 
         // Limpiar la tabla del carrito antes de agregar nuevas filas
@@ -358,7 +492,7 @@
             const cantidadSeleccionada = cantidadesSeleccionadas[producto.codigo] || 0; // Recuperar cantidad seleccionada
 
 
-           
+
 
             // Determinar el precio según los puntos del cliente
             let precio = producto.precio; // Precio por defecto
@@ -401,7 +535,7 @@
                         value="${cantidadSeleccionada}"
                             onchange="actualizarCantidad('${producto.codigo}', this.value)" />
                 </td>
-                
+
             `;
                     cuerpoTabla.appendChild(fila);
                 } else {
@@ -422,7 +556,7 @@
                 `;
                     cuerpoTabla.appendChild(fila);
                 }
-        
+
         });
 
         renderizarPaginacion(); // Actualizar la paginación
@@ -502,11 +636,28 @@
 
     // Enviar el pedido
     function enviarPedido() {
+        const btnEnviar = document.getElementById('btnEnviarPedido');
+        btnEnviar.disabled = true; // Deshabilitar el botón para prevenir clicks múltiples
+
         const clienteId = document.getElementById('cliente').value;
         const direccion = document.getElementById('direccion').value;
         const metodoPago = document.getElementById('medioPago').value;
         // const comentarios = "[Comentarios iniciales]: "document.getElementById('comentarios').value;
         const comentarios = document.getElementById('comentarios').value;
+
+        // Validar si se ha seleccionado un cliente
+        if (!clienteId) {
+            // Mostrar el cartel rojo
+            const alertCliente = document.getElementById('alertCliente');
+            alertCliente.classList.remove('d-none'); // Quitar la clase que oculta el cartel
+            alertCliente.textContent = 'Debe seleccionar un cliente antes de continuar.';
+
+            btnEnviar.disabled = false; // Rehabilitar el botón después de recibir la respuesta
+            return; // Detener la ejecución de la función si no hay cliente seleccionado
+        }
+        // Ocultar el cartel si el cliente está seleccionado
+        const alertCliente = document.getElementById('alertCliente');
+        alertCliente.classList.add('d-none');
 
         const pedido = {
             pedido: {
@@ -516,7 +667,8 @@
                 estado: "Preparando",
                 metodoPago,
                 total: 0,
-                comentarios
+                comentarios,
+                direccion
             },
             lineasPedido: []
         };
@@ -550,12 +702,20 @@
         });
 
         pedido.pedido.total = total;
-        
+
+
+
+
+
+
         //https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net
-        //https://localhost:7078
-        fetch('https://localhost:7078/api/Pedidos', {
+        //https://localhost:7078/api/Pedidos
+        fetch('https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net/api/v1/Pedidos', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Incluir el token
+            },
             body: JSON.stringify(pedido)
         })
             .then(response => {
@@ -578,8 +738,67 @@
             .catch(error => {
                 mostrarMensajeModal('Error', 'Hubo un problema al realizar el pedido. Inténtelo nuevamente.');
                 console.error('Error:', error);
+            })
+            .finally(() => {
+                btnEnviar.disabled = false; // Rehabilitar el botón después de recibir la respuesta
             });
     }
 </script>
 
+<style>
+
+    #footerPedido {
+        align-items: end; /* Centrado vertical del contenido interno */
+    }
+
+    #btnEnviarPedido {
+        align-items: end; /* Centrado vertical del contenido interno */
+    }
+
+    #footerPedido {
+        margin-top: 20px; /* Ajusta el valor según la distancia deseada */
+    }
+
+    #btnEnviarPedido {
+        margin-top: 5px; /* Ajusta el valor según sea necesario */
+    }
+
+    #navPaginacion {
+        margin: 0px; /* Reduce el espacio superior */
+        margin-bottom: 2rem;
+        background-color: #fff; /* Fondo blanco */
+        padding: 0.5rem; /* Espaciado interno */
+        border-radius: 0.5rem; /* Bordes redondeados */
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    }
+
+        #navPaginacion button {
+            padding: 0.5rem; /* Espaciado interno */
+            border-radius: 0.5rem; /* Bordes redondeados */
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            font-size: larger;
+            margin: 0px 2px 0px 2px;
+        }
+
+    #tablaProductos {
+        margin-bottom: 0px;
+    }
+
+        #tablaProductos th, #tablaProductos td {
+            text-align: center; /* Centrar el texto horizontalmente */
+            vertical-align: middle; /* Centrar el texto verticalmente */
+        }
+
+            #tablaProductos td:nth-child(4) {
+                text-align: center; /* Asegura que los inputs estén alineados al centro */
+            }
+
+                #tablaProductos td:nth-child(4) input.form-control {
+                    width: 50%; /* Ajusta el ancho según sea necesario */
+                    margin: 0 auto; /* Centra horizontalmente */
+                    text-align: center; /* Centra el texto dentro del input */
+                    display: block; /* Asegura el centrado en el contenedor */
+                }
+
+</style>
 
