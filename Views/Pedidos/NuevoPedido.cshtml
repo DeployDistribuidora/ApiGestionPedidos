@@ -58,7 +58,7 @@
                                 </select>
                                 <!-- Botón para abrir el modal -->
                                 <button type="button"
-                                        class="btn btn-primary btn-sm ms-2"
+                                        class="btn btn-outline-primary btn-sm"
                                         id="btnVerClienteInfo"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalClienteInfo"
@@ -196,8 +196,9 @@
 
 
     <!-- Cartel rojo de advertencia -->
-    <div id="alertCliente" class="alert alert-danger d-none" role="alert">
+    <div id="alertCliente" class="alert alert-danger d-none alert-dismissible fade show" role="alert">
         Por favor, seleccione un cliente antes de enviar el pedido.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
     <!-- Cartel rojo de advertencia -->

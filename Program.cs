@@ -12,13 +12,13 @@ builder.Services.AddControllersWithViews(options =>
 builder.Services.AddHttpClient("NoAuthClient", client =>
 {
     client.BaseAddress = new Uri("https://gestionpedidosapi-dfcbf9hrchbthraz.brazilsouth-01.azurewebsites.net/api/v1/");
-    //client.BaseAddress = new Uri("https://localhost:7078/api/v1/");
+   
 });
 
 builder.Services.AddHttpClient("PedidosClient", client =>
 {
     client.BaseAddress = new Uri("https://gestionpedidosapi-dfcbf9hrchbthraz.brazilsouth-01.azurewebsites.net/api/v1/");
-    //client.BaseAddress = new Uri("https://localhost:7078/api/v1/");
+   
 }).AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
 
 builder.Services.AddHttpContextAccessor();

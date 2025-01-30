@@ -546,7 +546,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
 
         // Vista principal para mostrar el historial de pedidos
         [RoleAuthorize("Administracion", "Supervisor de Carga", "Vendedor", "Cliente")]
-        public async Task<IActionResult> HistorialPedidos(int? cliente, int? idPedido, int? vendedor, DateTime? fechaInicio, DateTime? fechaFin)
+        public async Task<IActionResult> HistorialPedidos(int? cliente, int? idPedido, int? vendedor, DateTime? fechaInicio, DateTime? fechaFin,string estado)
         {
             var usuarioLogueado = _httpContextAccessor.HttpContext.Session.GetString("UsuarioLogueado");
             var rolUsuario = _httpContextAccessor.HttpContext.Session.GetString("Role");
@@ -558,8 +558,18 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var pedidos = await ObtenerPedidos();
             var vendedores = await ObtenerVendedores();
 
-            // Filtrar por estados entregado o cancelado
-            pedidos = pedidos.Where(p => p.Estado == "Entregado" || p.Estado == "Cancelado").ToList();
+
+
+            // Aplicar filtro por estado si se especifica en la vista
+            if (!string.IsNullOrEmpty(estado))
+            {
+                pedidos = pedidos.Where(p => p.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            else
+            {
+                // Si no se especifica estado, mostrar solo Entregados y Cancelados por defecto
+                pedidos = pedidos.Where(p => p.Estado == "Entregado" || p.Estado == "Cancelado").ToList();
+            }
 
             // Filtrar por cliente si es un cliente logueado
             if (rolUsuario == "Cliente" && !string.IsNullOrEmpty(idUsuarioSesion))

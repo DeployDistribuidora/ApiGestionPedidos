@@ -84,6 +84,8 @@
                 </form>
             } *@
 
+            @if (HttpContextAccessor.HttpContext.Session.GetString("Role") != "Cliente"){
+
             @if (!Model.Pedido.Estado.Equals("Cancelado", StringComparison.OrdinalIgnoreCase) &&
            !Model.Pedido.Estado.Equals("Entregado", StringComparison.OrdinalIgnoreCase) &&
            !Model.Pedido.Estado.Equals("En viaje", StringComparison.OrdinalIgnoreCase) &&
@@ -97,19 +99,18 @@
                     </button>
                 </form>
             }
+            }
         </div>
     }
 
 
 
-        <!-- Comentarios -->
-    <h5 class="text-primary">Comentarios</h5> 
+    <!-- Comentarios -->
+    <h5 class="text-primary">Comentarios</h5>
     <div class="row">
         <div class="col-md-12">            
             <div>
-                <textarea class="form-control form-control-sm" rows="5" readonly style="resize: none; overflow-y: auto;">
-                    @(string.IsNullOrEmpty(Model.Pedido.Comentarios) ? "Sin comentarios" : Model.Pedido.Comentarios)
-                </textarea>
+                <textarea class="form-control form-control-sm" rows="5" readonly style="resize: none; overflow-y: auto;">@(string.IsNullOrEmpty(Model.Pedido.Comentarios) ? "Sin comentarios" : Model.Pedido.Comentarios)</textarea>
             </div>
         </div>        
     </div>

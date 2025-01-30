@@ -16,7 +16,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             _httpClient = httpClientFactory.CreateClient("PedidosClient");
         }
 
-        [RoleAuthorize("Administracion", "Vendedor")]
+        [RoleAuthorize("Administracion", "Vendedor", "Supervisor de Carga")]
         public async Task<IActionResult> Index()
         {
             try

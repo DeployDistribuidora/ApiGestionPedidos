@@ -5,8 +5,9 @@
     <h1>Historial pedidos</h1>
 </div>
 
-<div class="alert alert-info d-inline-block" role="alert">
+<div class="alert alert-info d-inline-block alert-dismissible fade show" role="alert">
     Se muestran únicamente los pedidos entregados y cancelados.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 
 <section class="section">
@@ -39,26 +40,23 @@
 
                         <!-- Filtro por Vendedor -->
                         <div class="col-md-6">
-                            <label for="filterVendedor" class="form-label">Vendedor</label>
-                            <input type="text" id="filterVendedor" class="form-control form-control-sm mb-2"
-                                   placeholder="Escribe para buscar un vendedor..." oninput="filterVendedores()">
-
-                            <!-- Contenedor de opciones scrolleable -->
-                            <div id="vendedoresContainer" class="border rounded p-2 bg-white shadow-sm"
-                                 style="max-height: 150px; overflow-y: auto;">
+                            <label for="selectedVendedor" class="form-label">Vendedor</label>
+                            <select id="selectedVendedor" name="vendedor" class="form-select form-select-sm mb-2">
+                                <option value="">Todos los vendedores</option>
                                 @foreach (var vendedor in Model.Vendedores)
                                 {
-                                    <div class="vendedor-option p-2"
-                                         data-nombre="@vendedor.Nombre"
-                                         data-id="@vendedor.nro_Vendedor"
-                                         onclick="selectVendedor('@vendedor.Nombre', '@vendedor.nro_Vendedor')">
-                                        @vendedor.Nombre
-                                    </div>
+                                    <option value="@vendedor.nro_Vendedor">@vendedor.Nombre</option>
                                 }
-                            </div>
+                            </select>
+                        </div>
 
-                            <!-- Campo oculto para enviar el vendedor seleccionado -->
-                            <input type="hidden" id="selectedVendedor" name="vendedor">
+                        <div class="col-md-6">
+                            <label for="inputEstado" class="form-label">Estado</label>
+                            <select name="estado" class="form-select form-select-sm" id="inputEstado">
+                                <option value="" selected>Todos los estados</option>
+                                <option value="Cancelado">Pedidos cancelados</option>
+                                <option value="Entregado">Pedidos entregados</option>
+                            </select>
                         </div>
 
 
@@ -68,24 +66,20 @@
                             <div class="col-md-6">
                                 <label for="filterCliente" class="form-label">Cliente</label>
                                 <input type="text" id="filterCliente" class="form-control form-control-sm mb-2"
-                                       placeholder="Escribe para buscar un cliente..." oninput="filterClientes()">
+                                       placeholder="Escribe para buscar un cliente..." oninput="filtrarClientes()">
 
-                                <!-- Contenedor de opciones scrolleable -->
-                                <div id="clientesContainer" class="border rounded p-2 bg-white shadow-sm"
-                                     style="max-height: 150px; overflow-y: auto;">
+                                <!-- Select con lista de clientes -->
+                                <select id="clienteSelect" name="cliente" class="form-select form-select-sm">
+                                    <option value="" disabled selected>Seleccione un cliente</option>
                                     @foreach (var cliente in Model.Clientes)
                                     {
-                                        <div class="cliente-option p-2"
-                                             data-nombre="@cliente.NombreCliente"
-                                             data-id="@cliente.NroCliente"
-                                             onclick="selectCliente('@cliente.NombreCliente', '@cliente.NroCliente')">
-                                            @cliente.NombreCliente
-                                        </div>
+                                        <option value="@cliente.NroCliente"
+                                                data-id="@cliente.NroCliente"
+                                                data-nombre="@cliente.NombreCliente">
+                                            @cliente.NroCliente - @cliente.NombreCliente
+                                        </option>
                                     }
-                                </div>
-
-                                <!-- Campo oculto para enviar el cliente seleccionado -->
-                                <input type="hidden" id="selectedCliente" name="cliente">
+                                </select>
                             </div>
                         }
 
@@ -131,7 +125,19 @@
                                     @foreach (var pedido in Model.Pedidos)
                                     {
                                         var cliente = Model.Clientes.FirstOrDefault(c => c.NroCliente == pedido.IdCliente);
-                                        <tr>
+
+                                        // Determinar la clase CSS según el estado del pedido
+                                        string rowClass = pedido.Estado switch
+                                        {
+                                            "Pendiente" => "table-info",
+                                            "Preparando" => "table-primary",
+                                            "En viaje" => "table-warning",
+                                            "Entregado" => "table-success",
+                                            "Cancelado" => "table-danger",
+                                            _ => "" // Sin clase específica para otros estados
+                                        };
+
+                                        <tr class="@rowClass">
                                             <td>
                                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalDetallePedido" data-id-pedido="@pedido.IdPedido" title="Ver Detalles">
                                                     <i class="bi bi-eye"></i>
@@ -139,7 +145,7 @@
                                             </td>
 
                                             <td>@pedido.IdPedido</td>
-                                            <td>@cliente.NombreCliente</td>
+                                            <td>@(cliente != null ? cliente.NombreCliente?.Trim() : "Cliente desconocido")</td>
                                             <td class="d-none d-md-table-cell">
                                                 @Model.Vendedores.FirstOrDefault(v => v.nro_Vendedor == pedido.IdVendedor)?.Nombre
                                             </td>
@@ -203,6 +209,19 @@
                 detalleContent.innerHTML = `<div class="text-danger">Error al cargar el detalle: ${error.message}</div>`;
             });
     });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const inputEstado = document.getElementById('inputEstado');
+
+        // Recuperar el estado seleccionado de la URL y aplicarlo al <select>
+        const urlParams = new URLSearchParams(window.location.search);
+        const estadoSeleccionado = urlParams.get("estado");
+
+        if (estadoSeleccionado) {
+            inputEstado.value = estadoSeleccionado;
+        }
+    });
 </script>
 
 
@@ -229,71 +248,57 @@
 
     // Evento para inicializar el modal de detalle del pedido
     document.getElementById('modalDetallePedido').addEventListener('show.bs.modal', cargarDetallePedido);
+
+
+    function filtrarClientes() {
+        const filtro = document.getElementById("filterCliente").value.trim().toLowerCase();
+        const clienteSelect = document.getElementById("clienteSelect");
+
+        // Obtener la opción actualmente seleccionada
+        const opcionSeleccionada = clienteSelect.value;
+
+        // Obtener todas las opciones del select
+        const opciones = clienteSelect.querySelectorAll("option");
+
+        let hayCoincidencias = false;
+
+        opciones.forEach(option => {
+            if (!option.value) return; // Ignorar la opción por defecto
+
+            const nombre = option.getAttribute("data-nombre").toLowerCase();
+            const telefono = option.getAttribute("data-telefono") ? option.getAttribute("data-telefono").toLowerCase() : "";
+            const coincide = nombre.includes(filtro) || telefono.includes(filtro);
+
+            if (coincide) {
+                option.style.display = ""; // Asegurar que la opción está visible
+                option.disabled = false;  // Permitir selección
+                hayCoincidencias = true;
+            } else {
+                option.style.display = "none";  // Ocultar opción que no coincide
+            }
+        });
+
+        // Restaurar la selección anterior después del filtrado
+        if (opcionSeleccionada) {
+            clienteSelect.value = opcionSeleccionada;
+        }
+    }
+
+
+
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectedVendedor = document.getElementById('selectedVendedor');
+
+        // Recuperar el vendedor seleccionado desde la URL y aplicarlo al <select>
+        const urlParams = new URLSearchParams(window.location.search);
+        const vendedorSeleccionado = urlParams.get("vendedor");
+
+        if (vendedorSeleccionado) {
+            selectedVendedor.value = vendedorSeleccionado;
+        }
+    });
 </script>
 
-
-<script>
-    // Función para filtrar clientes en tiempo real
-    function filterClientes() {
-        const input = document.getElementById('filterCliente').value.toLowerCase();
-        const options = document.querySelectorAll('#clientesContainer .cliente-option');
-
-        options.forEach(option => {
-            const nombre = option.dataset.nombre.toLowerCase();
-            option.style.display = nombre.includes(input) ? 'block' : 'none';
-        });
-    }
-
-    // Función para seleccionar un cliente y actualizar el campo oculto y el input de búsqueda
-    function selectCliente(nombreCliente, nroCliente) {
-        const selectedClienteInput = document.getElementById('selectedCliente');
-        const filterClienteInput = document.getElementById('filterCliente');
-        const clientesContainer = document.getElementById('clientesContainer');
-
-        // Establecer el cliente seleccionado
-        selectedClienteInput.value = nroCliente;
-        filterClienteInput.value = nombreCliente;
-
-        // Ocultar el contenedor de opciones tras la selección
-        clientesContainer.style.display = 'none';
-
-        // Mostrar el contenedor si el usuario vuelve a escribir
-        filterClienteInput.addEventListener('input', () => {
-            clientesContainer.style.display = 'block';
-        });
-    }
-
-</script>
-
-
-<script>
-    // Función para filtrar vendedores en tiempo real
-    function filterVendedores() {
-        const input = document.getElementById('filterVendedor').value.toLowerCase();
-        const options = document.querySelectorAll('#vendedoresContainer .vendedor-option');
-
-        options.forEach(option => {
-            const nombre = option.dataset.nombre.toLowerCase();
-            option.style.display = nombre.includes(input) ? 'block' : 'none';
-        });
-    }
-
-    // Función para seleccionar un vendedor y actualizar el campo oculto y el input de búsqueda
-    function selectVendedor(nombre, nroVendedor) {
-        const selectedVendedorInput = document.getElementById('selectedVendedor');
-        const filterVendedorInput = document.getElementById('filterVendedor');
-        const vendedoresContainer = document.getElementById('vendedoresContainer');
-
-        // Establecer el vendedor seleccionado
-        selectedVendedorInput.value = nroVendedor;
-        filterVendedorInput.value = nombre;
-
-        // Ocultar el contenedor de opciones tras la selección
-        vendedoresContainer.style.display = 'none';
-
-        // Mostrar el contenedor si el usuario vuelve a escribir
-        filterVendedorInput.addEventListener('input', () => {
-            vendedoresContainer.style.display = 'block';
-        });
-    }
-</script>
