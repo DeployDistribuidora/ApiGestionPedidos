@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - WebGestionPedidos
 
 on:
@@ -37,10 +34,10 @@ jobs:
     runs-on: windows-latest
     needs: build
     environment:
-      name: 'Production'
+      name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write # This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -49,17 +46,14 @@ jobs:
           name: .net-app
       
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5F17E14A5E9643A6A10FFF935B98F819 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_66A61DBD8E2E413096B046A4CE9A8511 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_274C5088395F41379C63F75B44BDF7F7 }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'WebGestionPedidos'
-          slot-name: 'Production'
+          app-name: 'GestionPedidosFrontEnd'
+          slot-name: 'production'
           package: .
-          
