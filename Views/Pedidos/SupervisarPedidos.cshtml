@@ -91,6 +91,18 @@
                                     <select name="estado" class="form-select form-select-sm" id="inputEstado">
                                         <option value="" selected>Seleccione un estado</option>
                                         <option value="Pendiente">Pedidos Pendientes</option>
+                                        <option value="Preparando">Pedidos Preparados</option>
+                                        <option value="En viaje">Pedidos En viaje</option>
+                                    </select>
+                                </div>
+                            }
+                            else if (role == "Supervisor de Carga")
+                            {
+                                <div class="col-md-4">
+                                    <label for="inputEstado" class="form-label">Estado</label>
+                                    <select name="estado" class="form-select form-select-sm" id="inputEstado">
+                                        <option value="" selected>Seleccione un estado</option>
+                                        <option value="Preparando">Pedidos Preparados</option>
                                         <option value="En viaje">Pedidos En viaje</option>
                                     </select>
                                 </div>

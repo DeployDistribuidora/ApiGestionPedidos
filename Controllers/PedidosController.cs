@@ -29,22 +29,23 @@ namespace Front_End_Gestion_Pedidos.Controllers
         // --------------------------------------------------------------------------------------
 
         // Vista principal para crear un nuevo pedido
-        [RoleAuthorize("Administracion", "Vendedor", "Cliente")]
+        [RoleAuthorize("Administracion", "Vendedor")]
         public async Task<IActionResult> NuevoPedido()
         {
             var clientes = await ObtenerClientes();
             var model = new PedidoViewModel
             {
                 Clientes = clientes,
-                Productos = await ObtenerStock(),
-                ClienteSeleccionado = null
+                Productos = await ObtenerStock()
+                //,
+                //ClienteSeleccionado = null
             };
             ViewData["Token"] = HttpContext.Session.GetString("Token");
             ViewData["Role"] = HttpContext.Session.GetString("Role");
             ViewData["IdUsuario"] = HttpContext.Session.GetInt32("IdUsuario");
             return View(model);
         }
-
+        [RoleAuthorize("Administracion", "Vendedor", "Cliente")]
         public async Task<IActionResult> RepetirPedido(int idPedido)
         {
             try
@@ -83,16 +84,24 @@ namespace Front_End_Gestion_Pedidos.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
-
+        [RoleAuthorize("Administracion", "Vendedor")]
         public async Task<IActionResult> ModificarPedido(int idPedido)
         {
             try
             {
                 Pedido p = await ObtenerPedidoPorId(idPedido);
+                
+                if (p.Estado == "Entregado" || p.Estado == "Cancelado") return RedirectToAction("Index", "Home");
+                
+                string rol = HttpContext.Session.GetString("Role");
 
-                if (p.Estado == "Entregado" || p.Estado == "Cancelado")
+                //Dejo comentado por si quieren dejar que los clientes puedan entrar al modificar
+                //int clienteLogueadoId = (int)HttpContext.Session.GetInt32("IdUsuario");
+                //if (rol == "Cliente" && clienteLogueadoId != p.IdCliente) return RedirectToAction("Index", "Home");
+
+                if (rol == "Vendedor")
                 {
-                    return RedirectToAction("Index", "Home");
+                    if(p.Estado == "Entregado" || p.Estado == "Cancelado" || p.Estado == "Preparando" || p.Estado == "En viaje") return RedirectToAction("Index", "Home");
                 }
 
                 List<LineaPedido> lista = await ObtenerLineasPedidoBDModel(idPedido);
@@ -146,7 +155,7 @@ namespace Front_End_Gestion_Pedidos.Controllers
             var estadosPermitidos = rolUsuario switch
             {
                 "Supervisor de Carga" => new[] { "Preparando", "En viaje" },
-                "Administracion" => new[] { "Pendiente", "En viaje" },
+                "Administracion" => new[] { "Pendiente", "Preparando", "En viaje" },
                 _ => Array.Empty<string>()
             };
 

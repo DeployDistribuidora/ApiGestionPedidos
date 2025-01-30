@@ -20,42 +20,76 @@
 
 
 
+    @* 
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
 
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-body">
-
-                    <div class="col-md-6">
-                        <label for="medioPago" class="form-label">Medio de Pago</label>
-                        <select id="medioPago" class="form-select form-select-sm">
-                            <option value="Contado">Contado</option>
-                            <option value="Credito">Crédito</option>
-                            <option value="Tarjeta">Tarjeta</option>
-                        </select>
+                        <div class="col-md-6">
+                            <label for="medioPago" class="form-label">Medio de Pago</label>
+                            <select id="medioPago" class="form-select form-select-sm">
+                                <option value="Contado">Contado</option>
+                                <option value="Credito">Crédito</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Selección de Dirección -->
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Dirección</h5>
-                <label for="direccion" class="form-label">Dirección</label>
-                <select id="direccion" name="direccion" class="form-select form-select-sm">
-                    @if (Model.ClienteSeleccionado != null)
-                    {
-                        <option value="@Model.ClienteSeleccionado.DirCliente">@Model.ClienteSeleccionado.DirCliente</option>
-                        <option value="@Model.ClienteSeleccionado.Dir2Cliente">@Model.ClienteSeleccionado.Dir2Cliente</option>
-                    }
-                    else
-                    {
-                        <option value="" disabled selected>No hay direcciones disponibles</option>
-                    }
-                </select>
+        <!-- Selección de Dirección -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Dirección</h5>
+                    <label for="direccion" class="form-label">Dirección</label>
+                    <select id="direccion" name="direccion" class="form-select form-select-sm">
+                        @if (Model.ClienteSeleccionado != null)
+                        {
+                            <option value="@Model.ClienteSeleccionado.DirCliente">@Model.ClienteSeleccionado.DirCliente</option>
+                            <option value="@Model.ClienteSeleccionado.Dir2Cliente">@Model.ClienteSeleccionado.Dir2Cliente</option>
+                        }
+                        else
+                        {
+                            <option value="" disabled selected>No hay direcciones disponibles</option>
+                        }
+                    </select>
+                </div>
             </div>
+        </div> *@
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-12 mb-12">
+                        <div class="col-md-6">
+                            <label for="medioPago" class="form-label"><b>Medio Pago</b></label>
+                            <select id="medioPago" class="form-select form-select-sm" data-medios-pago="@Model.Pedidos.MetodoPago">
+                                <option value="Contado">Contado</option>
+                                <option value="Credito">Crédito</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="direccion" class="form-label"><b>Direccion</b></label>
+                            <select id="direccion" name="direccion" class="form-select form-select-sm" data-direccion="@Model.Pedidos.Direccion">
+                                @if (Model.ClienteSeleccionado != null)
+                                {
+                                    <option value="@Model.ClienteSeleccionado.DirCliente">@Model.ClienteSeleccionado.DirCliente</option>
+                                    <option value="@Model.ClienteSeleccionado.Dir2Cliente">@Model.ClienteSeleccionado.Dir2Cliente</option>
+                                }
+                                else
+                                {
+                                    <option value="" disabled selected>No hay direcciones disponibles</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
         </div>
     </div>
 
@@ -110,7 +144,7 @@
         </div>
     </div>
 
-
+    <!-- Comentarios -->
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
@@ -127,24 +161,14 @@
         </div>
     </div>
 
+   
+
+    <!-- Cartel rojo de advertencia -->
+    <div id="alertPedidos" class="alert alert-danger d-none" role="alert">
+        Por favor, seleccione productos para el pedido
+    </div>
+
     <!-- footer del pedido -->
-    @*  <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <br />
-                    <span class="text-danger fw-bold">Total: $<span id="totalFooter">0.00</span></span>
-                    <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCarrito" onclick="mostrarCarrito()">Ver carrito</a>
-
-                        <button type="button" class="btn btn-primary btn-sm" onclick="ModificarPedidoCliente()">realizar pedido</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> *@
-
-
     <div id="footerPedido" class="col-lg-12">
         <div class="card">
             <div class="card-body">
@@ -281,15 +305,61 @@
 
 
 
+    // document.addEventListener("DOMContentLoaded", () => {
+    //     // Inicializar cantidadesSeleccionadas con productos seleccionados previamente
+    //     // Obtén el textarea
+    //     const textareaComentarios = document.getElementById('comentarios');
+
+    //     // Lee el comentario desde el atributo data-comentario
+    //     const comentario = textareaComentarios.getAttribute('data-comentario');
+
+    //     // Establece el valor del textarea
+    //     if (comentario) {
+    //         textareaComentarios.value = comentario;
+    //     }
+
+    //     productosOriginales.forEach(producto => {
+    //         const seleccionado = ProductosSeleccionados.find(p => p.codigo === producto.codigo);
+    //         if (seleccionado) {
+    //             // Calcular el precio según los puntos del cliente
+    //             let precio = producto.precio;
+    //             const puntosCliente = parseInt(document.getElementById("puntosCliente").value, 10) || 0;
+    //             if (puntosCliente === 1) precio = producto.stock_2;
+    //             if (puntosCliente === 2) precio = producto.stock_3;
+    //             if (puntosCliente === 3) precio = producto.stock_4;
+    //             if (puntosCliente === 4) precio = producto.stock_5;
+
+    //             // Guardar en cantidadesSeleccionadas
+    //             cantidadesSeleccionadas[producto.codigo] = {
+    //                 cantidad: seleccionado.cantidad,
+    //                 precio: precio
+    //             };
+    //         }
+    //     });
+
+    //     renderizarTabla();
+    //     actualizarTotal();
+    // });
+    //PRUeba cambios MODIFICAR PEDIDOS
+
     document.addEventListener("DOMContentLoaded", () => {
-        // Inicializar cantidadesSeleccionadas con productos seleccionados previamente
-        // Obtén el textarea
+        // Asignar el valor seleccionado para el medio de pago
+        const medioPagoSelect = document.getElementById("medioPago");
+        const medioPagoSeleccionado = medioPagoSelect.getAttribute("data-medios-pago");
+        if (medioPagoSeleccionado) {
+            medioPagoSelect.value = medioPagoSeleccionado;
+        }
+
+        // Asignar el valor seleccionado para la dirección
+        const direccionSelect = document.getElementById("direccion");
+        const direccionSeleccionada = direccionSelect.getAttribute("data-direccion");
+        if (direccionSeleccionada) {
+            direccionSelect.value = direccionSeleccionada;
+        }
+
+        // Otros scripts relacionados como inicializar productos seleccionados
         const textareaComentarios = document.getElementById('comentarios');
-
-        // Lee el comentario desde el atributo data-comentario
         const comentario = textareaComentarios.getAttribute('data-comentario');
-
-        // Establece el valor del textarea
         if (comentario) {
             textareaComentarios.value = comentario;
         }
@@ -297,7 +367,6 @@
         productosOriginales.forEach(producto => {
             const seleccionado = ProductosSeleccionados.find(p => p.codigo === producto.codigo);
             if (seleccionado) {
-                // Calcular el precio según los puntos del cliente
                 let precio = producto.precio;
                 const puntosCliente = parseInt(document.getElementById("puntosCliente").value, 10) || 0;
                 if (puntosCliente === 1) precio = producto.stock_2;
@@ -305,7 +374,6 @@
                 if (puntosCliente === 3) precio = producto.stock_4;
                 if (puntosCliente === 4) precio = producto.stock_5;
 
-                // Guardar en cantidadesSeleccionadas
                 cantidadesSeleccionadas[producto.codigo] = {
                     cantidad: seleccionado.cantidad,
                     precio: precio
@@ -316,6 +384,7 @@
         renderizarTabla();
         actualizarTotal();
     });
+
 
 
     function renderizarTabla() {
@@ -486,6 +555,10 @@
 
 
     function ModificarPedidoCliente() {
+
+        const btnModificar = document.getElementById('btnModificarPedido');
+        btnModificar.disabled = true; // Deshabilitar el botón para prevenir clicks múltiples
+
         // Crear el objeto base pedidoModificado con el formato correcto
         const pedidoModificado = {
             pedido: {
@@ -501,7 +574,8 @@
                 metodoPago: document.getElementById('medioPago').value,
                 total: 0, // Se calculará después
                 comentarios: document.getElementById('comentarios').value,
-                tarjetaID: @Html.Raw(Json.Serialize(Model.Pedidos.TarjetaID))
+                tarjetaID: @Html.Raw(Json.Serialize(Model.Pedidos.TarjetaID)),
+                direccion: document.getElementById('direccion').value,
             },
             lineasPedido: [] // Se rellenará con las líneas del pedido
         };
@@ -538,6 +612,17 @@
         // Asignar el total calculado
         pedidoModificado.pedido.total = total;
 
+        if (pedidoModificado.lineasPedido.length == 0) {
+
+            // Mostrar el cartel rojo
+            const alertPedidos = document.getElementById('alertPedidos');
+            alertPedidos.classList.remove('d-none'); // Quitar la clase que oculta el cartel
+            alertPedidos.textContent = 'Debe seleccionar productos para el pedido.';
+
+            btnModificar.disabled = false; // Rehabilitar el botón después de recibir la respuesta
+            return; // Detener la ejecución de la función si no hay cliente seleccionado
+        }
+
         // Enviar el pedido al backend
         //https://localhost:7078
         fetch(`https://gestionpedidosapi-dfcbf9hrchbthraz.brazilsouth-01.azurewebsites.net/api/v1/Pedidos/${pedidoModificado.pedido.idPedido}`, {
@@ -568,7 +653,10 @@
             .catch(error => {
                 mostrarMensajeModal('Error', 'Hubo un problema al actualizar el pedido. Inténtelo nuevamente.');
                 console.error('Error:', error);
-            });
+            })
+            .finally(() => {
+                btnModificar.disabled = false; // Rehabilitar el botón después de recibir la respuesta
+            });;
     }
 
 

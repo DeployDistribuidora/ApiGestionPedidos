@@ -93,7 +93,9 @@
                                                                 <p><strong>Marca:</strong> @producto.Marca</p>
                                                                 <p><strong>Estado:</strong> @producto.Estado</p>
                                                                 <p><strong>Precio:</strong> @producto.Precio</p>
-                                                                <p><strong>Costo:</strong> @producto.Costo</p>
+                                                                @if (role != "Cliente"){ 
+                                                                    <p><strong>Costo:</strong> @producto.Costo</p>
+                                                                }
                                                                 <p><strong>Detalle:</strong> @producto.Detalle</p>
                                                             </div>
                                                             @* <div class="modal-footer">

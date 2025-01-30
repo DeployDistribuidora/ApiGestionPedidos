@@ -19,37 +19,38 @@
         <input type="hidden" id="puntosCliente" value="@Model.ClienteSeleccionado?.Puntos" />
 
 
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Medio de Pago</h5>
-                    <select id="medioPago" class="form-select form-select-sm">
-                        <option value="Contado">Contado</option>
-                        <option value="Credito">Crédito</option>
-                        <option value="Tarjeta">Tarjeta</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+        <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-12 mb-12">
+                            <div class="col-md-6">
+                                <label for="medioPago" class="form-label"><b>Medio Pago</b></label>
+                                <select id="medioPago" class="form-select form-select-sm">
+                                    <option value="Contado">Contado</option>
+                                    <option value="Credito">Crédito</option>
+                                    <option value="Tarjeta">Tarjeta</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="direccion" class="form-label"><b>Direccion</b></label>
+                                <select id="direccion" name="direccion" class="form-select form-select-sm">
+                                    @if (Model.ClienteSeleccionado != null)
+                                    {
+                                        <option value="@Model.ClienteSeleccionado.DirCliente">@Model.ClienteSeleccionado.DirCliente</option>
+                                        <option value="@Model.ClienteSeleccionado.Dir2Cliente">@Model.ClienteSeleccionado.Dir2Cliente</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="" disabled selected>No hay direcciones disponibles</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
 
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Dirección</h5>
-                    <select id="direccion" name="direccion" class="form-select form-select-sm">
-                        @if (Model.ClienteSeleccionado != null)
-                        {
-                            <option value="@Model.ClienteSeleccionado.DirCliente">@Model.ClienteSeleccionado.DirCliente</option>
-                            <option value="@Model.ClienteSeleccionado.Dir2Cliente">@Model.ClienteSeleccionado.Dir2Cliente</option>
-                        }
-                        else
-                        {
-                            <option value="" disabled selected>No hay direcciones disponibles</option>
-                        }
-                    </select>
-
+                    </div>
                 </div>
-            </div>
+           
+
         </div>
     </div>
 
@@ -113,6 +114,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Cartel rojo de advertencia -->
+    <div id="alertPedidos" class="alert alert-danger d-none" role="alert">
+        Por favor, seleccione productos para el pedido
     </div>
 
     <!-- footer del pedido -->
@@ -431,6 +437,9 @@
 
     // Enviar el pedido
     function enviarPedidoCliente() {
+        const btnEnviar = document.getElementById('btnEnviarPedido');
+        btnEnviar.disabled = true; // Deshabilitar el botón para prevenir clicks múltiples
+
         const clienteId = document.getElementById('clienteId').value;
         const direccion = document.getElementById('direccion').value;
         const metodoPago = document.getElementById('medioPago').value;
@@ -477,9 +486,21 @@
             }
         });
 
-        pedido.pedido.total = total;
+       pedido.pedido.total = total;
 
-        //https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net
+        if (pedido.lineasPedido.length == 0) {
+
+            // Mostrar el cartel rojo
+            const alertPedidos = document.getElementById('alertPedidos');
+            alertPedidos.classList.remove('d-none'); // Quitar la clase que oculta el cartel
+            alertPedidos.textContent = 'Debe seleccionar productos para el pedido';
+
+            btnEnviar.disabled = false; // Rehabilitar el botón después de recibir la respuesta
+            return; // Detener la ejecución de la función si no hay cliente seleccionado
+        }
+    
+
+      
         //https://localhost:7078
         fetch('https://gestionpedidosapi-dfcbf9hrchbthraz.brazilsouth-01.azurewebsites.net/api/v1/Pedidos', {
             method: 'POST',
@@ -509,8 +530,12 @@
             .catch(error => {
                 mostrarMensajeModal('Error', 'Hubo un problema al realizar el pedido. Inténtelo nuevamente.');
                 console.error('Error:', error);
+            })
+            .finally(() => {
+                btnEnviar.disabled = false; // Rehabilitar el botón después de recibir la respuesta
             });
     }
+    
 
 
 </script>

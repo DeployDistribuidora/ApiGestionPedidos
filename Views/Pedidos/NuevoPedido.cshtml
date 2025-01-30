@@ -199,6 +199,12 @@
     <div id="alertCliente" class="alert alert-danger d-none" role="alert">
         Por favor, seleccione un cliente antes de enviar el pedido.
     </div>
+
+    <!-- Cartel rojo de advertencia -->
+    <div id="alertPedidos" class="alert alert-danger d-none" role="alert">
+        Por favor, seleccione productos para el pedido
+    </div>
+
     <!-- footer del pedido -->
     <div id="footerPedido" class="col-lg-12">
         <div class="card">
@@ -777,7 +783,19 @@
 
 
 
+        if (pedido.lineasPedido.length == 0) {
 
+            // Mostrar el cartel rojo
+            const alertPedidos = document.getElementById('alertPedidos');
+            alertPedidos.classList.remove('d-none'); // Quitar la clase que oculta el cartel
+            alertPedidos.textContent = 'Debe seleccionar productos para el pedido';
+
+            btnEnviar.disabled = false; // Rehabilitar el botón después de recibir la respuesta
+            return; // Detener la ejecución de la función si no hay cliente seleccionado
+        }
+        // Ocultar el cartel si el cliente está seleccionado
+        const alertPedidos = document.getElementById('alertPedidos');
+        alertPedidos.classList.add('d-none');
 
 
         //https://apigestionpedidos-fxbafbb8b0htapdr.canadacentral-01.azurewebsites.net
@@ -880,11 +898,11 @@
                 border-color: black;
     }
 
-   #tablaProductos th:nth-child(4) {
+   /* #tablaProductos th:nth-child(4) {
        border-style: solid;
        border-width: 1px;
        border-color: black;
-   }
+   } */
 
 </style>
 
